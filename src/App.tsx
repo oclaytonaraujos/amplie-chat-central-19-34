@@ -12,7 +12,8 @@ import { setupGlobalErrorHandling } from "@/utils/production-logger";
 
 // Lazy load componentes críticos - Layout NÃO lazy para manter navegação fluida
 const AuthProvider = lazy(() => import("@/hooks/useAuth").then(m => ({ default: m.AuthProvider })));
-const AdminAuthProvider = lazy(() => import("@/hooks/useAdminAuth").then(m => ({ default: m.AdminAuthProvider })));
+// AdminAuthProvider NÃO deve ser lazy para evitar problemas na rota /admin
+import { AdminAuthProvider } from "@/hooks/useAdminAuth";
 const ProtectedRoute = lazy(() => import("@/components/ProtectedRoute").then(m => ({ default: m.ProtectedRoute })));
 import { Layout } from "@/components/layout/Layout";
 

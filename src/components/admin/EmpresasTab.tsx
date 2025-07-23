@@ -123,85 +123,63 @@ export default function EmpresasTab() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h3 className="text-xl font-bold text-admin-text-primary">Empresas Cadastradas</h3>
-          <p className="text-admin-text-secondary mt-1">Gerencie todas as empresas da plataforma</p>
-        </div>
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <h3 className="text-lg font-semibold">Empresas Cadastradas</h3>
         <NovaEmpresaDialog onEmpresaCreated={fetchEmpresas} />
       </div>
 
-      <div className="admin-glass p-4 rounded-xl border border-admin-border-subtle">
-        <Input
-          placeholder="🔍 Buscar empresas por nome ou email..."
-          value={busca}
-          onChange={(e) => setBusca(e.target.value)}
-          className="max-w-md border-admin-border-subtle focus:border-admin-accent transition-colors"
-        />
-      </div>
+      <Input
+        placeholder="Buscar empresas..."
+        value={busca}
+        onChange={(e) => setBusca(e.target.value)}
+        className="max-w-sm"
+      />
 
-      <div className="admin-card-elevated rounded-xl overflow-hidden border-0">
+      <div className="border rounded-lg overflow-x-auto">
         <Table>
           <TableHeader>
-            <TableRow className="border-admin-border-subtle hover:bg-admin-surface">
-              <TableHead className="min-w-[150px] font-semibold text-admin-text-primary">Nome</TableHead>
-              <TableHead className="min-w-[200px] font-semibold text-admin-text-primary">Email</TableHead>
-              <TableHead className="min-w-[120px] font-semibold text-admin-text-primary">Plano</TableHead>
-              <TableHead className="min-w-[150px] font-semibold text-admin-text-primary">Limites</TableHead>
-              <TableHead className="min-w-[100px] font-semibold text-admin-text-primary">Status</TableHead>
-              <TableHead className="min-w-[120px] font-semibold text-admin-text-primary">Data Cadastro</TableHead>
-              <TableHead className="min-w-[200px] font-semibold text-admin-text-primary">Ações</TableHead>
+            <TableRow>
+              <TableHead className="min-w-[150px]">Nome</TableHead>
+              <TableHead className="min-w-[200px]">Email</TableHead>
+              <TableHead className="min-w-[120px]">Plano</TableHead>
+              <TableHead className="min-w-[150px]">Limites</TableHead>
+              <TableHead className="min-w-[100px]">Status</TableHead>
+              <TableHead className="min-w-[120px]">Data Cadastro</TableHead>
+              <TableHead className="min-w-[200px]">Ações</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {empresasFiltradas.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center text-admin-text-secondary py-12">
-                  <div className="flex flex-col items-center gap-2">
-                    <span className="text-2xl">🏢</span>
-                    <p className="font-medium">
-                      {busca ? 'Nenhuma empresa encontrada com este filtro' : 'Nenhuma empresa cadastrada'}
-                    </p>
-                  </div>
+                <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
+                  {busca ? 'Nenhuma empresa encontrada com este filtro' : 'Nenhuma empresa cadastrada'}
                 </TableCell>
               </TableRow>
             ) : (
               empresasFiltradas.map((empresa) => (
-              <TableRow key={empresa.id} className="border-admin-border-subtle hover:bg-admin-surface admin-hover-lift">
-                <TableCell className="font-semibold text-admin-text-primary">{empresa.nome}</TableCell>
-                <TableCell className="text-admin-text-secondary">{empresa.email}</TableCell>
+              <TableRow key={empresa.id}>
+                <TableCell className="font-medium">{empresa.nome}</TableCell>
+                <TableCell>{empresa.email}</TableCell>
                 <TableCell>
-                  <Badge variant="outline" className="admin-status-success border-none font-medium">
+                  <Badge variant="outline">
                     {empresa.planos?.nome || 'Sem plano'}
                   </Badge>
                 </TableCell>
                 <TableCell>
-                  <div className="text-sm space-y-1">
-                    <div className="flex items-center gap-2">
-                      <span className="text-admin-text-secondary">👥</span>
-                      <span className="font-medium">{empresa.limite_usuarios} usuários</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-admin-text-secondary">💬</span>
-                      <span className="font-medium">{empresa.limite_whatsapp_conexoes} WhatsApp</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-admin-text-secondary">💾</span>
-                      <span className="font-medium">{empresa.limite_armazenamento_gb}GB storage</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-admin-text-secondary">📞</span>
-                      <span className="font-medium">{empresa.limite_contatos} contatos</span>
-                    </div>
+                  <div className="text-sm">
+                    <div>Usuários: {empresa.limite_usuarios}</div>
+                    <div>WhatsApp: {empresa.limite_whatsapp_conexoes}</div>
+                    <div>Storage: {empresa.limite_armazenamento_gb}GB</div>
+                    <div>Contatos: {empresa.limite_contatos}</div>
                   </div>
                 </TableCell>
                 <TableCell>
-                  <Badge className={empresa.ativo ? "admin-status-success border-none" : "admin-status-warning border-none"}>
-                    {empresa.ativo ? '✅ Ativa' : '⏸️ Inativa'}
+                  <Badge variant={empresa.ativo ? "default" : "secondary"}>
+                    {empresa.ativo ? 'Ativa' : 'Inativa'}
                   </Badge>
                 </TableCell>
-                <TableCell className="text-admin-text-secondary font-medium">
+                <TableCell>
                   {new Date(empresa.created_at).toLocaleDateString('pt-BR')}
                 </TableCell>
                 <TableCell>
@@ -214,7 +192,6 @@ export default function EmpresasTab() {
                         setUsuariosEmpresaOpen(true);
                       }}
                       title="Ver usuários"
-                      className="admin-hover-lift border-admin-border-subtle hover:bg-admin-accent hover:text-white transition-all duration-200"
                     >
                       <Users className="h-4 w-4" />
                     </Button>
@@ -227,7 +204,6 @@ export default function EmpresasTab() {
                       size="sm"
                       onClick={() => toggleEmpresaStatus(empresa)}
                       title={empresa.ativo ? 'Desativar' : 'Ativar'}
-                      className="admin-hover-lift border-admin-border-subtle hover:bg-admin-warning hover:text-white transition-all duration-200"
                     >
                       {empresa.ativo ? (
                         <ToggleRight className="h-4 w-4" />
@@ -242,7 +218,7 @@ export default function EmpresasTab() {
                         setSelectedEmpresa(empresa);
                         setExcluirEmpresaOpen(true);
                       }}
-                      className="admin-status-danger border-none admin-hover-lift"
+                      className="text-red-600 hover:text-red-700"
                       title="Excluir empresa"
                     >
                       <Trash2 className="h-4 w-4" />

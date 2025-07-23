@@ -49,23 +49,6 @@
     /* Amplie brand colors */
     --amplie-primary: 222.2 47.4% 11.2%;
     --amplie-primary-light: 222.2 47.4% 21.2%;
-    
-    /* Admin theme colors */
-    --admin-gradient-from: 222.2 47.4% 11.2%;
-    --admin-gradient-to: 217 91% 60%;
-    --admin-card-bg: 0 0% 100%;
-    --admin-card-border: 220 13% 91%;
-    --admin-accent: 217 91% 60%;
-    --admin-accent-light: 217 91% 70%;
-    --admin-surface: 222.2 47.4% 96%;
-    --admin-surface-hover: 222.2 47.4% 93%;
-    --admin-text-primary: 222.2 84% 4.9%;
-    --admin-text-secondary: 215.4 16.3% 46.9%;
-    --admin-border-subtle: 220 13% 95%;
-    --admin-shadow: 222.2 47.4% 11.2%;
-    --admin-success: 142 76% 36%;
-    --admin-warning: 38 92% 50%;
-    --admin-danger: 0 84.2% 60.2%;
   }
 
   .dark {
@@ -104,23 +87,6 @@
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
-    
-    /* Dark mode admin colors */
-    --admin-gradient-from: 222.2 47.4% 21.2%;
-    --admin-gradient-to: 217 91% 50%;
-    --admin-card-bg: 222.2 84% 4.9%;
-    --admin-card-border: 217.2 32.6% 17.5%;
-    --admin-accent: 217 91% 70%;
-    --admin-accent-light: 217 91% 80%;
-    --admin-surface: 217.2 32.6% 17.5%;
-    --admin-surface-hover: 217.2 32.6% 20.5%;
-    --admin-text-primary: 210 40% 98%;
-    --admin-text-secondary: 215 20.2% 65.1%;
-    --admin-border-subtle: 217.2 32.6% 20.5%;
-    --admin-shadow: 222.2 84% 4.9%;
-    --admin-success: 142 76% 46%;
-    --admin-warning: 38 92% 60%;
-    --admin-danger: 0 62.8% 50.6%;
   }
 
   /* Color scheme variations */
@@ -259,80 +225,6 @@
 
   .hover\:bg-amplie-primary-light:hover {
     background-color: hsl(var(--amplie-primary-light));
-  }
-
-  /* Admin theme utilities */
-  .admin-gradient {
-    background: linear-gradient(135deg, hsl(var(--admin-gradient-from)), hsl(var(--admin-gradient-to)));
-  }
-
-  .admin-card {
-    background-color: hsl(var(--admin-card-bg));
-    border: 1px solid hsl(var(--admin-card-border));
-    box-shadow: 0 2px 8px hsl(var(--admin-shadow) / 0.05);
-  }
-
-  .admin-card-elevated {
-    background-color: hsl(var(--admin-card-bg));
-    border: 1px solid hsl(var(--admin-card-border));
-    box-shadow: 0 4px 16px hsl(var(--admin-shadow) / 0.08), 0 2px 8px hsl(var(--admin-shadow) / 0.04);
-  }
-
-  .admin-surface {
-    background-color: hsl(var(--admin-surface));
-  }
-
-  .admin-surface:hover {
-    background-color: hsl(var(--admin-surface-hover));
-  }
-
-  .admin-accent {
-    color: hsl(var(--admin-accent));
-  }
-
-  .bg-admin-accent {
-    background-color: hsl(var(--admin-accent));
-  }
-
-  .bg-admin-accent-light {
-    background-color: hsl(var(--admin-accent-light));
-  }
-
-  .border-admin-accent {
-    border-color: hsl(var(--admin-accent));
-  }
-
-  .admin-glass {
-    backdrop-filter: blur(20px);
-    background: hsl(var(--admin-card-bg) / 0.8);
-    border: 1px solid hsl(var(--admin-border-subtle));
-  }
-
-  .admin-status-success {
-    background-color: hsl(var(--admin-success) / 0.1);
-    color: hsl(var(--admin-success));
-    border: 1px solid hsl(var(--admin-success) / 0.2);
-  }
-
-  .admin-status-warning {
-    background-color: hsl(var(--admin-warning) / 0.1);
-    color: hsl(var(--admin-warning));
-    border: 1px solid hsl(var(--admin-warning) / 0.2);
-  }
-
-  .admin-status-danger {
-    background-color: hsl(var(--admin-danger) / 0.1);
-    color: hsl(var(--admin-danger));
-    border: 1px solid hsl(var(--admin-danger) / 0.2);
-  }
-
-  .admin-hover-lift {
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  .admin-hover-lift:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px hsl(var(--admin-shadow) / 0.12), 0 4px 12px hsl(var(--admin-shadow) / 0.06);
   }
 
   /* Touch optimization utilities */

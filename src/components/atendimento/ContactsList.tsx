@@ -19,9 +19,11 @@ interface ContactsListProps {
   contatos: Contato[];
   onSelectContact: (contato: Contato) => void;
   onBack: () => void;
+  onReturnToList?: () => void;
+  onAdicionarContato?: (contato: any) => void;
 }
 
-export function ContactsList({ contatos, onSelectContact, onBack }: ContactsListProps) {
+export function ContactsList({ contatos, onSelectContact, onBack, onReturnToList, onAdicionarContato }: ContactsListProps) {
   const [searchTerm, setSearchTerm] = useState('');
 
   const contatosFiltrados = contatos.filter(contato =>

@@ -51,6 +51,8 @@ interface AtendimentoHistorico {
 interface ClienteDetalhesProps {
   cliente: Cliente;
   onClose: () => void;
+  onSalvarObservacao?: (obs: any) => void;
+  onAdicionarTag?: (tag: any) => void;
 }
 
 // Mock de histórico de atendimentos
@@ -84,7 +86,7 @@ const historicoMock: AtendimentoHistorico[] = [
   }
 ];
 
-export function ClienteDetalhes({ cliente, onClose }: ClienteDetalhesProps) {
+export function ClienteDetalhes({ cliente, onClose, onSalvarObservacao, onAdicionarTag }: ClienteDetalhesProps) {
   const [notas, setNotas] = useState('Cliente muito interessado em produtos premium. Já demonstrou interesse em compras recorrentes.');
   const [novaTag, setNovaTag] = useState('');
   const [tags, setTags] = useState(cliente.tags);

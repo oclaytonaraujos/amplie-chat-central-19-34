@@ -267,6 +267,7 @@ export default function Atendimento() {
           <ContactsList
             contatos={contatos}
             onSelectContact={handleSelectContact}
+            onBack={handleReturnToList}
             onReturnToList={handleReturnToList}
             onAdicionarContato={handleContatoAdicionado}
           />
@@ -323,6 +324,7 @@ export default function Atendimento() {
             <ContactsList
               contatos={contatos}
               onSelectContact={handleSelectContact}
+              onBack={handleReturnToList}
               onReturnToList={handleReturnToList}
               onAdicionarContato={handleContatoAdicionado}
             />
@@ -355,8 +357,6 @@ export default function Atendimento() {
           {clienteInfo ? (
             <ClienteInfo 
               cliente={clienteInfo}
-              onSalvarObservacao={(obs) => console.log('Salvar observação:', obs)}
-              onAdicionarTag={(tag) => console.log('Adicionar tag:', tag)}
             />
           ) : (
             <div className="p-6 text-center text-gray-500">
@@ -377,7 +377,8 @@ export default function Atendimento() {
       <ConfirmSaveContactDialog
         open={showConfirmDialog}
         onOpenChange={setShowConfirmDialog}
-        contact={pendingContact}
+        clienteNome={pendingContact?.nome || ''}
+        clienteTelefone={pendingContact?.telefone || ''}
         onConfirm={handleConfirmSave}
         onCancel={handleCancelSave}
       />
@@ -385,8 +386,8 @@ export default function Atendimento() {
       <NovoContatoDialog
         open={showNovoContatoDialog}
         onOpenChange={setShowNovoContatoDialog}
-        onSave={handleContatoAdicionado}
-        initialData={pendingContact}
+        onContatoAdicionado={handleContatoAdicionado}
+        dadosIniciais={pendingContact}
       />
     </div>
   );

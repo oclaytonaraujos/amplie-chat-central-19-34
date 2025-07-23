@@ -29,13 +29,17 @@ interface NovoContatoDialogProps {
   onOpenChange: (open: boolean) => void;
   onContatoAdicionado: (contato: NovoContato) => void;
   dadosIniciais?: Partial<NovoContato>;
+  onSave?: (contato: any) => void;
+  initialData?: any;
 }
 
 export function NovoContatoDialog({ 
   open, 
   onOpenChange, 
   onContatoAdicionado, 
-  dadosIniciais 
+  dadosIniciais,
+  onSave,
+  initialData
 }: NovoContatoDialogProps) {
   const [formData, setFormData] = useState({
     nome: '',
@@ -97,7 +101,11 @@ export function NovoContatoDialog({
       ]
     };
 
-    onContatoAdicionado(novoContato);
+    if (onSave) {
+      onSave(novoContato);
+    } else {
+      onContatoAdicionado(novoContato);
+    }
     
     // Reset form
     setFormData({

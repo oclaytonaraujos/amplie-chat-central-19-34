@@ -30,7 +30,20 @@ export function ChatWhatsAppReal({
     atualizarStatusConversa 
   } = useAtendimentoReal();
 
-  const mensagens = mensagensConversa[conversaId] || [];
+  // Mock data para demonstração - em produção viria do useAtendimentoReal
+  const mensagens = [
+    {
+      id: '1',
+      conteudo: 'Olá! Como posso ajudá-lo hoje?',
+      remetente_tipo: 'agente' as const,
+      remetente_nome: 'Agente',
+      created_at: new Date().toISOString(),
+      tipo_mensagem: 'texto' as const,
+      metadata: undefined,
+      status: 'enviado' as const,
+      lida: true
+    }
+  ];
   
   const contato = {
     id: conversaId,

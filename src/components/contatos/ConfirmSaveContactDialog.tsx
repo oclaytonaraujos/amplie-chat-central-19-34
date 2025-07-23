@@ -10,6 +10,7 @@ interface ConfirmSaveContactDialogProps {
   onCancel: () => void;
   clienteNome: string;
   clienteTelefone: string;
+  contact?: any;
 }
 
 export function ConfirmSaveContactDialog({ 
@@ -18,7 +19,8 @@ export function ConfirmSaveContactDialog({
   onConfirm, 
   onCancel, 
   clienteNome, 
-  clienteTelefone 
+  clienteTelefone,
+  contact
 }: ConfirmSaveContactDialogProps) {
   const handleConfirm = () => {
     onConfirm();

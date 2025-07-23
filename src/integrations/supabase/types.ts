@@ -728,6 +728,8 @@ export type Database = {
       evolution_api_config: {
         Row: {
           ativo: boolean | null
+          battery_level: number | null
+          connection_state: string | null
           created_at: string | null
           descricao: string | null
           empresa_id: string
@@ -735,6 +737,9 @@ export type Database = {
           instance_name: string
           last_connected_at: string | null
           numero: string | null
+          platform: string | null
+          profile_name: string | null
+          profile_picture_url: string | null
           qr_code: string | null
           status: string | null
           updated_at: string | null
@@ -743,6 +748,8 @@ export type Database = {
         }
         Insert: {
           ativo?: boolean | null
+          battery_level?: number | null
+          connection_state?: string | null
           created_at?: string | null
           descricao?: string | null
           empresa_id: string
@@ -750,6 +757,9 @@ export type Database = {
           instance_name: string
           last_connected_at?: string | null
           numero?: string | null
+          platform?: string | null
+          profile_name?: string | null
+          profile_picture_url?: string | null
           qr_code?: string | null
           status?: string | null
           updated_at?: string | null
@@ -758,6 +768,8 @@ export type Database = {
         }
         Update: {
           ativo?: boolean | null
+          battery_level?: number | null
+          connection_state?: string | null
           created_at?: string | null
           descricao?: string | null
           empresa_id?: string
@@ -765,6 +777,9 @@ export type Database = {
           instance_name?: string
           last_connected_at?: string | null
           numero?: string | null
+          platform?: string | null
+          profile_name?: string | null
+          profile_picture_url?: string | null
           qr_code?: string | null
           status?: string | null
           updated_at?: string | null

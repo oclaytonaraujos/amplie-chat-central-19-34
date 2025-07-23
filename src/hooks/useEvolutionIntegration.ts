@@ -185,7 +185,7 @@ export function useEvolutionIntegration() {
 
       // Criar instância via API
       console.log('Criando instância na Evolution API...');
-      const response = await fetch(`${config.server_url}/manager/create`, {
+      const response = await fetch(`${config.server_url}/instance/create`, {
         method: 'POST',
         headers: {
           'apikey': config.api_key,
@@ -195,7 +195,16 @@ export function useEvolutionIntegration() {
           instanceName,
           token: config.api_key,
           qrcode: true,
-          webhook: config.webhook_base_url ? `${config.webhook_base_url}` : undefined
+          integration: "WHATSAPP-BAILEYS",
+          webhook: config.webhook_base_url ? `${config.webhook_base_url}` : undefined,
+          webhook_by_events: true,
+          events: ["APPLICATION_STARTUP"],
+          reject_call: true,
+          msg_call: "Desculpe, não aceito chamadas.",
+          groups_ignore: true,
+          always_online: true,
+          read_messages: true,
+          read_status: true
         })
       });
 

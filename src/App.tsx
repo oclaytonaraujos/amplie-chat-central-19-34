@@ -5,9 +5,6 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { lazy, Suspense, useEffect, startTransition } from "react";
 
-// Animação de carregamento da Aplie Chat
-import AplieLoadingAnimation from "@/components/ui/amplie-loading-animation";
-
 // Core providers e configurações críticas
 import { ThemeProvider } from "@/hooks/useTheme";
 import { queryClient } from "@/config/queryClient";
@@ -48,9 +45,11 @@ const Aparencia = lazy(() => import("@/pages/configuracoes/Aparencia"));
 const Idioma = lazy(() => import("@/pages/configuracoes/Idioma"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
 
-// Fallback com animação da Aplie Chat
-const ApliePageLoader = () => (
-  <AplieLoadingAnimation isVisible={true} size="md" />
+// Fallback ultra-minimalista
+const FastFallback = () => (
+  <div className="h-screen w-full bg-background flex items-center justify-center">
+    <div className="loading-spinner" />
+  </div>
 );
 
 // Preload inteligente apenas das rotas mais usadas
@@ -74,7 +73,7 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={
-        <Suspense fallback={<ApliePageLoader />}>
+        <Suspense fallback={<FastFallback />}>
           <ProtectedRoute>
             <Layout title="Painel" description="Visão geral do sistema">
               <Painel />
@@ -84,13 +83,13 @@ function AppRoutes() {
       } />
       
       <Route path="/auth" element={
-        <Suspense fallback={<ApliePageLoader />}>
+        <Suspense fallback={<FastFallback />}>
           <Auth />
         </Suspense>
       } />
       
       <Route path="/admin" element={
-        <Suspense fallback={<ApliePageLoader />}>
+        <Suspense fallback={<FastFallback />}>
           <ProtectedRoute>
             <SuperAdmin />
           </ProtectedRoute>
@@ -98,7 +97,7 @@ function AppRoutes() {
       } />
       
       <Route path="/painel" element={
-        <Suspense fallback={<ApliePageLoader />}>
+        <Suspense fallback={<FastFallback />}>
           <ProtectedRoute>
             <Layout title="Painel" description="Visão geral do sistema">
               <Painel />
@@ -108,7 +107,7 @@ function AppRoutes() {
       } />
       
       <Route path="/dashboard" element={
-        <Suspense fallback={<ApliePageLoader />}>
+        <Suspense fallback={<FastFallback />}>
           <ProtectedRoute>
             <Layout title="Dashboard" description="Métricas e estatísticas">
               <Dashboard />
@@ -118,7 +117,7 @@ function AppRoutes() {
       } />
       
       <Route path="/atendimento" element={
-        <Suspense fallback={<ApliePageLoader />}>
+        <Suspense fallback={<FastFallback />}>
           <ProtectedRoute>
             <Layout title="Atendimento" description="Central de atendimento">
               <Atendimento />
@@ -128,7 +127,7 @@ function AppRoutes() {
       } />
       
       <Route path="/contatos" element={
-        <Suspense fallback={<ApliePageLoader />}>
+        <Suspense fallback={<FastFallback />}>
           <ProtectedRoute>
             <Layout title="Contatos" description="Gerenciamento de contatos">
               <Contatos />
@@ -139,7 +138,7 @@ function AppRoutes() {
       
       {/* Rotas menos críticas com lazy loading tardio */}
       <Route path="/kanban" element={
-        <Suspense fallback={<ApliePageLoader />}>
+        <Suspense fallback={<FastFallback />}>
           <ProtectedRoute>
             <Layout title="Kanban" description="Quadro de tarefas">
               <Kanban />
@@ -149,7 +148,7 @@ function AppRoutes() {
       } />
       
       <Route path="/chatbot" element={
-        <Suspense fallback={<ApliePageLoader />}>
+        <Suspense fallback={<FastFallback />}>
           <ProtectedRoute>
             <Layout title="ChatBot" description="Automação inteligente">
               <ChatBot />
@@ -159,7 +158,7 @@ function AppRoutes() {
       } />
       
       <Route path="/chatbot/flow-builder/:id" element={
-        <Suspense fallback={<ApliePageLoader />}>
+        <Suspense fallback={<FastFallback />}>
           <ProtectedRoute>
             <FlowBuilder />
           </ProtectedRoute>
@@ -167,7 +166,7 @@ function AppRoutes() {
       } />
       
       <Route path="/usuarios" element={
-        <Suspense fallback={<ApliePageLoader />}>
+        <Suspense fallback={<FastFallback />}>
           <ProtectedRoute>
             <Layout title="Usuários" description="Gerenciamento de usuários">
               <Usuarios />
@@ -177,7 +176,7 @@ function AppRoutes() {
       } />
       
       <Route path="/setores" element={
-        <Suspense fallback={<ApliePageLoader />}>
+        <Suspense fallback={<FastFallback />}>
           <ProtectedRoute>
             <Layout title="Setores" description="Organização por setores">
               <Setores />
@@ -188,7 +187,7 @@ function AppRoutes() {
       
       {/* Rotas de baixa prioridade */}
       <Route path="/automations" element={
-        <Suspense fallback={<ApliePageLoader />}>
+        <Suspense fallback={<FastFallback />}>
           <ProtectedRoute>
             <Layout title="Automações" description="Fluxos de automação">
               <Automations />
@@ -198,7 +197,7 @@ function AppRoutes() {
       } />
       
       <Route path="/chat-interno" element={
-        <Suspense fallback={<ApliePageLoader />}>
+        <Suspense fallback={<FastFallback />}>
           <ProtectedRoute>
             <Layout title="Chat Interno" description="Comunicação interna">
               <ChatInterno />
@@ -208,7 +207,7 @@ function AppRoutes() {
       } />
       
       <Route path="/gerenciar-equipe" element={
-        <Suspense fallback={<ApliePageLoader />}>
+        <Suspense fallback={<FastFallback />}>
           <ProtectedRoute>
             <Layout title="Gerenciar Equipe" description="Administração da equipe">
               <GerenciarEquipe />
@@ -218,7 +217,7 @@ function AppRoutes() {
       } />
       
       <Route path="/meu-perfil" element={
-        <Suspense fallback={<ApliePageLoader />}>
+        <Suspense fallback={<FastFallback />}>
           <ProtectedRoute>
             <Layout title="Meu Perfil" description="Configurações pessoais">
               <MeuPerfil />
@@ -228,7 +227,7 @@ function AppRoutes() {
       } />
       
       <Route path="/plano-faturamento" element={
-        <Suspense fallback={<ApliePageLoader />}>
+        <Suspense fallback={<FastFallback />}>
           <ProtectedRoute>
             <Layout title="Plano e Faturamento" description="Gerenciamento financeiro">
               <PlanoFaturamento />
@@ -239,7 +238,7 @@ function AppRoutes() {
 
       {/* Configurações - carregamento sob demanda */}
       <Route path="/configuracoes/gerais" element={
-        <Suspense fallback={<ApliePageLoader />}>
+        <Suspense fallback={<FastFallback />}>
           <ProtectedRoute>
             <Layout title="Configurações Gerais" description="Configurações do sistema">
               <ConfiguracoesGerais />
@@ -249,7 +248,7 @@ function AppRoutes() {
       } />
       
       <Route path="/configuracoes/avancadas" element={
-        <Suspense fallback={<ApliePageLoader />}>
+        <Suspense fallback={<FastFallback />}>
           <ProtectedRoute>
             <Layout title="Configurações Avançadas" description="Configurações técnicas">
               <ConfiguracoesAvancadas />
@@ -259,7 +258,7 @@ function AppRoutes() {
       } />
       
       <Route path="/configuracoes/notificacoes" element={
-        <Suspense fallback={<ApliePageLoader />}>
+        <Suspense fallback={<FastFallback />}>
           <ProtectedRoute>
             <Layout title="Notificações" description="Preferências de notificação">
               <PreferenciasNotificacao />
@@ -269,7 +268,7 @@ function AppRoutes() {
       } />
       
       <Route path="/configuracoes/aparencia" element={
-        <Suspense fallback={<ApliePageLoader />}>
+        <Suspense fallback={<FastFallback />}>
           <ProtectedRoute>
             <Layout title="Aparência" description="Personalização visual">
               <Aparencia />
@@ -279,7 +278,7 @@ function AppRoutes() {
       } />
       
       <Route path="/configuracoes/idioma" element={
-        <Suspense fallback={<ApliePageLoader />}>
+        <Suspense fallback={<FastFallback />}>
           <ProtectedRoute>
             <Layout title="Idioma" description="Configurações de idioma">
               <Idioma />
@@ -289,7 +288,7 @@ function AppRoutes() {
       } />
       
       <Route path="*" element={
-        <Suspense fallback={<ApliePageLoader />}>
+        <Suspense fallback={<FastFallback />}>
           <NotFound />
         </Suspense>
       } />
@@ -305,7 +304,7 @@ const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
-        <Suspense fallback={<ApliePageLoader />}>
+        <Suspense fallback={<FastFallback />}>
           <AuthProvider>
             <AdminAuthProvider>
               <TooltipProvider>

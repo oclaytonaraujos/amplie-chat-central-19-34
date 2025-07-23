@@ -49,12 +49,6 @@
     /* Amplie brand colors */
     --amplie-primary: 222.2 47.4% 11.2%;
     --amplie-primary-light: 222.2 47.4% 21.2%;
-    
-    /* Loading animation colors */
-    --amplie-neon: 217 91% 60%;
-    --amplie-electric: 224 76% 48%;
-    --amplie-purple: 262 83% 58%;
-    --amplie-fragment: 0 0% 20%;
   }
 
   .dark {
@@ -231,35 +225,6 @@
 
   .hover\:bg-amplie-primary-light:hover {
     background-color: hsl(var(--amplie-primary-light));
-  }
-
-  /* Loading animation utilities */
-  .text-amplie-neon {
-    color: hsl(var(--amplie-neon));
-  }
-
-  .text-amplie-electric {
-    color: hsl(var(--amplie-electric));
-  }
-
-  .text-amplie-purple {
-    color: hsl(var(--amplie-purple));
-  }
-
-  .fill-amplie-neon {
-    fill: hsl(var(--amplie-neon));
-  }
-
-  .fill-amplie-electric {
-    fill: hsl(var(--amplie-electric));
-  }
-
-  .fill-amplie-purple {
-    fill: hsl(var(--amplie-purple));
-  }
-
-  .fill-amplie-fragment {
-    fill: hsl(var(--amplie-fragment));
   }
 
   /* Touch optimization utilities */

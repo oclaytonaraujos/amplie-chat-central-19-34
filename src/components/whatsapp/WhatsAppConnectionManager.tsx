@@ -83,6 +83,13 @@ const QRCodeModal: React.FC<QRCodeModalProps> = ({
                     src={qrCode} 
                     alt="QR Code para conectar WhatsApp" 
                     className="w-64 h-64"
+                    onError={(e) => {
+                      console.error('Erro ao carregar QR Code:', e);
+                      console.log('QR Code data:', qrCode.substring(0, 100) + '...');
+                    }}
+                    onLoad={() => {
+                      console.log('QR Code carregado com sucesso');
+                    }}
                   />
                 </div>
               </div>

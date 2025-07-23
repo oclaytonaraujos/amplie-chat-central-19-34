@@ -211,6 +211,31 @@ export function useEvolutionIntegration() {
       const result = await response.json();
       console.log('Instância criada na API:', result);
 
+      // Configurar webhook automaticamente
+      try {
+        const webhookUrl = config.webhook_base_url || 'https://obtpghqvrygzcukdaiej.supabase.co/functions/v1/whatsapp-webhook-evolution';
+        
+        const webhookResponse = await fetch(`${config.server_url}/webhook/set/${instanceName}`, {
+          method: 'POST',
+          headers: {
+            'apikey': config.api_key,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            url: webhookUrl,
+            events: ['MESSAGES_UPSERT', 'CONNECTION_UPDATE', 'QRCODE_UPDATED']
+          })
+        });
+
+        if (webhookResponse.ok) {
+          console.log('Webhook configurado com sucesso para:', instanceName);
+        } else {
+          console.warn('Erro ao configurar webhook:', await webhookResponse.text());
+        }
+      } catch (webhookError) {
+        console.warn('Erro ao configurar webhook:', webhookError);
+      }
+
       // Salvar configuração da instância no banco
       const { error: insertError } = await supabase
         .from('evolution_api_config')
@@ -218,7 +243,9 @@ export function useEvolutionIntegration() {
           empresa_id: profile.empresa_id,
           instance_name: instanceName,
           status: 'disconnected',
-          ativo: true
+          ativo: true,
+          webhook_url: config.webhook_base_url,
+          webhook_events: ['MESSAGES_UPSERT', 'CONNECTION_UPDATE', 'QRCODE_UPDATED']
         });
 
       if (insertError) {
@@ -311,10 +338,17 @@ export function useEvolutionIntegration() {
       }
 
       const result = await response.json();
-      console.log('QR Code Response:', result);
+      console.log('QR Code Response completa:', result);
 
-      // Extrair QR code da resposta - tentar diferentes campos
-      const qrCodeData = result.base64 || result.qrcode || result.qr || result.qrCode;
+      // Extrair QR code da resposta - tentar diferentes campos possíveis
+      let qrCodeData = result.base64 || result.qrcode || result.qr || result.qrCode;
+      
+      // Se o QR code não tem o prefixo data:image, adicionar
+      if (qrCodeData && !qrCodeData.startsWith('data:image/')) {
+        qrCodeData = `data:image/png;base64,${qrCodeData}`;
+      }
+      
+      console.log('QR Code extraído:', qrCodeData ? 'QR Code encontrado' : 'QR Code não encontrado');
       
       // Atualizar status no banco
       const { error } = await supabase

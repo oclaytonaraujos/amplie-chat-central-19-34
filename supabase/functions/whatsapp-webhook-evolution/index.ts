@@ -79,6 +79,59 @@ serve(async (req) => {
     const payload: EvolutionApiWebhookData = await req.json()
     console.log('Webhook Evolution API recebido:', JSON.stringify(payload, null, 2))
 
+    // Tratar eventos de QR Code e status de conexão
+    if (payload.event === 'QRCODE_UPDATED' || payload.event === 'CONNECTION_UPDATE') {
+      console.log('Evento de conexão/QR recebido:', payload.event)
+      
+      try {
+        // Atualizar status da instância no banco
+        const updateData: any = {}
+        
+        if (payload.event === 'QRCODE_UPDATED' && payload.data) {
+          // Garantir que o QR code tenha o prefixo correto
+          let qrCodeData = payload.data;
+          if (typeof qrCodeData === 'string' && !qrCodeData.startsWith('data:image/')) {
+            qrCodeData = `data:image/png;base64,${qrCodeData}`;
+          }
+          
+          updateData.qr_code = qrCodeData
+          updateData.status = 'connecting'
+          updateData.connection_state = 'CONNECTING'
+          console.log('QR Code atualizado para instância:', payload.instance)
+        } else if (payload.event === 'CONNECTION_UPDATE') {
+          // Atualizar status de conexão
+          updateData.connection_state = payload.data.state || 'DISCONNECTED'
+          
+          if (payload.data.state === 'open') {
+            updateData.status = 'connected'
+          } else if (payload.data.state === 'close') {
+            updateData.status = 'disconnected'
+            updateData.qr_code = null
+          }
+        }
+        
+        if (Object.keys(updateData).length > 0) {
+          const { error: updateError } = await supabase
+            .from('evolution_api_config')
+            .update(updateData)
+            .eq('instance_name', payload.instance)
+          
+          if (updateError) {
+            console.error('Erro ao atualizar instância:', updateError)
+          } else {
+            console.log('Instância atualizada com sucesso:', payload.instance, updateData)
+          }
+        }
+      } catch (error) {
+        console.error('Erro ao processar evento de conexão:', error)
+      }
+      
+      return new Response(JSON.stringify({ success: true, message: 'Evento processado' }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 200,
+      })
+    }
+
     // Filtrar apenas mensagens recebidas
     if (payload.event !== 'MESSAGES_UPSERT' || payload.data.key.fromMe) {
       console.log('Evento ignorado:', payload.event, 'fromMe:', payload.data.key.fromMe)

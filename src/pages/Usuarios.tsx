@@ -82,7 +82,7 @@ export default function Usuarios() {
     <div className="p-6 space-y-6">
       {/* Header com estatísticas */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-white rounded-xl shadow-amplie p-4">
+        <div className="bg-card rounded-xl shadow-sm border p-4">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Total de Usuários</p>
@@ -91,7 +91,7 @@ export default function Usuarios() {
             <UserPlus className="w-8 h-8 text-blue-500" />
           </div>
         </div>
-        <div className="bg-white rounded-xl shadow-amplie p-4">
+        <div className="bg-card rounded-xl shadow-sm border p-4">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Usuários Ativos</p>
@@ -102,7 +102,7 @@ export default function Usuarios() {
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-xl shadow-amplie p-4">
+        <div className="bg-card rounded-xl shadow-sm border p-4">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Usuários Inativos</p>
@@ -113,7 +113,7 @@ export default function Usuarios() {
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-xl shadow-amplie p-4">
+        <div className="bg-card rounded-xl shadow-sm border p-4">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Supervisores</p>
@@ -127,7 +127,7 @@ export default function Usuarios() {
       {/* Action Button */}
       <div className="flex justify-end">
         <Button 
-          className="bg-amplie-primary hover:bg-amplie-primary-light"
+          className="bg-primary hover:bg-primary/90"
           onClick={() => setNovoUsuarioOpen(true)}
         >
           <Plus className="w-4 h-4 mr-2" />
@@ -136,7 +136,7 @@ export default function Usuarios() {
       </div>
 
       {/* Search with Filter */}
-      <div className="bg-white rounded-xl shadow-amplie p-6">
+      <div className="bg-card rounded-xl shadow-sm border p-6">
         <div className="flex items-center space-x-4">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
@@ -152,7 +152,7 @@ export default function Usuarios() {
               <Button variant="outline" size="icon" className="relative">
                 <Filter className="w-4 h-4" />
                 {filtrosAtivos.length > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-amplie-primary text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                  <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground text-xs rounded-full w-5 h-5 flex items-center justify-center">
                     {filtrosAtivos.length}
                   </span>
                 )}
@@ -183,7 +183,7 @@ export default function Usuarios() {
       </div>
 
       {/* Users Table */}
-      <div className="bg-white rounded-xl shadow-amplie overflow-hidden">
+      <div className="bg-card rounded-xl shadow-sm border overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-gray-50 border-b border-gray-200">

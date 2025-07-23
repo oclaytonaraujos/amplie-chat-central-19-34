@@ -2,25 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { 
-  Activity, 
-  Clock, 
-  AlertTriangle, 
-  CheckCircle2,
-  RefreshCw,
-  Zap,
-  MessageSquare,
-  CheckCircle,
-  XCircle,
-  Wifi,
-  TrendingUp,
-  Globe,
-  Settings
-} from 'lucide-react';
+import { Activity, Clock, AlertTriangle, CheckCircle2, RefreshCw, Zap, MessageSquare, CheckCircle, XCircle, Wifi, TrendingUp, Globe, Settings } from 'lucide-react';
 import { useEvolutionAPIComplete } from '@/hooks/useEvolutionAPIComplete';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-
 interface InstanceStats {
   total: number;
   connected: number;
@@ -28,7 +13,6 @@ interface InstanceStats {
   webhook_active: number;
   webhook_inactive: number;
 }
-
 interface InstanceStatus {
   instanceName: string;
   status: string;
@@ -37,7 +21,6 @@ interface InstanceStatus {
   isHealthy: boolean;
   error?: string;
 }
-
 interface Instance {
   id: string;
   instance_name: string;
@@ -45,23 +28,23 @@ interface Instance {
   empresa_nome?: string;
   webhook_status?: 'ativo' | 'inativo' | 'erro';
 }
-
 interface UnifiedInstanceDashboardProps {
   instances: Instance[];
   onStatusUpdate?: (instanceName: string, status: string) => void;
   onRefresh?: () => void;
 }
-
-export function UnifiedInstanceDashboard({ 
-  instances, 
+export function UnifiedInstanceDashboard({
+  instances,
   onStatusUpdate,
-  onRefresh 
+  onRefresh
 }: UnifiedInstanceDashboardProps) {
   const [monitoring, setMonitoring] = useState(false);
   const [statuses, setStatuses] = useState<InstanceStatus[]>([]);
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
-  
-  const { getConnectionState, isServiceAvailable } = useEvolutionAPIComplete();
+  const {
+    getConnectionState,
+    isServiceAvailable
+  } = useEvolutionAPIComplete();
 
   // Calcular estatísticas
   const stats: InstanceStats = {
@@ -69,25 +52,21 @@ export function UnifiedInstanceDashboard({
     connected: instances.filter(i => i.status === 'open' || i.status === 'connected').length,
     disconnected: instances.filter(i => i.status === 'disconnected').length,
     webhook_active: instances.filter(i => i.webhook_status === 'ativo').length,
-    webhook_inactive: instances.filter(i => i.webhook_status !== 'ativo').length,
+    webhook_inactive: instances.filter(i => i.webhook_status !== 'ativo').length
   };
-
   const checkInstanceStatus = async (instanceName: string): Promise<InstanceStatus> => {
     const startTime = Date.now();
-    
     try {
       const connectionState = await getConnectionState(instanceName);
       const responseTime = Date.now() - startTime;
-      
       const status = connectionState?.instance?.state || 'unknown';
       const isHealthy = status === 'open' || status === 'connected';
-      
       return {
         instanceName,
         status,
         lastChecked: new Date(),
         responseTime,
-        isHealthy,
+        isHealthy
       };
     } catch (error) {
       return {
@@ -96,24 +75,19 @@ export function UnifiedInstanceDashboard({
         lastChecked: new Date(),
         responseTime: Date.now() - startTime,
         isHealthy: false,
-        error: (error as Error).message,
+        error: (error as Error).message
       };
     }
   };
-
   const checkAllInstances = async () => {
     if (!isServiceAvailable || instances.length === 0) return;
-
     setMonitoring(true);
     try {
-      const statusPromises = instances.map(instance => 
-        checkInstanceStatus(instance.instance_name)
-      );
-      
+      const statusPromises = instances.map(instance => checkInstanceStatus(instance.instance_name));
       const results = await Promise.all(statusPromises);
       setStatuses(results);
       setLastUpdate(new Date());
-      
+
       // Notificar sobre mudanças de status
       results.forEach(result => {
         const existingStatus = statuses.find(s => s.instanceName === result.instanceName);
@@ -127,7 +101,6 @@ export function UnifiedInstanceDashboard({
       setMonitoring(false);
     }
   };
-
   const handleRefresh = () => {
     checkAllInstances();
     onRefresh?.();
@@ -136,19 +109,15 @@ export function UnifiedInstanceDashboard({
   // Verificação automática a cada 30 segundos
   useEffect(() => {
     if (instances.length === 0) return;
-
     checkAllInstances();
     const interval = setInterval(checkAllInstances, 30000);
-    
     return () => clearInterval(interval);
   }, [instances.length, isServiceAvailable]);
-
   const getStatusIcon = (status: InstanceStatus) => {
     if (status.isHealthy) return <CheckCircle2 className="w-4 h-4 text-green-500" />;
     if (status.status === 'connecting') return <Clock className="w-4 h-4 text-yellow-500" />;
     return <AlertTriangle className="w-4 h-4 text-red-500" />;
   };
-
   const getStatusBadge = (status: InstanceStatus) => {
     if (status.isHealthy) {
       return <Badge className="bg-green-100 text-green-800">Online</Badge>;
@@ -158,21 +127,14 @@ export function UnifiedInstanceDashboard({
     }
     return <Badge className="bg-red-100 text-red-800">Offline</Badge>;
   };
-
-  const connectionRate = stats.total > 0 ? Math.round((stats.connected / stats.total) * 100) : 0;
-  const webhookRate = stats.total > 0 ? Math.round((stats.webhook_active / stats.total) * 100) : 0;
-
+  const connectionRate = stats.total > 0 ? Math.round(stats.connected / stats.total * 100) : 0;
+  const webhookRate = stats.total > 0 ? Math.round(stats.webhook_active / stats.total * 100) : 0;
   const healthyCount = statuses.filter(s => s.isHealthy).length;
   const connectingCount = statuses.filter(s => s.status === 'connecting').length;
   const errorCount = statuses.filter(s => !s.isHealthy && s.status !== 'connecting').length;
-
-  const averageResponseTime = statuses.length > 0 
-    ? statuses.reduce((sum, s) => sum + (s.responseTime || 0), 0) / statuses.length 
-    : 0;
-
+  const averageResponseTime = statuses.length > 0 ? statuses.reduce((sum, s) => sum + (s.responseTime || 0), 0) / statuses.length : 0;
   if (!isServiceAvailable) {
-    return (
-      <Card>
+    return <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <AlertTriangle className="w-5 h-5 text-red-500" />
@@ -188,22 +150,15 @@ export function UnifiedInstanceDashboard({
             <p className="text-muted-foreground mb-4">
               Configure a Evolution API no painel de administração para habilitar o monitoramento e gerenciamento das instâncias.
             </p>
-            <Button 
-              variant="outline" 
-              onClick={onRefresh}
-              className="border-red-200 text-red-600 hover:bg-red-50"
-            >
+            <Button variant="outline" onClick={onRefresh} className="border-red-200 text-red-600 hover:bg-red-50">
               <Settings className="w-4 h-4 mr-2" />
               Configurar Evolution API
             </Button>
           </div>
         </CardContent>
-      </Card>
-    );
+      </Card>;
   }
-
-  return (
-    <div className="space-y-6">
+  return <div className="space-y-6">
       {/* Dashboard Unificado */}
       <Card>
         <CardHeader>
@@ -212,75 +167,15 @@ export function UnifiedInstanceDashboard({
               <TrendingUp className="w-5 h-5" />
               Dashboard de Instâncias e Monitoramento
             </CardTitle>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={handleRefresh}
-              disabled={monitoring}
-            >
-              {monitoring ? (
-                <RefreshCw className="w-4 h-4 animate-spin mr-2" />
-              ) : (
-                <RefreshCw className="w-4 h-4 mr-2" />
-              )}
+            <Button size="sm" variant="outline" onClick={handleRefresh} disabled={monitoring}>
+              {monitoring ? <RefreshCw className="w-4 h-4 animate-spin mr-2" /> : <RefreshCw className="w-4 h-4 mr-2" />}
               Atualizar
             </Button>
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Estatísticas Gerais */}
-          <div>
-            <h4 className="text-sm font-semibold mb-4 flex items-center gap-2">
-              <MessageSquare className="w-4 h-4" />
-              Estatísticas Gerais
-            </h4>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {/* Total de Instâncias */}
-              <div className="text-center p-4 border rounded-lg bg-gradient-to-br from-blue-50 to-blue-100">
-                <div className="flex items-center justify-center gap-2 mb-2">
-                  <MessageSquare className="w-5 h-5 text-blue-500" />
-                </div>
-                <div className="text-2xl font-bold text-blue-600">{stats.total}</div>
-                <div className="text-sm text-blue-700 font-medium">Total de Instâncias</div>
-              </div>
-
-              {/* Conectadas */}
-              <div className="text-center p-4 border rounded-lg bg-gradient-to-br from-green-50 to-green-100">
-                <div className="flex items-center justify-center gap-2 mb-2">
-                  <CheckCircle className="w-5 h-5 text-green-500" />
-                </div>
-                <div className="text-2xl font-bold text-green-600">{stats.connected}</div>
-                <div className="text-sm text-green-700 font-medium">Conectadas</div>
-                <Badge className="text-xs mt-1 bg-green-200 text-green-800 border-green-300">
-                  {connectionRate}%
-                </Badge>
-              </div>
-
-              {/* Desconectadas */}
-              <div className="text-center p-4 border rounded-lg bg-gradient-to-br from-red-50 to-red-100">
-                <div className="flex items-center justify-center gap-2 mb-2">
-                  <XCircle className="w-5 h-5 text-red-500" />
-                </div>
-                <div className="text-2xl font-bold text-red-600">{stats.disconnected}</div>
-                <div className="text-sm text-red-700 font-medium">Desconectadas</div>
-                <Badge className="text-xs mt-1 bg-red-200 text-red-800 border-red-300">
-                  {100 - connectionRate}%
-                </Badge>
-              </div>
-
-              {/* Webhooks Ativos */}
-              <div className="text-center p-4 border rounded-lg bg-gradient-to-br from-purple-50 to-purple-100">
-                <div className="flex items-center justify-center gap-2 mb-2">
-                  <Wifi className="w-5 h-5 text-purple-500" />
-                </div>
-                <div className="text-2xl font-bold text-purple-600">{stats.webhook_active}</div>
-                <div className="text-sm text-purple-700 font-medium">Webhooks Ativos</div>
-                <Badge className="text-xs mt-1 bg-purple-200 text-purple-800 border-purple-300">
-                  {webhookRate}%
-                </Badge>
-              </div>
-            </div>
-          </div>
+          
 
           {/* Monitor de Status em Tempo Real */}
           <div>
@@ -289,11 +184,11 @@ export function UnifiedInstanceDashboard({
                 <Activity className="w-4 h-4" />
                 Monitor de Status em Tempo Real
               </h4>
-              {lastUpdate && (
-                <span className="text-xs text-muted-foreground">
-                  Última atualização: {format(lastUpdate, 'HH:mm:ss', { locale: ptBR })}
-                </span>
-              )}
+              {lastUpdate && <span className="text-xs text-muted-foreground">
+                  Última atualização: {format(lastUpdate, 'HH:mm:ss', {
+                locale: ptBR
+              })}
+                </span>}
             </div>
             
             {/* Resumo de Performance */}
@@ -319,70 +214,52 @@ export function UnifiedInstanceDashboard({
             </div>
 
             {/* Lista de Status Individual */}
-            {statuses.length > 0 && (
-              <div className="max-h-60 overflow-y-auto space-y-2 border rounded-lg p-3">
-                {statuses.map((status) => {
-                  const instance = instances.find(i => i.instance_name === status.instanceName);
-                  return (
-                    <div key={status.instanceName} className="flex items-center justify-between p-2 border rounded-lg bg-card">
+            {statuses.length > 0 && <div className="max-h-60 overflow-y-auto space-y-2 border rounded-lg p-3">
+                {statuses.map(status => {
+              const instance = instances.find(i => i.instance_name === status.instanceName);
+              return <div key={status.instanceName} className="flex items-center justify-between p-2 border rounded-lg bg-card">
                       <div className="flex items-center gap-3">
                         {getStatusIcon(status)}
                         <div>
                           <div className="font-medium text-sm">{status.instanceName}</div>
-                          {instance?.empresa_nome && (
-                            <div className="text-xs text-muted-foreground">{instance.empresa_nome}</div>
-                          )}
+                          {instance?.empresa_nome && <div className="text-xs text-muted-foreground">{instance.empresa_nome}</div>}
                         </div>
                       </div>
                       
                       <div className="flex items-center gap-2">
-                        {status.responseTime && (
-                          <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                        {status.responseTime && <div className="flex items-center gap-1 text-xs text-muted-foreground">
                             <Zap className="w-3 h-3" />
                             {status.responseTime}ms
-                          </div>
-                        )}
+                          </div>}
                         {getStatusBadge(status)}
                       </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
+                    </div>;
+            })}
+              </div>}
 
             {/* Estado de carregamento */}
-            {monitoring && statuses.length === 0 && (
-              <div className="text-center py-6">
+            {monitoring && statuses.length === 0 && <div className="text-center py-6">
                 <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-primary" />
                 <p className="text-sm text-muted-foreground">Verificando status das instâncias...</p>
-              </div>
-            )}
+              </div>}
           </div>
 
           {/* Alertas */}
-          {(stats.disconnected > 0 || stats.webhook_inactive > 0 || errorCount > 0) && (
-            <div className="space-y-3">
-              {(stats.disconnected > 0 || stats.webhook_inactive > 0) && (
-                <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+          {(stats.disconnected > 0 || stats.webhook_inactive > 0 || errorCount > 0) && <div className="space-y-3">
+              {(stats.disconnected > 0 || stats.webhook_inactive > 0) && <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
                   <div className="flex items-start gap-2">
                     <AlertTriangle className="w-5 h-5 text-yellow-600 mt-0.5" />
                     <div>
                       <p className="font-semibold text-yellow-800 mb-1">Atenção necessária:</p>
                       <ul className="text-yellow-700 text-sm space-y-1">
-                        {stats.disconnected > 0 && (
-                          <li>• {stats.disconnected} instância(s) desconectada(s)</li>
-                        )}
-                        {stats.webhook_inactive > 0 && (
-                          <li>• {stats.webhook_inactive} webhook(s) inativo(s)</li>
-                        )}
+                        {stats.disconnected > 0 && <li>• {stats.disconnected} instância(s) desconectada(s)</li>}
+                        {stats.webhook_inactive > 0 && <li>• {stats.webhook_inactive} webhook(s) inativo(s)</li>}
                       </ul>
                     </div>
                   </div>
-                </div>
-              )}
+                </div>}
               
-              {errorCount > 0 && (
-                <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+              {errorCount > 0 && <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
                   <div className="flex items-start gap-2">
                     <AlertTriangle className="w-5 h-5 text-red-600 mt-0.5" />
                     <div>
@@ -392,12 +269,9 @@ export function UnifiedInstanceDashboard({
                       </p>
                     </div>
                   </div>
-                </div>
-              )}
-            </div>
-          )}
+                </div>}
+            </div>}
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>;
 }

@@ -25,8 +25,8 @@ export function useNavigationTracking() {
       roleLoading
     });
 
-    // Redirecionar usuários não autenticados
-    if (!user && location.pathname !== '/auth') {
+    // Redirecionar usuários não autenticados para páginas protegidas
+    if (!user && !['/', '/auth'].includes(location.pathname)) {
       console.log('Usuário não autenticado, redirecionando para /auth');
       navigate('/auth', { replace: true });
       return;

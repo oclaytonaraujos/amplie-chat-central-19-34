@@ -4,10 +4,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { WhatsAppConnectionsReal } from '@/components/whatsapp/WhatsAppConnectionsReal';
+import { InstanciasCRUD } from '@/components/admin/InstanciasCRUD';
 
 export default function Painel() {
   return (
     <div className="p-6 space-y-6">
+      {/* CRUD de Instâncias */}
+      <InstanciasCRUD />
+      
       {/* Conexões WhatsApp */}
       <WhatsAppConnectionsReal />
 

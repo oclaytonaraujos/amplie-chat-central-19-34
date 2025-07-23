@@ -21,9 +21,9 @@ export default defineConfig(({ mode }) => ({
   },
   build: {
     target: 'esnext',
-    minify: 'terser',
-    cssMinify: true,
-    sourcemap: false,
+    minify: mode === 'production' ? 'esbuild' : false,
+    cssMinify: mode === 'production',
+    sourcemap: mode === 'development',
     rollupOptions: {
       output: {
         manualChunks: (id) => {

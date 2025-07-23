@@ -59,7 +59,7 @@ export default function SuperAdmin() {
       <ErrorBoundaryAdmin>
         <Tabs defaultValue="analytics" className="space-y-8">
           <div className="relative overflow-x-auto pb-4 px-2">
-            <TabsList className="grid w-max grid-cols-7 min-w-full lg:min-w-0 relative z-10 mx-px">
+            <TabsList className="grid grid-cols-7 w-full relative z-10">
               <TabsTrigger value="analytics" className="admin-tab-trigger">Dashboard</TabsTrigger>
               <TabsTrigger value="empresas" className="admin-tab-trigger">Empresas</TabsTrigger>
               <TabsTrigger value="usuarios" className="admin-tab-trigger">Usuários</TabsTrigger>

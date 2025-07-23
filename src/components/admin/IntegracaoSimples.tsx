@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
-import { AlertCircle, CheckCircle, Wifi, WifiOff, Settings, MessageSquare, Plus, Trash2 } from 'lucide-react';
+import { AlertCircle, CheckCircle, Wifi, WifiOff, Settings, MessageSquare, Plus, Trash2, Edit, Save, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useEvolutionIntegration } from '@/hooks/useEvolutionIntegration';
@@ -37,15 +37,21 @@ export default function IntegracaoSimples() {
   const [loading, setLoading] = useState(true);
   const [testando, setTestando] = useState(false);
   const [conectado, setConectado] = useState(false);
+  const [modoEdicao, setModoEdicao] = useState(false);
+  const [configSalva, setConfigSalva] = useState(false);
   
   const { toast } = useToast();
   const evolution = useEvolutionIntegration();
 
   // Usar dados do hook
   useEffect(() => {
-    // Carregar configuração apenas se os campos locais estão vazios
-    if (evolution.config.server_url && !configGlobal.server_url) {
+    if (evolution.config.server_url) {
       setConfigGlobal(evolution.config);
+      setConfigSalva(true);
+      setModoEdicao(false);
+    } else {
+      setModoEdicao(true);
+      setConfigSalva(false);
     }
     setInstancias(evolution.instances);
     setLoading(evolution.loading);
@@ -53,13 +59,43 @@ export default function IntegracaoSimples() {
   }, [evolution.config, evolution.instances, evolution.loading, evolution.connected]);
 
   const salvarConfiguracao = async () => {
+    if (!configGlobal.server_url || !configGlobal.api_key) {
+      toast({
+        title: "Campos obrigatórios",
+        description: "Preencha todos os campos obrigatórios",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setTestando(true);
     const sucesso = await evolution.saveGlobalConfig({
       server_url: configGlobal.server_url,
       api_key: configGlobal.api_key,
       ativo: true
     });
+    
+    if (sucesso) {
+      setConfigSalva(true);
+      setModoEdicao(false);
+      toast({
+        title: "Configuração salva",
+        description: "Evolution API configurada com sucesso",
+      });
+    }
     setTestando(false);
+  };
+
+  const habilitarEdicao = () => {
+    setModoEdicao(true);
+  };
+
+  const cancelarEdicao = () => {
+    setModoEdicao(false);
+    // Restaurar configuração original
+    if (evolution.config.server_url) {
+      setConfigGlobal(evolution.config);
+    }
   };
 
   const criarInstancia = async () => {
@@ -144,40 +180,68 @@ export default function IntegracaoSimples() {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="server_url">URL do Servidor</Label>
-              <Input
-                id="server_url"
-                placeholder="https://sua-evolution-api.com"
-                value={configGlobal.server_url}
-                onChange={(e) => setConfigGlobal(prev => ({ ...prev, server_url: e.target.value }))}
-              />
+          {configSalva && !modoEdicao ? (
+            // Modo de visualização
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium text-muted-foreground">URL do Servidor</Label>
+                  <div className="p-3 bg-muted/50 rounded-md border">
+                    <p className="text-sm font-mono">{configGlobal.server_url}</p>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium text-muted-foreground">Chave da API</Label>
+                  <div className="p-3 bg-muted/50 rounded-md border">
+                    <p className="text-sm">••••••••••••••••</p>
+                  </div>
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={habilitarEdicao}>
+                  <Edit className="w-4 h-4 mr-2" />
+                  Editar Configuração
+                </Button>
+              </div>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="api_key">Chave da API</Label>
-              <Input
-                id="api_key"
-                type="password"
-                placeholder="Sua chave da API"
-                value={configGlobal.api_key}
-                onChange={(e) => setConfigGlobal(prev => ({ ...prev, api_key: e.target.value }))}
-              />
+          ) : (
+            // Modo de edição/criação
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="server_url">URL do Servidor</Label>
+                  <Input
+                    id="server_url"
+                    placeholder="https://sua-evolution-api.com"
+                    value={configGlobal.server_url}
+                    onChange={(e) => setConfigGlobal(prev => ({ ...prev, server_url: e.target.value }))}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="api_key">Chave da API</Label>
+                  <Input
+                    id="api_key"
+                    type="password"
+                    placeholder="Sua chave da API"
+                    value={configGlobal.api_key}
+                    onChange={(e) => setConfigGlobal(prev => ({ ...prev, api_key: e.target.value }))}
+                  />
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <Button onClick={salvarConfiguracao} disabled={testando}>
+                  <Save className="w-4 h-4 mr-2" />
+                  {testando ? 'Salvando...' : 'Salvar e Testar'}
+                </Button>
+                {configSalva && (
+                  <Button variant="outline" onClick={cancelarEdicao}>
+                    <X className="w-4 h-4 mr-2" />
+                    Cancelar
+                  </Button>
+                )}
+              </div>
             </div>
-          </div>
-          <div className="flex gap-2">
-            <Button onClick={salvarConfiguracao} disabled={testando}>
-              {testando ? 'Testando...' : 'Salvar e Testar'}
-            </Button>
-            {evolution.config.server_url && (
-              <Button 
-                variant="outline" 
-                onClick={() => setConfigGlobal(evolution.config)}
-              >
-                Carregar Configuração Existente
-              </Button>
-            )}
-          </div>
+          )}
         </CardContent>
       </Card>
 

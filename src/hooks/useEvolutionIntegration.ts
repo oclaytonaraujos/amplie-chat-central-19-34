@@ -144,11 +144,40 @@ export function useEvolutionIntegration() {
 
   const createInstance = async (instanceName: string) => {
     try {
+      console.log('Iniciando criação de instância:', instanceName);
+      
       if (!config.server_url || !config.api_key) {
         throw new Error('Configuração global não encontrada');
       }
 
+      // Primeiro, obter dados do usuário logado
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      console.log('Usuário logado:', user?.email);
+      
+      if (authError || !user) {
+        throw new Error('Usuário não autenticado');
+      }
+
+      // Obter perfil com empresa_id
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('empresa_id, cargo')
+        .eq('id', user.id)
+        .single();
+
+      console.log('Perfil encontrado:', profile);
+      
+      if (profileError) {
+        console.error('Erro ao buscar perfil:', profileError);
+        throw new Error('Erro ao buscar perfil do usuário');
+      }
+
+      if (!profile || !profile.empresa_id) {
+        throw new Error('Perfil sem empresa associada');
+      }
+
       // Criar instância via API
+      console.log('Criando instância na Evolution API...');
       const response = await fetch(`${config.server_url}/manager/create`, {
         method: 'POST',
         headers: {
@@ -159,28 +188,21 @@ export function useEvolutionIntegration() {
           instanceName,
           token: config.api_key,
           qrcode: true,
-          webhook: config.webhook_base_url ? `${config.webhook_base_url}/whatsapp-webhook-evolution` : undefined
+          webhook: config.webhook_base_url ? `${config.webhook_base_url}` : undefined
         })
       });
 
       if (!response.ok) {
-        throw new Error('Erro ao criar instância na Evolution API');
+        const errorText = await response.text();
+        console.error('Erro na Evolution API:', errorText);
+        throw new Error(`Erro ao criar instância na Evolution API: ${response.status}`);
       }
 
       const result = await response.json();
+      console.log('Instância criada na API:', result);
 
       // Salvar configuração da instância no banco
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('empresa_id')
-        .eq('id', (await supabase.auth.getUser()).data.user?.id)
-        .single();
-
-      if (!profile) {
-        throw new Error('Perfil não encontrado');
-      }
-
-      const { error } = await supabase
+      const { error: insertError } = await supabase
         .from('evolution_api_config')
         .insert({
           empresa_id: profile.empresa_id,
@@ -189,19 +211,22 @@ export function useEvolutionIntegration() {
           ativo: true
         });
 
-      if (error) {
-        throw error;
+      if (insertError) {
+        console.error('Erro ao inserir no banco:', insertError);
+        throw new Error(`Erro ao salvar instância no banco: ${insertError.message}`);
       }
+
+      console.log('Instância salva no banco com sucesso');
 
       toast({
         title: "Instância criada",
-        description: `Instância ${instanceName} criada com sucesso!`,
+        description: `Instância ${instanceName} criada e associada à empresa com sucesso!`,
       });
 
       await loadInstances();
       return true;
     } catch (error: any) {
-      console.error('Erro ao criar instância:', error);
+      console.error('Erro detalhado ao criar instância:', error);
       toast({
         title: "Erro ao criar instância",
         description: error.message || "Não foi possível criar a instância",

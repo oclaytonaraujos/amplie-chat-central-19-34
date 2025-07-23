@@ -74,7 +74,7 @@ export default function SuperAdmin() {
             <Card className="admin-card rounded-2xl overflow-hidden shadow-xl border border-border/20 backdrop-blur-sm transition-all duration-500 hover:shadow-2xl hover:scale-[1.02]">
               <CardHeader className="bg-gradient-to-r from-primary/10 to-primary/5 border-b border-border/30 p-8">
                 <div className="flex items-center gap-4">
-                  <div className="w-4 h-4 bg-primary rounded-full shadow-lg"></div>
+                  <div className="w-4 h-4 bg-primary rounded-full animate-pulse shadow-lg"></div>
                   <CardTitle className="text-2xl text-primary font-bold tracking-tight">Dashboard Analytics</CardTitle>
                 </div>
                 <CardDescription className="text-base text-muted-foreground mt-2">
@@ -91,7 +91,7 @@ export default function SuperAdmin() {
             <Card className="admin-card rounded-2xl overflow-hidden shadow-xl border border-border/20 backdrop-blur-sm transition-all duration-500 hover:shadow-2xl hover:scale-[1.02]">
               <CardHeader className="bg-gradient-to-r from-primary/10 to-primary/5 border-b border-border/30 p-8">
                 <div className="flex items-center gap-4">
-                  <div className="w-4 h-4 bg-primary rounded-full shadow-lg"></div>
+                  <div className="w-4 h-4 bg-primary rounded-full animate-pulse shadow-lg"></div>
                   <CardTitle className="text-2xl text-primary font-bold tracking-tight">Gestão de Empresas</CardTitle>
                 </div>
                 <CardDescription className="text-base text-muted-foreground mt-2">
@@ -108,7 +108,7 @@ export default function SuperAdmin() {
             <Card className="admin-card rounded-2xl overflow-hidden shadow-xl border border-border/20 backdrop-blur-sm transition-all duration-500 hover:shadow-2xl hover:scale-[1.02]">
               <CardHeader className="bg-gradient-to-r from-primary/10 to-primary/5 border-b border-border/30 p-8">
                 <div className="flex items-center gap-4">
-                  <div className="w-4 h-4 bg-primary rounded-full shadow-lg"></div>
+                  <div className="w-4 h-4 bg-primary rounded-full animate-pulse shadow-lg"></div>
                   <CardTitle className="text-2xl text-primary font-bold tracking-tight">Gestão de Usuários</CardTitle>
                 </div>
                 <CardDescription className="text-base text-muted-foreground mt-2">
@@ -125,7 +125,7 @@ export default function SuperAdmin() {
             <Card className="admin-card rounded-2xl overflow-hidden shadow-xl border border-border/20 backdrop-blur-sm transition-all duration-500 hover:shadow-2xl hover:scale-[1.02]">
               <CardHeader className="bg-gradient-to-r from-primary/10 to-primary/5 border-b border-border/30 p-8">
                 <div className="flex items-center gap-4">
-                  <div className="w-4 h-4 bg-primary rounded-full shadow-lg"></div>
+                  <div className="w-4 h-4 bg-primary rounded-full animate-pulse shadow-lg"></div>
                   <CardTitle className="text-2xl text-primary font-bold tracking-tight">Gestão de Planos</CardTitle>
                 </div>
                 <CardDescription className="text-base text-muted-foreground mt-2">
@@ -142,7 +142,7 @@ export default function SuperAdmin() {
             <Card className="admin-card rounded-2xl overflow-hidden shadow-xl border border-border/20 backdrop-blur-sm transition-all duration-500 hover:shadow-2xl hover:scale-[1.02]">
               <CardHeader className="bg-gradient-to-r from-primary/10 to-primary/5 border-b border-border/30 p-8">
                 <div className="flex items-center gap-4">
-                  <div className="w-4 h-4 bg-primary rounded-full shadow-lg"></div>
+                  <div className="w-4 h-4 bg-primary rounded-full animate-pulse shadow-lg"></div>
                   <CardTitle className="text-2xl text-primary font-bold tracking-tight">Central de Integrações</CardTitle>
                 </div>
                 <CardDescription className="text-base text-muted-foreground mt-2">
@@ -159,7 +159,7 @@ export default function SuperAdmin() {
             <Card className="admin-card rounded-2xl overflow-hidden shadow-xl border border-border/20 backdrop-blur-sm transition-all duration-500 hover:shadow-2xl hover:scale-[1.02]">
               <CardHeader className="bg-gradient-to-r from-primary/10 to-primary/5 border-b border-border/30 p-8">
                 <div className="flex items-center gap-4">
-                  <div className="w-4 h-4 bg-primary rounded-full shadow-lg"></div>
+                  <div className="w-4 h-4 bg-primary rounded-full animate-pulse shadow-lg"></div>
                   <CardTitle className="text-2xl text-primary font-bold tracking-tight">Configurações do Sistema</CardTitle>
                 </div>
                 <CardDescription className="text-base text-muted-foreground mt-2">
@@ -176,7 +176,7 @@ export default function SuperAdmin() {
             <Card className="admin-card rounded-2xl overflow-hidden shadow-xl border border-border/20 backdrop-blur-sm transition-all duration-500 hover:shadow-2xl hover:scale-[1.02]">
               <CardHeader className="bg-gradient-to-r from-primary/10 to-primary/5 border-b border-border/30 p-8">
                 <div className="flex items-center gap-4">
-                  <div className="w-4 h-4 bg-primary rounded-full shadow-lg"></div>
+                  <div className="w-4 h-4 bg-primary rounded-full animate-pulse shadow-lg"></div>
                   <CardTitle className="text-2xl text-primary font-bold tracking-tight">Monitoramento do Sistema</CardTitle>
                 </div>
                 <CardDescription className="text-base text-muted-foreground mt-2">

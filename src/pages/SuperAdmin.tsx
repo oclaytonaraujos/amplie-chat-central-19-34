@@ -18,36 +18,44 @@ import PlanosGerenciamento from '@/components/admin/PlanosGerenciamento';
 import IntegracoesCentralizadas from '@/components/admin/IntegracoesCentralizadas';
 import ConfiguracoesAvancadas from '@/components/admin/ConfiguracoesAvancadas';
 import QueueMonitoring from '@/components/admin/QueueMonitoring';
-
 export default function SuperAdmin() {
-  const { user, loading: authLoading } = useAuth();
-  const { isSuperAdmin, loading: roleLoading } = useUserRole();
-  const { isAdminAuthenticated, loading: adminAuthLoading } = useAdminAuth();
-
-  console.log('SuperAdmin - Estados de loading:', { authLoading, roleLoading, adminAuthLoading });
-  console.log('SuperAdmin - Estados de autenticação:', { user: !!user, isSuperAdmin, isAdminAuthenticated });
-
+  const {
+    user,
+    loading: authLoading
+  } = useAuth();
+  const {
+    isSuperAdmin,
+    loading: roleLoading
+  } = useUserRole();
+  const {
+    isAdminAuthenticated,
+    loading: adminAuthLoading
+  } = useAdminAuth();
+  console.log('SuperAdmin - Estados de loading:', {
+    authLoading,
+    roleLoading,
+    adminAuthLoading
+  });
+  console.log('SuperAdmin - Estados de autenticação:', {
+    user: !!user,
+    isSuperAdmin,
+    isAdminAuthenticated
+  });
   if (authLoading || roleLoading || adminAuthLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
+    return <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
           <p className="text-muted-foreground">Verificando permissões...</p>
         </div>
-      </div>
-    );
+      </div>;
   }
-
   if (!user || !isSuperAdmin) {
     return <Navigate to="/painel" replace />;
   }
-
   if (!isAdminAuthenticated) {
     return <AdminLogin />;
   }
-
-  return (
-    <AdminLayout title="Super Admin" description="Gerencie todas as empresas e configurações da plataforma">
+  return <AdminLayout title="Super Admin" description="Gerencie todas as empresas e configurações da plataforma">
       <ErrorBoundaryAdmin>
         <Tabs defaultValue="analytics" className="space-y-8">
           <div className="overflow-x-auto pb-2 px-2">
@@ -83,8 +91,8 @@ export default function SuperAdmin() {
             <Card className="admin-card rounded-2xl overflow-hidden shadow-xl border border-border/20 backdrop-blur-sm transition-all duration-500 hover:shadow-2xl hover:scale-[1.02]">
               <CardHeader className="bg-gradient-to-r from-primary/10 to-primary/5 border-b border-border/30 p-8">
                 <div className="flex items-center gap-4">
-                  <div className="w-4 h-4 bg-primary rounded-full animate-pulse shadow-lg"></div>
-                  <CardTitle className="text-2xl text-primary font-bold tracking-tight">Gestão de Empresas</CardTitle>
+                  <div className="w-4 h-4 rounded-full animate-pulse shadow-lg bg-slate-950"></div>
+                  <CardTitle className="text-2xl font-bold tracking-tight text-slate-950">Gestão de Empresas</CardTitle>
                 </div>
                 <CardDescription className="text-base text-muted-foreground mt-2">
                   Gerencie todas as empresas cadastradas na plataforma
@@ -182,6 +190,5 @@ export default function SuperAdmin() {
           </TabsContent>
         </Tabs>
       </ErrorBoundaryAdmin>
-    </AdminLayout>
-  );
+    </AdminLayout>;
 }

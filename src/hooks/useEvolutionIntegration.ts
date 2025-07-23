@@ -183,7 +183,7 @@ export function useEvolutionIntegration() {
         throw new Error('Perfil sem empresa associada');
       }
 
-      // Criar instância via API
+      // Criar instância via API seguindo a documentação exata
       console.log('Criando instância na Evolution API...');
       const response = await fetch(`${config.server_url}/instance/create`, {
         method: 'POST',
@@ -196,7 +196,7 @@ export function useEvolutionIntegration() {
           token: config.api_key,
           qrcode: true,
           integration: "WHATSAPP-BAILEYS",
-          webhook: config.webhook_base_url ? `${config.webhook_base_url}` : undefined,
+          webhook: config.webhook_base_url || undefined,
           webhook_by_events: true,
           events: ["APPLICATION_STARTUP"],
           reject_call: true,
@@ -204,14 +204,24 @@ export function useEvolutionIntegration() {
           groups_ignore: true,
           always_online: true,
           read_messages: true,
-          read_status: true
+          read_status: true,
+          websocket_enabled: false,
+          websocket_events: ["APPLICATION_STARTUP"],
+          rabbitmq_enabled: false,
+          rabbitmq_events: ["APPLICATION_STARTUP"],
+          sqs_enabled: false,
+          sqs_events: ["APPLICATION_STARTUP"]
         })
       });
 
+      console.log('Response status:', response.status);
+      console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('Erro na Evolution API:', errorText);
-        throw new Error(`Erro ao criar instância na Evolution API: ${response.status}`);
+        console.error('Erro na Evolution API - Status:', response.status);
+        console.error('Erro na Evolution API - Response:', errorText);
+        throw new Error(`Erro ao criar instância na Evolution API: ${response.status} - ${errorText}`);
       }
 
       const result = await response.json();

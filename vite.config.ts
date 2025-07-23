@@ -20,18 +20,55 @@ export default defineConfig(({ mode }) => ({
     },
   },
   build: {
+    target: 'esnext',
+    minify: 'terser',
+    cssMinify: true,
+    sourcemap: false,
     rollupOptions: {
       output: {
-        manualChunks: {
-          'vendor': ['react', 'react-dom'],
-          'router': ['react-router-dom'],
-          'ui': ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu'],
-          'query': ['@tanstack/react-query'],
-          'supabase': ['@supabase/supabase-js']
+        manualChunks: (id) => {
+          // Vendor chunk otimizado
+          if (id.includes('node_modules')) {
+            if (id.includes('react') || id.includes('react-dom')) {
+              return 'react-vendor';
+            }
+            if (id.includes('@radix-ui')) {
+              return 'ui-vendor';
+            }
+            if (id.includes('@supabase')) {
+              return 'supabase-vendor';
+            }
+            if (id.includes('@tanstack')) {
+              return 'query-vendor';
+            }
+            if (id.includes('lucide-react')) {
+              return 'icons-vendor';
+            }
+            return 'vendor';
+          }
+          
+          // Chunks por funcionalidade
+          if (id.includes('/pages/')) {
+            const pageName = id.split('/pages/')[1].split('.')[0];
+            return `page-${pageName.toLowerCase()}`;
+          }
+          
+          if (id.includes('/components/admin/')) {
+            return 'admin-components';
+          }
+          
+          if (id.includes('/components/ui/')) {
+            return 'ui-components';
+          }
+          
+          if (id.includes('/hooks/')) {
+            return 'hooks';
+          }
         }
       }
     },
-    chunkSizeWarningLimit: 1000
+    chunkSizeWarningLimit: 500,
+    assetsInlineLimit: 4096
   },
   optimizeDeps: {
     include: ['react', 'react-dom', 'react-router-dom', '@tanstack/react-query']

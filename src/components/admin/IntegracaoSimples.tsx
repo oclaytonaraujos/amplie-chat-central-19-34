@@ -11,6 +11,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useEvolutionIntegration } from '@/hooks/useEvolutionIntegration';
 import { useEvolutionApiConfig } from '@/contexts/EvolutionApiContext';
 import { CriarInstanciaDialog } from './CriarInstanciaDialog';
+import { QRCodeModal } from './QRCodeModal';
 
 interface EvolutionConfig {
   id?: string;
@@ -38,6 +39,9 @@ export default function IntegracaoSimples() {
   });
   const [instancias, setInstancias] = useState<InstanciaWhatsApp[]>([]);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [showQRModal, setShowQRModal] = useState(false);
+  const [selectedInstance, setSelectedInstance] = useState<InstanciaWhatsApp | null>(null);
+  const [qrCodeLoading, setQrCodeLoading] = useState(false);
   const [loading, setLoading] = useState(true);
   const [testando, setTestando] = useState(false);
   const [conectado, setConectado] = useState(false);
@@ -121,8 +125,26 @@ export default function IntegracaoSimples() {
     await evolution.deleteInstance(instanceName);
   };
 
-  const conectarInstancia = async (instanceName: string) => {
-    await evolution.connectInstance(instanceName);
+  const conectarInstancia = async (instancia: InstanciaWhatsApp) => {
+    setSelectedInstance(instancia);
+    setQrCodeLoading(true);
+    setShowQRModal(true);
+    
+    const result = await evolution.connectInstance(instancia.instance_name);
+    setQrCodeLoading(false);
+    
+    if (!result) {
+      setShowQRModal(false);
+      setSelectedInstance(null);
+    }
+  };
+
+  const refreshQRCode = async () => {
+    if (!selectedInstance) return;
+    
+    setQrCodeLoading(true);
+    await evolution.connectInstance(selectedInstance.instance_name);
+    setQrCodeLoading(false);
   };
 
   const logoutInstancia = async (instanceName: string) => {
@@ -312,7 +334,7 @@ export default function IntegracaoSimples() {
                         <Button 
                           size="sm" 
                           variant="outline"
-                          onClick={() => conectarInstancia(instancia.instance_name)}
+                          onClick={() => conectarInstancia(instancia)}
                         >
                           Conectar
                         </Button>
@@ -349,6 +371,21 @@ export default function IntegracaoSimples() {
         open={showCreateDialog}
         onOpenChange={setShowCreateDialog}
         onSuccess={handleCreateInstanceSuccess}
+      />
+
+      {/* Modal para mostrar QR Code */}
+      <QRCodeModal
+        open={showQRModal}
+        onOpenChange={(open) => {
+          setShowQRModal(open);
+          if (!open) {
+            setSelectedInstance(null);
+          }
+        }}
+        qrCode={selectedInstance?.qr_code}
+        instanceName={selectedInstance?.instance_name || ''}
+        onRefresh={refreshQRCode}
+        isLoading={qrCodeLoading}
       />
 
       {/* Aviso se não estiver conectado */}

@@ -39,9 +39,9 @@ export function useEvolutionIntegration() {
         .from('evolution_api_global_config')
         .select('*')
         .eq('ativo', true)
-        .single();
+        .maybeSingle();
 
-      if (error && error.code !== 'PGRST116') {
+      if (error) {
         throw error;
       }
 
@@ -314,7 +314,7 @@ export function useEvolutionIntegration() {
         .from('evolution_api_config')
         .update({
           status: 'connecting',
-          qr_code: result.qrcode
+          qr_code: result.qrcode || result.qr || result.qrCode
         })
         .eq('instance_name', instanceName);
 
@@ -323,8 +323,8 @@ export function useEvolutionIntegration() {
       }
 
       toast({
-        title: "Conectando instância",
-        description: `Instância ${instanceName} está sendo conectada...`,
+        title: "QR Code gerado",
+        description: `Escaneie o QR Code para conectar a instância ${instanceName}`,
       });
 
       await loadInstances();

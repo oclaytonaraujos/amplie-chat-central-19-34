@@ -328,7 +328,7 @@ export class EvolutionAPIService {
     return this.makeRequest(`/webhook/set/${instanceName}`, 'POST', config);
   }
 
-  async findWebhook(instanceName: string) {
+  async getWebhook(instanceName: string) {
     return this.makeRequest(`/webhook/find/${instanceName}`);
   }
 
@@ -337,7 +337,7 @@ export class EvolutionAPIService {
     return this.makeRequest(`/settings/set/${instanceName}`, 'POST', settings);
   }
 
-  async findSettings(instanceName: string) {
+  async getSettings(instanceName: string) {
     return this.makeRequest(`/settings/find/${instanceName}`);
   }
 
@@ -372,7 +372,7 @@ export class EvolutionAPIService {
     return this.makeRequest(`/message/sendMedia/${instanceName}`, 'POST', data);
   }
 
-  async sendAudio(instanceName: string, data: {
+  async sendWhatsAppAudio(instanceName: string, data: {
     number: string;
     audio: string;
     caption?: string;
@@ -589,16 +589,16 @@ export class EvolutionAPIService {
   }
 
   async changeTypebotStatus(instanceName: string, enabled: boolean) {
-    return this.makeRequest(`/typebot/changeStatus/${instanceName}`, 'POST', { enabled });
+    return this.makeRequest(`/typebot/changeStatus/${instanceName}`, 'PUT', { enabled });
   }
 
   // ===== CHATWOOT =====
   async setChatwoot(instanceName: string, config: ChatwootConfig) {
-    return this.makeRequest(`/chatwoot/set/${instanceName}`, 'POST', config);
+    return this.makeRequest(`/websocket/setChatwoot/${instanceName}`, 'POST', config);
   }
 
   async findChatwoot(instanceName: string) {
-    return this.makeRequest(`/chatwoot/find/${instanceName}`);
+    return this.makeRequest(`/websocket/findChatwoot/${instanceName}`);
   }
 
   // ===== SQS =====

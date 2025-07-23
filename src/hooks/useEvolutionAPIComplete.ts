@@ -269,7 +269,7 @@ export function useEvolutionAPIComplete() {
     caption?: string;
   }) => {
     return executeWithErrorHandling(
-      () => service!.sendAudio(instanceName, data),
+      () => service!.sendWhatsAppAudio(instanceName, data),
       'Enviar áudio'
     );
   }, [service, executeWithErrorHandling]);

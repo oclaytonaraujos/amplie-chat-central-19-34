@@ -189,7 +189,7 @@ class EvolutionApiService {
     console.log('Buscando configuração de webhook:', this.config.instanceName);
     
     try {
-      const response = await fetch(this.getUrl('webhook'), {
+      const response = await fetch(this.getUrl('webhook/find'), {
         method: 'GET',
         headers: this.getHeaders(),
       });
@@ -208,7 +208,7 @@ class EvolutionApiService {
     console.log('Definindo configurações da instância:', this.config.instanceName, settings);
     
     try {
-      const response = await fetch(this.getUrl('settings'), {
+      const response = await fetch(this.getUrl('settings/set'), {
         method: 'POST',
         headers: this.getHeaders(),
         body: JSON.stringify(settings),
@@ -228,7 +228,7 @@ class EvolutionApiService {
     console.log('Buscando configurações da instância:', this.config.instanceName);
     
     try {
-      const response = await fetch(this.getUrl('settings'), {
+      const response = await fetch(this.getUrl('settings/find'), {
         method: 'GET',
         headers: this.getHeaders(),
       });
@@ -511,7 +511,7 @@ class EvolutionApiService {
         events: events || ['MESSAGES_UPSERT', 'CONNECTION_UPDATE', 'QRCODE_UPDATED'],
       };
 
-      const response = await fetch(this.getUrl('webhook'), {
+      const response = await fetch(this.getUrl('webhook/set'), {
         method: 'POST',
         headers: this.getHeaders(),
         body: JSON.stringify(payload),
@@ -810,7 +810,7 @@ class EvolutionApiService {
         numbers: phones.map(phone => phone.replace(/\D/g, '')),
       };
 
-      const response = await fetch(this.getUrl('chat/whatsappNumbers'), {
+      const response = await fetch(this.getUrl('chat/checkIsWhatsApp'), {
         method: 'POST',
         headers: this.getHeaders(),
         body: JSON.stringify(payload),
@@ -1267,7 +1267,7 @@ class EvolutionApiService {
         participants: participants.map(phone => phone.replace(/\D/g, '') + '@s.whatsapp.net'),
       };
 
-      const response = await fetch(this.getUrl('group/create'), {
+      const response = await fetch(this.getUrl('group/createGroup'), {
         method: 'POST',
         headers: this.getHeaders(),
         body: JSON.stringify(payload),
@@ -1381,7 +1381,7 @@ class EvolutionApiService {
     }
   }
 
-  // GET Accept Invite Code
+  // POST Accept Invite Code
   async acceptInviteCode(inviteCode: string): Promise<EvolutionApiResponse> {
     console.log('Aceitando convite do grupo:', inviteCode);
     
@@ -1391,7 +1391,7 @@ class EvolutionApiService {
       };
 
       const response = await fetch(this.getUrl('group/acceptInviteCode'), {
-        method: 'GET',
+        method: 'POST',
         headers: this.getHeaders(),
         body: JSON.stringify(payload),
       });
@@ -1441,7 +1441,7 @@ class EvolutionApiService {
         inviteExpiration: inviteExpiration || 604800, // 7 dias por padrão
       };
 
-      const response = await fetch(this.getUrl('group/sendInvite'), {
+      const response = await fetch(this.getUrl('group/sendGroupInvite'), {
         method: 'POST',
         headers: this.getHeaders(),
         body: JSON.stringify(payload),
@@ -1489,7 +1489,7 @@ class EvolutionApiService {
         groupJid,
       };
 
-      const response = await fetch(this.getUrl('group/findGroup'), {
+      const response = await fetch(this.getUrl('group/findGroupByJID'), {
         method: 'GET',
         headers: this.getHeaders(),
         body: JSON.stringify(payload),
@@ -1583,7 +1583,7 @@ class EvolutionApiService {
         action,
       };
 
-      const response = await fetch(this.getUrl('group/updateSetting'), {
+      const response = await fetch(this.getUrl('group/updateGroupSetting'), {
         method: 'PUT',
         headers: this.getHeaders(),
         body: JSON.stringify(payload),

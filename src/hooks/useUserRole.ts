@@ -59,9 +59,12 @@ export function useUserRole() {
       }
     }
 
+    console.log('useUserRole: fetchUserRole executando', { user: !!user, authLoading });
     fetchUserRole();
   }, [user, authLoading]);
 
+  console.log('useUserRole: retornando', { role, loading: authLoading || loading, isSuperAdmin: role === 'super_admin' });
+  
   return { 
     role, 
     loading: authLoading || loading,

@@ -39,23 +39,33 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const { toast } = useToast();
 
   useEffect(() => {
+    console.log('useAdminAuth: verificando autenticação admin');
     const adminAuth = sessionStorage.getItem('admin_authenticated');
     const adminAuthTime = sessionStorage.getItem('admin_auth_time');
+    
+    console.log('useAdminAuth: sessionStorage', { adminAuth, adminAuthTime });
     
     if (adminAuth === 'true' && adminAuthTime) {
       const authTime = parseInt(adminAuthTime);
       const currentTime = Date.now();
       const twoHours = 2 * 60 * 60 * 1000;
       
+      console.log('useAdminAuth: verificando tempo', { authTime, currentTime, diff: currentTime - authTime, twoHours });
+      
       if (currentTime - authTime < twoHours) {
+        console.log('useAdminAuth: admin ainda autenticado');
         setIsAdminAuthenticated(true);
       } else {
+        console.log('useAdminAuth: admin auth expirado');
         sessionStorage.removeItem('admin_authenticated');
         sessionStorage.removeItem('admin_auth_time');
       }
+    } else {
+      console.log('useAdminAuth: admin não autenticado');
     }
     
     setLoading(false);
+    console.log('useAdminAuth: loading definido para false');
   }, []);
 
   const executeOperation = useCallback(async (

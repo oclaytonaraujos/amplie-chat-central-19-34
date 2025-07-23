@@ -332,6 +332,70 @@ export class EvolutionAPIService {
     return this.makeRequest(`/webhook/find/${instanceName}`);
   }
 
+  // Configurar webhook completo com todos os eventos
+  async configureCompleteWebhook(instanceName: string, webhookUrl: string) {
+    const events = [
+      "APPLICATION_STARTUP",
+      "QRCODE_UPDATED", 
+      "MESSAGES_SET",
+      "MESSAGES_UPSERT",
+      "MESSAGES_UPDATE",
+      "MESSAGES_DELETE",
+      "SEND_MESSAGE",
+      "CONTACTS_SET",
+      "CONTACTS_UPSERT", 
+      "CONTACTS_UPDATE",
+      "PRESENCE_UPDATE",
+      "CHATS_SET",
+      "CHATS_UPSERT",
+      "CHATS_UPDATE", 
+      "CHATS_DELETE",
+      "GROUPS_UPSERT",
+      "GROUP_UPDATE",
+      "GROUP_PARTICIPANTS_UPDATE",
+      "CONNECTION_UPDATE",
+      "CALL",
+      "NEW_JWT_TOKEN",
+      "TYPEBOT_START", 
+      "TYPEBOT_CHANGE_STATUS"
+    ];
+
+    return this.setWebhook(instanceName, {
+      url: webhookUrl,
+      events,
+      webhook_by_events: true
+    });
+  }
+
+  // Verificar status do webhook
+  async checkWebhookStatus(instanceName: string): Promise<{
+    configured: boolean;
+    url?: string;
+    events?: string[];
+    error?: string;
+  }> {
+    try {
+      const result = await this.getWebhook(instanceName);
+      
+      if (result.error) {
+        return { configured: false, error: result.error };
+      }
+
+      const webhook = result.data?.webhook;
+      if (!webhook || !webhook.url) {
+        return { configured: false };
+      }
+
+      return {
+        configured: true,
+        url: webhook.url,
+        events: webhook.events || []
+      };
+    } catch (error) {
+      return { configured: false, error: (error as Error).message };
+    }
+  }
+
   // ===== CONFIGURAÇÕES =====
   async setSettings(instanceName: string, settings: InstanceSettings) {
     return this.makeRequest(`/settings/set/${instanceName}`, 'POST', settings);

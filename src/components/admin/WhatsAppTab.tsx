@@ -7,6 +7,8 @@ import { WhatsAppConnectionsReal } from '@/components/whatsapp/WhatsAppConnectio
 import { N8nConfigDialog } from '@/components/admin/N8nConfigDialog';
 import { WebhookConfig } from '@/components/admin/WebhookConfig';
 import { ChatbotStateManager } from '@/components/admin/ChatbotStateManager';
+import { WebhookMonitoring } from '@/components/admin/WebhookMonitoring';
+import { WebhookTester } from '@/components/admin/WebhookTester';
 
 export function WhatsAppTab() {
   const [showN8nConfig, setShowN8nConfig] = useState(false);
@@ -47,6 +49,12 @@ export function WhatsAppTab() {
 
       {/* Configuração de Webhooks */}
       <WebhookConfig />
+
+      {/* Monitoramento de Webhooks Evolution API */}
+      <WebhookMonitoring />
+
+      {/* Testador de Webhook */}
+      <WebhookTester />
 
       {/* Gerenciador de Estados do Chatbot */}
       <Card className="rounded-2xl shadow-lg border-0">

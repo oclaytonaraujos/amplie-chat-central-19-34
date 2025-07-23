@@ -163,16 +163,43 @@ export function useEvolutionAPIComplete() {
       return null;
     }
 
-    return executeWithErrorHandling(
+    // Configurar webhook automaticamente usando o endpoint do Supabase
+    const webhookUrl = instanceData.webhook || `https://obtpghqvrygzcukdaiej.supabase.co/functions/v1/whatsapp-webhook-evolution`;
+
+    const result = await executeWithErrorHandling(
       () => service!.createInstance({
         instanceName: instanceData.instanceName,
         token: instanceData.instanceName,
         qrcode: true,
         number: instanceData.number,
         integration: "WHATSAPP-BAILEYS",
-        webhook: instanceData.webhook || `${window.location.origin}/api/webhooks/evolution/${instanceData.instanceName}`,
+        webhook: webhookUrl,
         webhook_by_events: true,
-        events: instanceData.events || ["APPLICATION_STARTUP", "MESSAGES_UPSERT", "MESSAGE_STATUS_UPDATE", "CONNECTION_UPDATE", "QRCODE_UPDATED"],
+        events: [
+          "APPLICATION_STARTUP",
+          "QRCODE_UPDATED", 
+          "MESSAGES_SET",
+          "MESSAGES_UPSERT",
+          "MESSAGES_UPDATE",
+          "MESSAGES_DELETE",
+          "SEND_MESSAGE",
+          "CONTACTS_SET",
+          "CONTACTS_UPSERT", 
+          "CONTACTS_UPDATE",
+          "PRESENCE_UPDATE",
+          "CHATS_SET",
+          "CHATS_UPSERT",
+          "CHATS_UPDATE", 
+          "CHATS_DELETE",
+          "GROUPS_UPSERT",
+          "GROUP_UPDATE",
+          "GROUP_PARTICIPANTS_UPDATE",
+          "CONNECTION_UPDATE",
+          "CALL",
+          "NEW_JWT_TOKEN",
+          "TYPEBOT_START", 
+          "TYPEBOT_CHANGE_STATUS"
+        ],
         reject_call: true,
         msg_call: "Chamadas não são atendidas",
         groups_ignore: true,
@@ -184,7 +211,18 @@ export function useEvolutionAPIComplete() {
       }),
       'Criar instância'
     );
+
+    return result;
   }, [service, executeWithErrorHandling, testApiConnection, toast]);
+
+  const configureCompleteWebhook = useCallback(async (instanceName: string) => {
+    const webhookUrl = `https://obtpghqvrygzcukdaiej.supabase.co/functions/v1/whatsapp-webhook-evolution`;
+    
+    return executeWithErrorHandling(
+      () => service!.configureCompleteWebhook(instanceName, webhookUrl),
+      'Configurar webhook completo'
+    );
+  }, [service, executeWithErrorHandling]);
 
   const fetchInstances = useCallback(async () => {
     return executeWithErrorHandling(
@@ -405,6 +443,50 @@ export function useEvolutionAPIComplete() {
     );
   }, [service, executeWithErrorHandling]);
 
+
+  const checkWebhookStatus = useCallback(async (instanceName: string) => {
+    if (!service) {
+      return { configured: false, error: 'Serviço não inicializado' };
+    }
+    
+    return await service.checkWebhookStatus(instanceName);
+  }, [service]);
+
+  const findWebhook = useCallback(async (instanceName: string) => {
+    return executeWithErrorHandling(
+      () => service!.getWebhook(instanceName),
+      'Buscar configuração de webhook'
+    );
+  }, [service, executeWithErrorHandling]);
+
+  const reconfigureWebhook = useCallback(async (instanceName: string) => {
+    const webhookUrl = `https://obtpghqvrygzcukdaiej.supabase.co/functions/v1/whatsapp-webhook-evolution`;
+    
+    // Primeiro verificar status atual
+    const status = await checkWebhookStatus(instanceName);
+    
+    if (!status.configured || status.url !== webhookUrl) {
+      // Reconfigurar webhook com todos os eventos
+      const result = await configureCompleteWebhook(instanceName);
+      
+      if (result) {
+        toast({
+          title: "Webhook reconfigurado",
+          description: "Webhook foi configurado com sucesso com todos os eventos",
+        });
+      }
+      
+      return result;
+    }
+    
+    toast({
+      title: "Webhook já configurado",
+      description: "Webhook já está corretamente configurado",
+    });
+    
+    return { configured: true };
+  }, [checkWebhookStatus, configureCompleteWebhook, toast]);
+
   // ===== OPERAÇÕES DE PERFIL =====
   const updateProfileName = useCallback(async (instanceName: string, name: string) => {
     return executeWithErrorHandling(
@@ -483,6 +565,10 @@ export function useEvolutionAPIComplete() {
 
     // Operações de webhook
     setWebhook,
+    configureCompleteWebhook,
+    checkWebhookStatus,
+    findWebhook,
+    reconfigureWebhook,
 
     // Operações de perfil
     updateProfileName,

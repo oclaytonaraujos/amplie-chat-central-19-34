@@ -15,17 +15,17 @@ export function AdminLayout({ children, title = "Super Admin", description = "Pa
   const { adminLogout } = useAdminAuth();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-indigo-950 animate-gradient-shift">
-      <header className="admin-header relative overflow-hidden">
-        <div className="absolute inset-0 bg-white/10 dark:bg-black/20 backdrop-blur-xl"></div>
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-secondary/5 animate-gradient-shift">
+      <header className="relative overflow-hidden bg-gradient-to-r from-primary to-amplie-primary-light">
+        <div className="absolute inset-0 bg-black/10 dark:bg-black/20 backdrop-blur-xl"></div>
         <div className="relative container mx-auto px-6 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-6">
               <div className="relative group">
                 <div className="absolute -inset-1 bg-white/20 rounded-full blur opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <div className="relative bg-white/90 dark:bg-white/95 p-3 rounded-full shadow-lg animate-float-gentle">
+                <div className="relative bg-background/95 dark:bg-background/95 p-3 rounded-full shadow-lg animate-float-gentle border border-primary/20">
                   <img 
-                    src="/lovable-uploads/eddc7fb8-220e-433f-89b2-915fbe2e2daf.png" 
+                    src="/lovable-uploads/eddc7fb8-220e-433f-89b2-915fbe2e2daf.png"
                     alt="Amplie Icon" 
                     className="h-10 w-10 object-contain"
                   />
@@ -38,9 +38,9 @@ export function AdminLayout({ children, title = "Super Admin", description = "Pa
                     alt="Amplie Chat Logo" 
                     className="h-7 object-contain filter brightness-0 invert"
                   />
-                  <span className="text-xl font-bold text-white tracking-tight">{title}</span>
+                  <span className="text-xl font-bold text-primary-foreground tracking-tight">{title}</span>
                 </div>
-                <p className="text-blue-100 text-sm font-medium">{description}</p>
+                <p className="text-primary-foreground/80 text-sm font-medium">{description}</p>
               </div>
             </div>
             <div className="flex items-center gap-4">
@@ -48,14 +48,14 @@ export function AdminLayout({ children, title = "Super Admin", description = "Pa
                 variant="outline"
                 size="sm"
                 onClick={adminLogout}
-                className="bg-white/10 text-white border-white/20 hover:bg-white/20 hover:border-white/30 backdrop-blur-sm transition-all duration-300 hover:scale-105"
+                className="bg-background/10 text-primary-foreground border-primary-foreground/20 hover:bg-background/20 hover:border-primary-foreground/30 backdrop-blur-sm transition-all duration-300 hover:scale-105"
               >
                 <LogOut className="h-4 w-4 mr-2" />
                 Sair do Admin
               </Button>
-              <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full border border-white/20">
-                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                <span className="text-sm text-white font-medium">{user?.email}</span>
+              <div className="flex items-center gap-2 bg-background/10 backdrop-blur-sm px-4 py-2 rounded-full border border-primary-foreground/20">
+                <div className="w-2 h-2 bg-accent rounded-full animate-pulse"></div>
+                <span className="text-sm text-primary-foreground font-medium">{user?.email}</span>
               </div>
             </div>
           </div>

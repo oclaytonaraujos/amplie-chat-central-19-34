@@ -46,25 +46,25 @@
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
 
-  /* Amplie brand colors - Admin enhanced palette */
-  --amplie-primary: 217 91% 60%;
-  --amplie-primary-light: 217 91% 70%;
-  --amplie-primary-dark: 217 91% 50%;
-  --amplie-secondary: 262 83% 58%;
+  /* Amplie brand colors - usando cores do sistema */
+  --amplie-primary: 222.2 47.4% 11.2%;
+  --amplie-primary-light: 222.2 47.4% 21.2%;
+  --amplie-primary-dark: 222.2 47.4% 8%;
+  --amplie-secondary: 215.4 16.3% 46.9%;
   --amplie-accent: 142 76% 46%;
   --amplie-warning: 38 92% 50%;
   --amplie-danger: 0 84% 60%;
   --amplie-success: 142 76% 36%;
   
-  /* Admin gradient system */
-  --gradient-admin-primary: linear-gradient(135deg, hsl(217 91% 60%), hsl(262 83% 58%));
-  --gradient-admin-card: linear-gradient(145deg, hsl(0 0% 100% / 0.9), hsl(0 0% 98% / 0.8));
-  --gradient-admin-hover: linear-gradient(135deg, hsl(217 91% 70%), hsl(262 83% 68%));
+  /* Admin gradient system usando cores do sistema */
+  --gradient-admin-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--amplie-primary-light)));
+  --gradient-admin-card: linear-gradient(145deg, hsl(var(--card) / 0.95), hsl(var(--card) / 0.85));
+  --gradient-admin-hover: linear-gradient(135deg, hsl(var(--primary) / 0.1), hsl(var(--amplie-primary-light) / 0.1));
   
-  /* Admin shadows */
-  --shadow-admin-card: 0 4px 20px -4px hsl(217 91% 60% / 0.15);
-  --shadow-admin-hover: 0 8px 32px -8px hsl(217 91% 60% / 0.25);
-  --shadow-admin-elevated: 0 16px 64px -16px hsl(217 91% 60% / 0.35);
+  /* Admin shadows usando cores do sistema */
+  --shadow-admin-card: 0 4px 20px -4px hsl(var(--primary) / 0.15);
+  --shadow-admin-hover: 0 8px 32px -8px hsl(var(--primary) / 0.25);
+  --shadow-admin-elevated: 0 16px 64px -16px hsl(var(--primary) / 0.35);
   }
 
   .dark {

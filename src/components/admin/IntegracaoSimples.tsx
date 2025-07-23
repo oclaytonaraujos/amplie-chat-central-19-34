@@ -43,11 +43,14 @@ export default function IntegracaoSimples() {
 
   // Usar dados do hook
   useEffect(() => {
-    setConfigGlobal(evolution.config);
+    // Carregar configuração apenas se os campos locais estão vazios
+    if (evolution.config.server_url && !configGlobal.server_url) {
+      setConfigGlobal(evolution.config);
+    }
     setInstancias(evolution.instances);
     setLoading(evolution.loading);
     setConectado(evolution.connected);
-  }, [evolution]);
+  }, [evolution.config, evolution.instances, evolution.loading, evolution.connected]);
 
   const salvarConfiguracao = async () => {
     setTestando(true);
@@ -162,9 +165,19 @@ export default function IntegracaoSimples() {
               />
             </div>
           </div>
-          <Button onClick={salvarConfiguracao} disabled={testando}>
-            {testando ? 'Testando...' : 'Salvar e Testar'}
-          </Button>
+          <div className="flex gap-2">
+            <Button onClick={salvarConfiguracao} disabled={testando}>
+              {testando ? 'Testando...' : 'Salvar e Testar'}
+            </Button>
+            {evolution.config.server_url && (
+              <Button 
+                variant="outline" 
+                onClick={() => setConfigGlobal(evolution.config)}
+              >
+                Carregar Configuração Existente
+              </Button>
+            )}
+          </div>
         </CardContent>
       </Card>
 

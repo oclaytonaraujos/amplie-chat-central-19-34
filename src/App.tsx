@@ -30,7 +30,7 @@ const ChatBot = lazy(() => import("@/pages/ChatBot").then(m => ({ default: m.def
 const FlowBuilder = lazy(() => import("@/pages/FlowBuilder").then(m => ({ default: m.default })));
 const Usuarios = lazy(() => import("@/pages/Usuarios").then(m => ({ default: m.default })));
 const Setores = lazy(() => import("@/pages/Setores").then(m => ({ default: m.default })));
-const WhatsApp = lazy(() => import("@/pages/WhatsApp").then(m => ({ default: m.default })));
+
 
 // Páginas menos críticas - carregamento sob demanda
 const ChatInterno = lazy(() => import("@/pages/ChatInterno").then(m => ({ default: m.default })));
@@ -219,13 +219,6 @@ function AppRoutes() {
         </ProtectedRoute>
       } />
       
-      <Route path="/whatsapp" element={
-        <ProtectedRoute>
-          <Suspense fallback={<PageContentFallback />}>
-            <WhatsApp />
-          </Suspense>
-        </ProtectedRoute>
-      } />
       
       {/* Rotas de baixa prioridade */}
       <Route path="/automations" element={

@@ -133,7 +133,15 @@ export default function IntegracaoSimples() {
     const result = await evolution.connectInstance(instancia.instance_name);
     setQrCodeLoading(false);
     
-    if (!result) {
+    if (result) {
+      // Recarregar dados para pegar o QR code atualizado
+      await evolution.loadInstances();
+      // Atualizar a instância selecionada com os novos dados
+      const updatedInstance = evolution.instances.find(inst => inst.instance_name === instancia.instance_name);
+      if (updatedInstance) {
+        setSelectedInstance(updatedInstance);
+      }
+    } else {
       setShowQRModal(false);
       setSelectedInstance(null);
     }
@@ -143,7 +151,14 @@ export default function IntegracaoSimples() {
     if (!selectedInstance) return;
     
     setQrCodeLoading(true);
-    await evolution.connectInstance(selectedInstance.instance_name);
+    const result = await evolution.connectInstance(selectedInstance.instance_name);
+    if (result) {
+      await evolution.loadInstances();
+      const updatedInstance = evolution.instances.find(inst => inst.instance_name === selectedInstance.instance_name);
+      if (updatedInstance) {
+        setSelectedInstance(updatedInstance);
+      }
+    }
     setQrCodeLoading(false);
   };
 

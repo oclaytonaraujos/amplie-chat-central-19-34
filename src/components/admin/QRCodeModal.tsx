@@ -46,6 +46,10 @@ export function QRCodeModal({
                 src={qrCode} 
                 alt="QR Code para conectar WhatsApp"
                 className="w-64 h-64 object-contain"
+                onError={(e) => {
+                  console.error('Erro ao carregar QR Code:', qrCode);
+                  e.currentTarget.src = '/placeholder.svg';
+                }}
               />
             </div>
           ) : (
@@ -59,6 +63,7 @@ export function QRCodeModal({
                 <>
                   <QrCode className="w-8 h-8 text-muted-foreground mb-2" />
                   <p className="text-sm text-muted-foreground">QR Code não disponível</p>
+                  <p className="text-xs text-muted-foreground">Clique em "Atualizar QR Code"</p>
                 </>
               )}
             </div>

@@ -308,13 +308,17 @@ export function useEvolutionIntegration() {
       }
 
       const result = await response.json();
+      console.log('QR Code Response:', result);
 
+      // Extrair QR code da resposta - tentar diferentes campos
+      const qrCodeData = result.base64 || result.qrcode || result.qr || result.qrCode;
+      
       // Atualizar status no banco
       const { error } = await supabase
         .from('evolution_api_config')
         .update({
           status: 'connecting',
-          qr_code: result.qrcode || result.qr || result.qrCode
+          qr_code: qrCodeData
         })
         .eq('instance_name', instanceName);
 

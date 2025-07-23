@@ -30,20 +30,24 @@ const QRCodeModal: React.FC<QRCodeModalProps> = ({
   const [autoRefreshTimer, setAutoRefreshTimer] = useState<number>(45);
 
   useEffect(() => {
-    if (!isOpen || !qrCode) return;
+    if (!isOpen) return;
+
+    // Iniciar timer assim que o modal abrir
+    setAutoRefreshTimer(45);
 
     const interval = setInterval(() => {
       setAutoRefreshTimer(prev => {
         if (prev <= 1) {
+          // Auto-refresh do QR code quando expirar
           onRefreshQR();
-          return 45; // Reset timer
+          return 45; // Reset timer para próximo ciclo
         }
         return prev - 1;
       });
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [isOpen, qrCode, onRefreshQR]);
+  }, [isOpen, onRefreshQR]);
 
   useEffect(() => {
     if (isOpen) {
@@ -479,7 +483,7 @@ export function WhatsAppConnectionManager() {
           {instances.map((instance) => {
             const status = connectionStates[instance.instance_name] || 'checking';
             const isConnected = status === 'open' || status === 'connected';
-            const isDisconnected = status === 'close' || status === 'disconnected';
+            const needsConnection = !isConnected; // Mostra botão conectar até que esteja realmente conectado
             
             return (
               <Card key={instance.id}>
@@ -559,39 +563,39 @@ export function WhatsAppConnectionManager() {
                   </CardTitle>
                 </CardHeader>
                 
-                <CardContent>
-                  <div className="flex space-x-2">
-                    {isDisconnected && (
-                      <Button
-                        onClick={() => handleConnect(instance.instance_name)}
-                        disabled={operationLoading[instance.instance_name]}
-                        className="bg-green-600 hover:bg-green-700"
-                      >
-                        {operationLoading[instance.instance_name] ? (
-                          <RefreshCw className="w-4 h-4 animate-spin mr-2" />
-                        ) : (
-                          <QrCode className="w-4 h-4 mr-2" />
-                        )}
-                        Conectar
-                      </Button>
-                    )}
-                    
-                    {isConnected && (
-                      <Button
-                        onClick={() => handleDisconnect(instance.instance_name)}
-                        disabled={operationLoading[instance.instance_name]}
-                        variant="destructive"
-                      >
-                        {operationLoading[instance.instance_name] ? (
-                          <RefreshCw className="w-4 h-4 animate-spin mr-2" />
-                        ) : (
-                          <WifiOff className="w-4 h-4 mr-2" />
-                        )}
-                        Desconectar
-                      </Button>
-                    )}
-                  </div>
-                </CardContent>
+                 <CardContent>
+                   <div className="flex space-x-2">
+                     {needsConnection && (
+                       <Button
+                         onClick={() => handleConnect(instance.instance_name)}
+                         disabled={operationLoading[instance.instance_name]}
+                         className="bg-green-600 hover:bg-green-700"
+                       >
+                         {operationLoading[instance.instance_name] ? (
+                           <RefreshCw className="w-4 h-4 animate-spin mr-2" />
+                         ) : (
+                           <QrCode className="w-4 h-4 mr-2" />
+                         )}
+                         {status === 'connecting' || status === 'qr' ? 'Gerar QR Code' : 'Conectar'}
+                       </Button>
+                     )}
+                     
+                     {isConnected && (
+                       <Button
+                         onClick={() => handleDisconnect(instance.instance_name)}
+                         disabled={operationLoading[instance.instance_name]}
+                         variant="destructive"
+                       >
+                         {operationLoading[instance.instance_name] ? (
+                           <RefreshCw className="w-4 h-4 animate-spin mr-2" />
+                         ) : (
+                           <WifiOff className="w-4 h-4 mr-2" />
+                         )}
+                         Desconectar
+                       </Button>
+                     )}
+                   </div>
+                 </CardContent>
               </Card>
             );
           })}

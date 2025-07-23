@@ -89,7 +89,7 @@ export function InstanciasWhatsAppAdmin() {
     connectInstance,
     getConnectionState,
     deleteInstance,
-    configureCompleteWebhook,
+    
     checkWebhookStatus,
     findWebhook,
     loading: evolutionApiLoading,
@@ -223,29 +223,6 @@ export function InstanciasWhatsAppAdmin() {
     }
   };
 
-  const handleConfigureWebhook = async (instancia: InstanciaCompleta) => {
-    try {
-      setRefreshing(instancia.id);
-      const result = await configureCompleteWebhook(instancia.instance_name);
-      
-      if (result) {
-        toast({
-          title: "Sucesso",
-          description: "Webhook configurado com sucesso",
-        });
-        await loadInstancias();
-      }
-    } catch (error) {
-      console.error('Erro ao configurar webhook:', error);
-      toast({
-        title: "Erro",
-        description: "Erro ao configurar webhook",
-        variant: "destructive",
-      });
-    } finally {
-      setRefreshing(null);
-    }
-  };
 
   const handleDelete = async (instancia: InstanciaCompleta) => {
     if (!confirm(`Tem certeza que deseja excluir a instância "${instancia.instance_name}"?`)) {
@@ -636,23 +613,6 @@ export function InstanciasWhatsAppAdmin() {
                         </Button>
                       )}
 
-                      {instancia.webhook_status === 'inativo' && (
-                        <Button 
-                          size="sm" 
-                          variant="outline"
-                          onClick={() => handleConfigureWebhook(instancia)}
-                          disabled={refreshing === instancia.id}
-                        >
-                          {refreshing === instancia.id ? (
-                            <RefreshCw className="w-4 h-4 animate-spin" />
-                          ) : (
-                            <>
-                              <Settings className="w-4 h-4 mr-1" />
-                              Config Webhook
-                            </>
-                          )}
-                        </Button>
-                      )}
 
                       <Button 
                         size="sm" 

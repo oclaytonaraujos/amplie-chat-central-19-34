@@ -41,7 +41,17 @@ export default function SuperAdmin() {
     isSuperAdmin,
     isAdminAuthenticated
   });
+  console.log('SuperAdmin render - estados:', {
+    authLoading,
+    roleLoading, 
+    adminAuthLoading,
+    user: !!user,
+    isSuperAdmin,
+    isAdminAuthenticated
+  });
+
   if (authLoading || roleLoading || adminAuthLoading) {
+    console.log('SuperAdmin: Mostrando loading...');
     return <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
@@ -50,9 +60,11 @@ export default function SuperAdmin() {
       </div>;
   }
   if (!user || !isSuperAdmin) {
+    console.log('SuperAdmin: Redirecionando para painel...');
     return <Navigate to="/painel" replace />;
   }
   if (!isAdminAuthenticated) {
+    console.log('SuperAdmin: Mostrando AdminLogin...');
     return <AdminLogin />;
   }
   return <AdminLayout title="Super Admin" description="Gerencie todas as empresas e configurações da plataforma">

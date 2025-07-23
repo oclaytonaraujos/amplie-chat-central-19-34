@@ -5,6 +5,7 @@ import IntegracaoSimples from './IntegracaoSimples';
 import { InstanciasWhatsAppAdmin } from './InstanciasWhatsAppAdmin';
 
 export default function IntegracoesCentralizadas() {
+  console.log('IntegracoesCentralizadas: Renderizando...');
   return (
     <Tabs defaultValue="configuracao" className="space-y-6">
       <TabsList className="grid w-full grid-cols-3">

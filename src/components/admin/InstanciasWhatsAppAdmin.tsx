@@ -45,6 +45,7 @@ interface Empresa {
 }
 
 export function InstanciasWhatsAppAdmin() {
+  console.log('InstanciasWhatsAppAdmin: Inicializando...');
   const [instancias, setInstancias] = useState<InstanciaCompleta[]>([]);
   const [empresas, setEmpresas] = useState<Empresa[]>([]);
   const [loading, setLoading] = useState(true);

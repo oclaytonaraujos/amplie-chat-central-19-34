@@ -183,34 +183,17 @@ export function useEvolutionIntegration() {
         throw new Error('Perfil sem empresa associada');
       }
 
-      // Criar instância via API seguindo a documentação exata
+      // Criar instância via API seguindo o exemplo correto
       console.log('Criando instância na Evolution API...');
-      const response = await fetch(`${config.server_url}/instance/create`, {
+      const response = await fetch(`${config.server_url}/instance/create/${instanceName}`, {
         method: 'POST',
         headers: {
           'apikey': config.api_key,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          instanceName,
-          token: config.api_key,
           qrcode: true,
-          integration: "WHATSAPP-BAILEYS",
-          webhook: config.webhook_base_url || undefined,
-          webhook_by_events: true,
-          events: ["APPLICATION_STARTUP"],
-          reject_call: true,
-          msg_call: "Desculpe, não aceito chamadas.",
-          groups_ignore: true,
-          always_online: true,
-          read_messages: true,
-          read_status: true,
-          websocket_enabled: false,
-          websocket_events: ["APPLICATION_STARTUP"],
-          rabbitmq_enabled: false,
-          rabbitmq_events: ["APPLICATION_STARTUP"],
-          sqs_enabled: false,
-          sqs_events: ["APPLICATION_STARTUP"]
+          integration: "WHATSAPP-BAILEYS"
         })
       });
 

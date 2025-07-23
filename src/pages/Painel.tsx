@@ -3,13 +3,13 @@ import { Settings, MessageSquare, Clock, Globe, Shield, Users } from 'lucide-rea
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
-import { WhatsAppConnectionsReal } from '@/components/whatsapp/WhatsAppConnectionsReal';
+import { WhatsAppConnectionManager } from '@/components/whatsapp/WhatsAppConnectionManager';
 
 export default function Painel() {
   return (
     <div className="p-6 space-y-6">
       {/* Conexões WhatsApp */}
-      <WhatsAppConnectionsReal />
+      <WhatsAppConnectionManager />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Controle de Atendimentos */}

@@ -7,14 +7,12 @@ import { Badge } from '@/components/ui/badge';
 import { AlertCircle, Settings, Edit, Save, X, MessageSquare, ExternalLink } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useEvolutionApiConfig } from '@/contexts/EvolutionApiContext';
-
 interface EvolutionConfig {
   id?: string;
   server_url: string;
   api_key: string;
   ativo: boolean;
 }
-
 export default function IntegracaoSimples() {
   const [configGlobal, setConfigGlobal] = useState<EvolutionConfig>({
     server_url: '',
@@ -25,9 +23,14 @@ export default function IntegracaoSimples() {
   const [testando, setTestando] = useState(false);
   const [modoEdicao, setModoEdicao] = useState(false);
   const [configSalva, setConfigSalva] = useState(false);
-  
-  const { toast } = useToast();
-  const { config: globalConfig, updateConfig, isConfigured } = useEvolutionApiConfig();
+  const {
+    toast
+  } = useToast();
+  const {
+    config: globalConfig,
+    updateConfig,
+    isConfigured
+  } = useEvolutionApiConfig();
 
   // Usar dados do contexto global
   useEffect(() => {
@@ -46,39 +49,34 @@ export default function IntegracaoSimples() {
     }
     setLoading(false);
   }, [globalConfig, isConfigured]);
-
   const salvarConfiguracao = async () => {
     if (!configGlobal.server_url || !configGlobal.api_key) {
       toast({
         title: "Campos obrigatórios",
         description: "Preencha todos os campos obrigatórios",
-        variant: "destructive",
+        variant: "destructive"
       });
       return;
     }
-
     setTestando(true);
     const sucesso = await updateConfig({
       server_url: configGlobal.server_url,
       api_key: configGlobal.api_key,
       webhook_base_url: 'https://obtpghqvrygzcukdaiej.supabase.co/functions/v1/whatsapp-webhook-evolution'
     });
-    
     if (sucesso) {
       setConfigSalva(true);
       setModoEdicao(false);
       toast({
         title: "Configuração salva",
-        description: "Evolution API configurada com sucesso. Agora você pode gerenciar instâncias na aba 'Instâncias'.",
+        description: "Evolution API configurada com sucesso. Agora você pode gerenciar instâncias na aba 'Instâncias'."
       });
     }
     setTestando(false);
   };
-
   const habilitarEdicao = () => {
     setModoEdicao(true);
   };
-
   const cancelarEdicao = () => {
     setModoEdicao(false);
     // Restaurar configuração original do contexto global
@@ -91,22 +89,17 @@ export default function IntegracaoSimples() {
       });
     }
   };
-
   if (loading) {
-    return (
-      <div className="space-y-6">
+    return <div className="space-y-6">
         <Card className="animate-pulse">
           <CardContent className="p-6">
             <div className="h-4 bg-muted rounded w-3/4 mb-2"></div>
             <div className="h-8 bg-muted rounded w-1/2"></div>
           </CardContent>
         </Card>
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <div className="space-y-6">
+  return <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold">Configuração da Evolution API</h2>
         <p className="text-muted-foreground">
@@ -124,9 +117,9 @@ export default function IntegracaoSimples() {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          {configSalva && !modoEdicao ? (
-            // Modo de visualização
-            <div className="space-y-4">
+          {configSalva && !modoEdicao ?
+        // Modo de visualização
+        <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label className="text-sm font-medium text-muted-foreground">URL do Servidor</Label>
@@ -147,29 +140,23 @@ export default function IntegracaoSimples() {
                   Editar Configuração
                 </Button>
               </div>
-            </div>
-          ) : (
-            // Modo de edição/criação
-            <div className="space-y-4">
+            </div> :
+        // Modo de edição/criação
+        <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="server_url">URL do Servidor</Label>
-                  <Input
-                    id="server_url"
-                    placeholder="https://sua-evolution-api.com"
-                    value={configGlobal.server_url}
-                    onChange={(e) => setConfigGlobal(prev => ({ ...prev, server_url: e.target.value }))}
-                  />
+                  <Input id="server_url" placeholder="https://sua-evolution-api.com" value={configGlobal.server_url} onChange={e => setConfigGlobal(prev => ({
+                ...prev,
+                server_url: e.target.value
+              }))} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="api_key">Chave da API</Label>
-                  <Input
-                    id="api_key"
-                    type="password"
-                    placeholder="Sua chave da API"
-                    value={configGlobal.api_key}
-                    onChange={(e) => setConfigGlobal(prev => ({ ...prev, api_key: e.target.value }))}
-                  />
+                  <Input id="api_key" type="password" placeholder="Sua chave da API" value={configGlobal.api_key} onChange={e => setConfigGlobal(prev => ({
+                ...prev,
+                api_key: e.target.value
+              }))} />
                 </div>
               </div>
               <div className="flex gap-2">
@@ -177,74 +164,23 @@ export default function IntegracaoSimples() {
                   <Save className="w-4 h-4 mr-2" />
                   {testando ? 'Salvando...' : 'Salvar e Testar'}
                 </Button>
-                {configSalva && (
-                  <Button variant="outline" onClick={cancelarEdicao}>
+                {configSalva && <Button variant="outline" onClick={cancelarEdicao}>
                     <X className="w-4 h-4 mr-2" />
                     Cancelar
-                  </Button>
-                )}
+                  </Button>}
               </div>
-            </div>
-          )}
+            </div>}
 
           {/* Informações sobre configuração */}
-          <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <div className="flex items-start gap-3">
-              <div className="w-5 h-5 text-blue-600 mt-0.5">
-                <Settings className="w-5 h-5" />
-              </div>
-              <div className="flex-1">
-                <h4 className="font-medium text-blue-900 mb-1">Configuração Global da Evolution API</h4>
-                <p className="text-sm text-blue-700 mb-3">
-                  Esta configuração define a conexão principal com sua Evolution API. Todos os recursos de WhatsApp dependem desta configuração.
-                </p>
-                <div className="space-y-2 text-sm text-blue-700">
-                  <div className="flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 bg-blue-600 rounded-full"></span>
-                    <span><strong>URL do Servidor:</strong> Endereço da sua Evolution API</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 bg-blue-600 rounded-full"></span>
-                    <span><strong>Chave da API:</strong> Token de autenticação para acesso</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 bg-blue-600 rounded-full"></span>
-                    <span><strong>Webhook:</strong> Configurado automaticamente para integração</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          
         </CardContent>
       </Card>
 
       {/* Card de gerenciamento de instâncias */}
-      {isConfigured && (
-        <Card className="border-green-200 bg-green-50">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                  <MessageSquare className="w-5 h-5 text-green-600" />
-                </div>
-                <div>
-                  <div className="font-medium text-green-900">Evolution API Configurada</div>
-                  <div className="text-sm text-green-700">Agora você pode gerenciar suas instâncias WhatsApp</div>
-                </div>
-              </div>
-              <Button variant="outline" className="border-green-300 text-green-700 hover:bg-green-100">
-                <MessageSquare className="w-4 h-4 mr-2" />
-                Gerenciar Instâncias
-                <ExternalLink className="w-4 h-4 ml-2" />
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+      {isConfigured}
 
       {/* Aviso se não estiver conectado */}
-      {!isConfigured && (
-        <Card className="border-yellow-200 bg-yellow-50">
+      {!isConfigured && <Card className="border-yellow-200 bg-yellow-50">
           <CardContent className="p-4">
             <div className="flex items-center gap-2 text-yellow-800">
               <AlertCircle className="w-5 h-5" />
@@ -254,8 +190,6 @@ export default function IntegracaoSimples() {
               </div>
             </div>
           </CardContent>
-        </Card>
-      )}
-    </div>
-  );
+        </Card>}
+    </div>;
 }

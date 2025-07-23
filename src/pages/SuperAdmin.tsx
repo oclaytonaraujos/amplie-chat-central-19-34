@@ -46,112 +46,196 @@ export default function SuperAdmin() {
   return (
     <AdminLayout title="Super Admin" description="Gerencie todas as empresas e configurações da plataforma">
       <ErrorBoundaryAdmin>
-        <Tabs defaultValue="analytics" className="space-y-6">
-          <div className="overflow-x-auto">
-            <TabsList className="grid w-max grid-cols-7 min-w-full lg:min-w-0 bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm">
-              <TabsTrigger value="analytics">Dashboard</TabsTrigger>
-              <TabsTrigger value="empresas">Empresas</TabsTrigger>
-              <TabsTrigger value="usuarios">Usuários</TabsTrigger>
-              <TabsTrigger value="planos">Planos</TabsTrigger>
-              <TabsTrigger value="integracoes">Integrações</TabsTrigger>
-              <TabsTrigger value="configuracoes">Configurações</TabsTrigger>
-              <TabsTrigger value="filas">Monitoramento</TabsTrigger>
+        <Tabs defaultValue="analytics" className="space-y-8">
+          <div className="admin-card-elevated p-2 rounded-xl">
+            <TabsList className="grid w-full grid-cols-7 admin-glass border-0 bg-transparent p-1 gap-1">
+              <TabsTrigger 
+                value="analytics" 
+                className="data-[state=active]:admin-status-success data-[state=active]:text-white font-semibold rounded-lg transition-all duration-200 hover:scale-105"
+              >
+                Dashboard
+              </TabsTrigger>
+              <TabsTrigger 
+                value="empresas"
+                className="data-[state=active]:admin-status-success data-[state=active]:text-white font-semibold rounded-lg transition-all duration-200 hover:scale-105"
+              >
+                Empresas
+              </TabsTrigger>
+              <TabsTrigger 
+                value="usuarios"
+                className="data-[state=active]:admin-status-success data-[state=active]:text-white font-semibold rounded-lg transition-all duration-200 hover:scale-105"
+              >
+                Usuários
+              </TabsTrigger>
+              <TabsTrigger 
+                value="planos"
+                className="data-[state=active]:admin-status-success data-[state=active]:text-white font-semibold rounded-lg transition-all duration-200 hover:scale-105"
+              >
+                Planos
+              </TabsTrigger>
+              <TabsTrigger 
+                value="integracoes"
+                className="data-[state=active]:admin-status-success data-[state=active]:text-white font-semibold rounded-lg transition-all duration-200 hover:scale-105"
+              >
+                Integrações
+              </TabsTrigger>
+              <TabsTrigger 
+                value="configuracoes"
+                className="data-[state=active]:admin-status-success data-[state=active]:text-white font-semibold rounded-lg transition-all duration-200 hover:scale-105"
+              >
+                Configurações
+              </TabsTrigger>
+              <TabsTrigger 
+                value="filas"
+                className="data-[state=active]:admin-status-success data-[state=active]:text-white font-semibold rounded-lg transition-all duration-200 hover:scale-105"
+              >
+                Monitoramento
+              </TabsTrigger>
             </TabsList>
           </div>
 
-          <TabsContent value="analytics">
-            <Card className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-sm border-gray-200/50 dark:border-gray-700/50">
-              <CardHeader>
-                <CardTitle>Dashboard Analytics</CardTitle>
-                <CardDescription>
-                  Métricas gerais, relatórios e visão consolidada da plataforma
-                </CardDescription>
+          <TabsContent value="analytics" className="mt-8">
+            <Card className="admin-card-elevated border-0 rounded-xl">
+              <CardHeader className="pb-6">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-admin-accent-light">
+                    <span className="text-white text-lg">📊</span>
+                  </div>
+                  <div>
+                    <CardTitle className="text-2xl font-bold text-admin-text-primary">Dashboard Analytics</CardTitle>
+                    <CardDescription className="text-admin-text-secondary mt-1">
+                      Métricas gerais, relatórios e visão consolidada da plataforma
+                    </CardDescription>
+                  </div>
+                </div>
               </CardHeader>
-              <CardContent>
+              <CardContent className="pt-0">
                 <AnalyticsDashboard />
               </CardContent>
             </Card>
           </TabsContent>
 
-          <TabsContent value="empresas">
-            <Card className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-sm border-gray-200/50 dark:border-gray-700/50">
-              <CardHeader>
-                <CardTitle>Gestão de Empresas</CardTitle>
-                <CardDescription>
-                  Gerencie todas as empresas cadastradas na plataforma
-                </CardDescription>
+          <TabsContent value="empresas" className="mt-8">
+            <Card className="admin-card-elevated border-0 rounded-xl">
+              <CardHeader className="pb-6">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-admin-accent-light">
+                    <span className="text-white text-lg">🏢</span>
+                  </div>
+                  <div>
+                    <CardTitle className="text-2xl font-bold text-admin-text-primary">Gestão de Empresas</CardTitle>
+                    <CardDescription className="text-admin-text-secondary mt-1">
+                      Gerencie todas as empresas cadastradas na plataforma
+                    </CardDescription>
+                  </div>
+                </div>
               </CardHeader>
-              <CardContent>
+              <CardContent className="pt-0">
                 <EmpresasTab />
               </CardContent>
             </Card>
           </TabsContent>
 
-          <TabsContent value="usuarios">
-            <Card className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-sm border-gray-200/50 dark:border-gray-700/50">
-              <CardHeader>
-                <CardTitle>Gestão de Usuários</CardTitle>
-                <CardDescription>
-                  Visualize e gerencie usuários de todas as empresas
-                </CardDescription>
+          <TabsContent value="usuarios" className="mt-8">
+            <Card className="admin-card-elevated border-0 rounded-xl">
+              <CardHeader className="pb-6">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-admin-accent-light">
+                    <span className="text-white text-lg">👥</span>
+                  </div>
+                  <div>
+                    <CardTitle className="text-2xl font-bold text-admin-text-primary">Gestão de Usuários</CardTitle>
+                    <CardDescription className="text-admin-text-secondary mt-1">
+                      Visualize e gerencie usuários de todas as empresas
+                    </CardDescription>
+                  </div>
+                </div>
               </CardHeader>
-              <CardContent>
+              <CardContent className="pt-0">
                 <UsuariosTab />
               </CardContent>
             </Card>
           </TabsContent>
 
-          <TabsContent value="planos">
-            <Card className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-sm border-gray-200/50 dark:border-gray-700/50">
-              <CardHeader>
-                <CardTitle>Gestão de Planos</CardTitle>
-                <CardDescription>
-                  Configure planos, permissões e funcionalidades da plataforma
-                </CardDescription>
+          <TabsContent value="planos" className="mt-8">
+            <Card className="admin-card-elevated border-0 rounded-xl">
+              <CardHeader className="pb-6">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-admin-accent-light">
+                    <span className="text-white text-lg">💎</span>
+                  </div>
+                  <div>
+                    <CardTitle className="text-2xl font-bold text-admin-text-primary">Gestão de Planos</CardTitle>
+                    <CardDescription className="text-admin-text-secondary mt-1">
+                      Configure planos, permissões e funcionalidades da plataforma
+                    </CardDescription>
+                  </div>
+                </div>
               </CardHeader>
-              <CardContent>
+              <CardContent className="pt-0">
                 <PlanosGerenciamento />
               </CardContent>
             </Card>
           </TabsContent>
 
-          <TabsContent value="integracoes">
-            <Card className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-sm border-gray-200/50 dark:border-gray-700/50">
-              <CardHeader>
-                <CardTitle>Central de Integrações</CardTitle>
-                <CardDescription>
-                  WhatsApp, Evolution API, n8n, webhooks e todas as configurações de integração
-                </CardDescription>
+          <TabsContent value="integracoes" className="mt-8">
+            <Card className="admin-card-elevated border-0 rounded-xl">
+              <CardHeader className="pb-6">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-admin-accent-light">
+                    <span className="text-white text-lg">🔗</span>
+                  </div>
+                  <div>
+                    <CardTitle className="text-2xl font-bold text-admin-text-primary">Central de Integrações</CardTitle>
+                    <CardDescription className="text-admin-text-secondary mt-1">
+                      WhatsApp, Evolution API, n8n, webhooks e todas as configurações de integração
+                    </CardDescription>
+                  </div>
+                </div>
               </CardHeader>
-              <CardContent>
+              <CardContent className="pt-0">
                 <IntegracoesCentralizadas />
               </CardContent>
             </Card>
           </TabsContent>
 
-          <TabsContent value="configuracoes">
-            <Card className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-sm border-gray-200/50 dark:border-gray-700/50">
-              <CardHeader>
-                <CardTitle>Configurações do Sistema</CardTitle>
-                <CardDescription>
-                  API Keys, configurações avançadas e permissões do sistema
-                </CardDescription>
+          <TabsContent value="configuracoes" className="mt-8">
+            <Card className="admin-card-elevated border-0 rounded-xl">
+              <CardHeader className="pb-6">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-admin-accent-light">
+                    <span className="text-white text-lg">⚙️</span>
+                  </div>
+                  <div>
+                    <CardTitle className="text-2xl font-bold text-admin-text-primary">Configurações do Sistema</CardTitle>
+                    <CardDescription className="text-admin-text-secondary mt-1">
+                      API Keys, configurações avançadas e permissões do sistema
+                    </CardDescription>
+                  </div>
+                </div>
               </CardHeader>
-              <CardContent>
+              <CardContent className="pt-0">
                 <ConfiguracoesAvancadas />
               </CardContent>
             </Card>
           </TabsContent>
 
-          <TabsContent value="filas">
-            <Card className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-sm border-gray-200/50 dark:border-gray-700/50">
-              <CardHeader>
-                <CardTitle>Monitoramento do Sistema</CardTitle>
-                <CardDescription>
-                  Filas de mensagens, logs e performance da plataforma
-                </CardDescription>
+          <TabsContent value="filas" className="mt-8">
+            <Card className="admin-card-elevated border-0 rounded-xl">
+              <CardHeader className="pb-6">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-admin-accent-light">
+                    <span className="text-white text-lg">📈</span>
+                  </div>
+                  <div>
+                    <CardTitle className="text-2xl font-bold text-admin-text-primary">Monitoramento do Sistema</CardTitle>
+                    <CardDescription className="text-admin-text-secondary mt-1">
+                      Filas de mensagens, logs e performance da plataforma
+                    </CardDescription>
+                  </div>
+                </div>
               </CardHeader>
-              <CardContent>
+              <CardContent className="pt-0">
                 <QueueMonitoring />
               </CardContent>
             </Card>

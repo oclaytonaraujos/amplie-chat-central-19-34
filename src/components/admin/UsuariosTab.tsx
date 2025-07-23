@@ -102,15 +102,15 @@ export default function UsuariosTab() {
 
   const getStatusBadge = (status: string) => {
     const statusMap = {
-      'online': { variant: 'default' as const, label: 'Online' },
-      'offline': { variant: 'secondary' as const, label: 'Offline' },
-      'ausente': { variant: 'outline' as const, label: 'Ausente' },
+      'online': { className: 'admin-status-success border-none font-semibold', label: '🟢 Online' },
+      'offline': { className: 'bg-admin-surface text-admin-text-secondary border-admin-border-subtle font-semibold', label: '⚫ Offline' },
+      'ausente': { className: 'admin-status-warning border-none font-semibold', label: '🟡 Ausente' },
     };
 
-    const statusInfo = statusMap[status as keyof typeof statusMap] || { variant: 'secondary' as const, label: status };
+    const statusInfo = statusMap[status as keyof typeof statusMap] || { className: 'bg-admin-surface text-admin-text-secondary border-admin-border-subtle', label: status };
     
     return (
-      <Badge variant={statusInfo.variant}>
+      <Badge className={statusInfo.className}>
         {statusInfo.label}
       </Badge>
     );
@@ -118,16 +118,16 @@ export default function UsuariosTab() {
 
   const getCargoBadge = (cargo: string) => {
     const cargoMap = {
-      'super_admin': { variant: 'destructive' as const, label: 'Super Admin' },
-      'admin': { variant: 'default' as const, label: 'Administrador' },
-      'agente': { variant: 'secondary' as const, label: 'Agente' },
-      'usuario': { variant: 'outline' as const, label: 'Usuário' },
+      'super_admin': { className: 'admin-status-danger border-none font-semibold', label: '👑 Super Admin' },
+      'admin': { className: 'admin-status-success border-none font-semibold', label: '🛡️ Administrador' },
+      'agente': { className: 'admin-status-warning border-none font-semibold', label: '💬 Agente' },
+      'usuario': { className: 'bg-admin-surface text-admin-text-secondary border-admin-border-subtle font-semibold', label: '👤 Usuário' },
     };
 
-    const cargoInfo = cargoMap[cargo as keyof typeof cargoMap] || { variant: 'outline' as const, label: cargo };
+    const cargoInfo = cargoMap[cargo as keyof typeof cargoMap] || { className: 'bg-admin-surface text-admin-text-secondary border-admin-border-subtle', label: cargo };
     
     return (
-      <Badge variant={cargoInfo.variant}>
+      <Badge className={cargoInfo.className}>
         {cargoInfo.label}
       </Badge>
     );
@@ -173,81 +173,92 @@ export default function UsuariosTab() {
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold">Usuários do Sistema</h3>
-        <Button onClick={() => setNovoUsuarioOpen(true)}>
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h3 className="text-xl font-bold text-admin-text-primary">Usuários do Sistema</h3>
+          <p className="text-admin-text-secondary mt-1">Gerencie todos os usuários da plataforma</p>
+        </div>
+        <Button 
+          onClick={() => setNovoUsuarioOpen(true)}
+          className="bg-admin-accent hover:bg-admin-accent-light text-white border-0 font-semibold transition-all duration-200 hover:scale-105"
+        >
           <UserPlus className="h-4 w-4 mr-2" />
           Novo Usuário
         </Button>
       </div>
 
       {/* Filtros */}
-      <div className="flex gap-4 items-center">
-        <Input
-          placeholder="Buscar por nome ou email..."
-          value={busca}
-          onChange={(e) => setBusca(e.target.value)}
-          className="max-w-sm"
-        />
-        <Select value={filtroEmpresa} onValueChange={setFiltroEmpresa}>
-          <SelectTrigger className="w-48">
-            <SelectValue placeholder="Filtrar por empresa" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Todas as empresas</SelectItem>
-            {empresas.map((empresa) => (
-              <SelectItem key={empresa.id} value={empresa.id}>
-                {empresa.nome}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select value={filtroCargo} onValueChange={setFiltroCargo}>
-          <SelectTrigger className="w-48">
-            <SelectValue placeholder="Filtrar por cargo" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Todos os cargos</SelectItem>
-            <SelectItem value="super_admin">Super Admin</SelectItem>
-            <SelectItem value="admin">Administrador</SelectItem>
-            <SelectItem value="agente">Agente</SelectItem>
-            <SelectItem value="usuario">Usuário</SelectItem>
-          </SelectContent>
-        </Select>
+      <div className="admin-glass p-4 rounded-xl border border-admin-border-subtle">
+        <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center">
+          <Input
+            placeholder="🔍 Buscar por nome ou email..."
+            value={busca}
+            onChange={(e) => setBusca(e.target.value)}
+            className="max-w-sm border-admin-border-subtle focus:border-admin-accent transition-colors"
+          />
+          <Select value={filtroEmpresa} onValueChange={setFiltroEmpresa}>
+            <SelectTrigger className="w-48 border-admin-border-subtle focus:border-admin-accent">
+              <SelectValue placeholder="Filtrar por empresa" />
+            </SelectTrigger>
+            <SelectContent className="admin-glass border-admin-border-subtle">
+              <SelectItem value="all">Todas as empresas</SelectItem>
+              {empresas.map((empresa) => (
+                <SelectItem key={empresa.id} value={empresa.id}>
+                  {empresa.nome}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={filtroCargo} onValueChange={setFiltroCargo}>
+            <SelectTrigger className="w-48 border-admin-border-subtle focus:border-admin-accent">
+              <SelectValue placeholder="Filtrar por cargo" />
+            </SelectTrigger>
+            <SelectContent className="admin-glass border-admin-border-subtle">
+              <SelectItem value="all">Todos os cargos</SelectItem>
+              <SelectItem value="super_admin">Super Admin</SelectItem>
+              <SelectItem value="admin">Administrador</SelectItem>
+              <SelectItem value="agente">Agente</SelectItem>
+              <SelectItem value="usuario">Usuário</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
-      <div className="border rounded-lg">
+      <div className="admin-card-elevated rounded-xl overflow-hidden border-0">
         <Table>
           <TableHeader>
-            <TableRow>
-              <TableHead>Nome</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead>Empresa</TableHead>
-              <TableHead>Cargo</TableHead>
-              <TableHead>Setor</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Data Cadastro</TableHead>
-              <TableHead>Ações</TableHead>
+            <TableRow className="border-admin-border-subtle hover:bg-admin-surface">
+              <TableHead className="font-semibold text-admin-text-primary">Nome</TableHead>
+              <TableHead className="font-semibold text-admin-text-primary">Email</TableHead>
+              <TableHead className="font-semibold text-admin-text-primary">Empresa</TableHead>
+              <TableHead className="font-semibold text-admin-text-primary">Cargo</TableHead>
+              <TableHead className="font-semibold text-admin-text-primary">Setor</TableHead>
+              <TableHead className="font-semibold text-admin-text-primary">Status</TableHead>
+              <TableHead className="font-semibold text-admin-text-primary">Data Cadastro</TableHead>
+              <TableHead className="font-semibold text-admin-text-primary">Ações</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {usuariosFiltrados.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={8} className="text-center text-gray-500 py-8">
-                  Nenhum usuário encontrado
+                <TableCell colSpan={8} className="text-center text-admin-text-secondary py-12">
+                  <div className="flex flex-col items-center gap-2">
+                    <span className="text-2xl">👥</span>
+                    <p className="font-medium">Nenhum usuário encontrado</p>
+                  </div>
                 </TableCell>
               </TableRow>
             ) : (
               usuariosFiltrados.map((usuario) => (
-                <TableRow key={usuario.id}>
-                  <TableCell className="font-medium">{usuario.nome}</TableCell>
-                  <TableCell>{usuario.email}</TableCell>
-                  <TableCell>{usuario.empresas?.nome || 'N/A'}</TableCell>
+                <TableRow key={usuario.id} className="border-admin-border-subtle hover:bg-admin-surface admin-hover-lift">
+                  <TableCell className="font-semibold text-admin-text-primary">{usuario.nome}</TableCell>
+                  <TableCell className="text-admin-text-secondary">{usuario.email}</TableCell>
+                  <TableCell className="text-admin-text-secondary">{usuario.empresas?.nome || 'N/A'}</TableCell>
                   <TableCell>{getCargoBadge(usuario.cargo)}</TableCell>
-                  <TableCell>{usuario.setor || 'N/A'}</TableCell>
+                  <TableCell className="text-admin-text-secondary">{usuario.setor || 'N/A'}</TableCell>
                   <TableCell>{getStatusBadge(usuario.status)}</TableCell>
-                  <TableCell>
+                  <TableCell className="text-admin-text-secondary font-medium">
                     {new Date(usuario.created_at).toLocaleDateString('pt-BR')}
                   </TableCell>
                   <TableCell>
@@ -259,6 +270,7 @@ export default function UsuariosTab() {
                           setSelectedUsuario(usuario);
                           setEditarUsuarioOpen(true);
                         }}
+                        className="admin-hover-lift border-admin-border-subtle hover:bg-admin-accent hover:text-white transition-all duration-200"
                       >
                         <Edit className="h-4 w-4" />
                       </Button>
@@ -269,7 +281,7 @@ export default function UsuariosTab() {
                           setSelectedUsuario(usuario);
                           setExcluirUsuarioOpen(true);
                         }}
-                        className="text-red-600 hover:text-red-700"
+                        className="admin-status-danger border-none admin-hover-lift"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>

@@ -106,10 +106,9 @@ export function WhatsAppConnectionsReal() {
           description: "Instância deletada com sucesso!",
         });
         
-        // Recarregar a página para atualizar o estado
-        setTimeout(() => {
-          window.location.reload();
-        }, 1000);
+        // Atualizar estado local em vez de recarregar a página
+        setStatus('desconectado');
+        setQrCode(null);
       } else {
         toast({
           title: "Erro",
@@ -130,8 +129,10 @@ export function WhatsAppConnectionsReal() {
   };
 
   const handleInstanceCreated = () => {
-    // Recarregar configurações e verificar status
-    window.location.reload();
+    // Atualizar estado local e recarregar configurações
+    setShowCreateDialog(false);
+    setStatus('desconectado');
+    setQrCode(null);
   };
 
   const getStatusColor = (status: string) => {

@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
+import { Checkbox } from '@/components/ui/checkbox';
 import { 
   MessageSquare, 
   Wifi, 
@@ -15,13 +16,28 @@ import {
   Unlink,
   Settings,
   Trash2,
-  Plus
+  Plus,
+  Info,
+  Filter,
+  SortAsc,
+  SortDesc
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useEvolutionAPIComplete } from '@/hooks/useEvolutionAPIComplete';
 import { QRCodeModal } from './QRCodeModal';
 import { CriarInstanciaDialog } from './CriarInstanciaDialog';
+import { InstanceStatsCard } from './InstanceStatsCard';
+import { InstanceDetailsDialog } from './InstanceDetailsDialog';
+import { InstanceBulkActions } from './InstanceBulkActions';
+import { InstanceStatusMonitor } from './InstanceStatusMonitor';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 interface InstanciaCompleta {
   id: string;
@@ -52,7 +68,13 @@ export function InstanciasWhatsAppAdmin() {
   const [selectedInstance, setSelectedInstance] = useState<InstanciaCompleta | null>(null);
   const [showQRModal, setShowQRModal] = useState(false);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [showDetailsDialog, setShowDetailsDialog] = useState(false);
   const [refreshing, setRefreshing] = useState<string | null>(null);
+  const [selectedInstances, setSelectedInstances] = useState<string[]>([]);
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [webhookFilter, setWebhookFilter] = useState<string>('all');
+  const [sortBy, setSortBy] = useState<'name' | 'status' | 'created' | 'company'>('created');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   
   const { toast } = useToast();
   const {
@@ -275,11 +297,70 @@ export function InstanciasWhatsAppAdmin() {
     }
   };
 
-  const filteredInstancias = instancias.filter(instancia =>
-    instancia.instance_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    instancia.empresa_nome?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    instancia.numero?.includes(searchTerm)
-  );
+  // Filtros e ordenação
+  const filteredAndSortedInstancias = instancias
+    .filter(instancia => {
+      // Filtro de texto
+      const textMatch = instancia.instance_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        instancia.empresa_nome?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        instancia.numero?.includes(searchTerm);
+      
+      // Filtro de status
+      const statusMatch = statusFilter === 'all' || 
+        (statusFilter === 'connected' && (instancia.status === 'open' || instancia.status === 'connected')) ||
+        (statusFilter === 'disconnected' && instancia.status === 'disconnected') ||
+        (statusFilter === 'connecting' && instancia.status === 'connecting');
+      
+      // Filtro de webhook
+      const webhookMatch = webhookFilter === 'all' ||
+        (webhookFilter === 'active' && instancia.webhook_status === 'ativo') ||
+        (webhookFilter === 'inactive' && instancia.webhook_status !== 'ativo');
+      
+      return textMatch && statusMatch && webhookMatch;
+    })
+    .sort((a, b) => {
+      let comparison = 0;
+      
+      switch (sortBy) {
+        case 'name':
+          comparison = a.instance_name.localeCompare(b.instance_name);
+          break;
+        case 'status':
+          comparison = a.status.localeCompare(b.status);
+          break;
+        case 'company':
+          comparison = (a.empresa_nome || '').localeCompare(b.empresa_nome || '');
+          break;
+        case 'created':
+        default:
+          comparison = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+          break;
+      }
+      
+      return sortOrder === 'asc' ? comparison : -comparison;
+    });
+
+  // Estatísticas
+  const stats = {
+    total: instancias.length,
+    connected: instancias.filter(i => i.status === 'open' || i.status === 'connected').length,
+    disconnected: instancias.filter(i => i.status === 'disconnected').length,
+    webhook_active: instancias.filter(i => i.webhook_status === 'ativo').length,
+    webhook_inactive: instancias.filter(i => i.webhook_status !== 'ativo').length,
+  };
+
+  const handleInstanceSelection = (instanceId: string, checked: boolean) => {
+    if (checked) {
+      setSelectedInstances(prev => [...prev, instanceId]);
+    } else {
+      setSelectedInstances(prev => prev.filter(id => id !== instanceId));
+    }
+  };
+
+  const handleShowDetails = (instancia: InstanciaCompleta) => {
+    setSelectedInstance(instancia);
+    setShowDetailsDialog(true);
+  };
 
   return (
     <div className="space-y-6">
@@ -302,10 +383,33 @@ export function InstanciasWhatsAppAdmin() {
         </div>
       </div>
 
+      {/* Estatísticas */}
+      <InstanceStatsCard stats={stats} loading={loading} />
+
+      {/* Monitor de Status em Tempo Real */}
+      <InstanceStatusMonitor 
+        instances={instancias}
+        onStatusUpdate={(instanceName, status) => {
+          setInstancias(prev => prev.map(inst => 
+            inst.instance_name === instanceName 
+              ? { ...inst, status }
+              : inst
+          ));
+        }}
+      />
+
+      {/* Ações em Lote */}
+      <InstanceBulkActions
+        instances={instancias}
+        selectedInstances={selectedInstances}
+        onSelectionChange={setSelectedInstances}
+        onRefresh={loadData}
+      />
+
       {/* Filtros */}
       <Card>
         <CardContent className="p-4">
-          <div className="flex items-center gap-4">
+          <div className="flex flex-col lg:flex-row gap-4">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
@@ -314,6 +418,52 @@ export function InstanciasWhatsAppAdmin() {
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
               />
+            </div>
+            
+            <div className="flex gap-2">
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-40">
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos Status</SelectItem>
+                  <SelectItem value="connected">Conectado</SelectItem>
+                  <SelectItem value="disconnected">Desconectado</SelectItem>
+                  <SelectItem value="connecting">Conectando</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select value={webhookFilter} onValueChange={setWebhookFilter}>
+                <SelectTrigger className="w-40">
+                  <SelectValue placeholder="Webhook" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos Webhooks</SelectItem>
+                  <SelectItem value="active">Webhook Ativo</SelectItem>
+                  <SelectItem value="inactive">Webhook Inativo</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select value={sortBy} onValueChange={(value: any) => setSortBy(value)}>
+                <SelectTrigger className="w-40">
+                  <SelectValue placeholder="Ordenar por" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="created">Data de Criação</SelectItem>
+                  <SelectItem value="name">Nome</SelectItem>
+                  <SelectItem value="status">Status</SelectItem>
+                  <SelectItem value="company">Empresa</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+                className="px-3"
+              >
+                {sortOrder === 'asc' ? <SortAsc className="w-4 h-4" /> : <SortDesc className="w-4 h-4" />}
+              </Button>
             </div>
           </div>
         </CardContent>
@@ -324,7 +474,12 @@ export function InstanciasWhatsAppAdmin() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <MessageSquare className="w-5 h-5" />
-            Instâncias Cadastradas ({filteredInstancias.length})
+            Instâncias Cadastradas ({filteredAndSortedInstancias.length})
+            {searchTerm || statusFilter !== 'all' || webhookFilter !== 'all' ? (
+              <span className="text-sm font-normal text-muted-foreground">
+                de {instancias.length} total
+              </span>
+            ) : null}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -337,20 +492,26 @@ export function InstanciasWhatsAppAdmin() {
                 </div>
               ))}
             </div>
-          ) : filteredInstancias.length === 0 ? (
+          ) : filteredAndSortedInstancias.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               <MessageSquare className="w-12 h-12 mx-auto mb-4 opacity-50" />
               <p>Nenhuma instância encontrada</p>
               <p className="text-sm">
-                {searchTerm ? 'Tente ajustar sua pesquisa' : 'Crie a primeira instância para começar'}
+                {searchTerm || statusFilter !== 'all' || webhookFilter !== 'all' 
+                  ? 'Tente ajustar os filtros de pesquisa' 
+                  : 'Crie a primeira instância para começar'}
               </p>
             </div>
           ) : (
             <div className="space-y-3">
-              {filteredInstancias.map((instancia) => (
+              {filteredAndSortedInstancias.map((instancia) => (
                 <div key={instancia.id} className="p-4 border rounded-lg">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
+                      <Checkbox
+                        checked={selectedInstances.includes(instancia.id)}
+                        onCheckedChange={(checked) => handleInstanceSelection(instancia.id, !!checked)}
+                      />
                       {getStatusIcon(instancia.status)}
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
@@ -379,6 +540,15 @@ export function InstanciasWhatsAppAdmin() {
                     </div>
                     
                     <div className="flex items-center gap-2">
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => handleShowDetails(instancia)}
+                      >
+                        <Info className="w-4 h-4 mr-1" />
+                        Detalhes
+                      </Button>
+
                       {instancia.status === 'disconnected' && (
                         <Button 
                           size="sm" 
@@ -459,6 +629,19 @@ export function InstanciasWhatsAppAdmin() {
           setShowCreateDialog(false);
           loadInstancias();
         }}
+      />
+
+      {/* Dialog Detalhes da Instância */}
+      <InstanceDetailsDialog
+        open={showDetailsDialog}
+        onOpenChange={(open) => {
+          setShowDetailsDialog(open);
+          if (!open) {
+            setSelectedInstance(null);
+          }
+        }}
+        instance={selectedInstance}
+        onRefresh={loadData}
       />
     </div>
   );

@@ -31,7 +31,7 @@ import { InstanceDetailsDialog } from './InstanceDetailsDialog';
 import { InstanceBulkActions } from './InstanceBulkActions';
 import { ImprovedWebhookCenter } from './ImprovedWebhookCenter';
 import { UnifiedInstanceDashboard } from './UnifiedInstanceDashboard';
-import { InstanceWebhookConfig } from './InstanceWebhookConfig';
+
 import {
   Select,
   SelectContent,
@@ -82,7 +82,7 @@ export function InstanciasWhatsAppAdmin() {
   const [sortBy, setSortBy] = useState<'name' | 'status' | 'created' | 'company'>('created');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [showWebhookCenter, setShowWebhookCenter] = useState(false);
-  const [showInstanceWebhook, setShowInstanceWebhook] = useState<InstanciaCompleta | null>(null);
+  
   
   const { toast } = useToast();
   const {
@@ -614,14 +614,6 @@ export function InstanciasWhatsAppAdmin() {
                       )}
 
 
-                      <Button 
-                        size="sm" 
-                        variant="outline"
-                        onClick={() => setShowInstanceWebhook(instancia)}
-                      >
-                        <Settings className="w-4 h-4 mr-1" />
-                        Webhooks
-                      </Button>
                       
                       <Button 
                         size="sm" 
@@ -708,39 +700,6 @@ export function InstanciasWhatsAppAdmin() {
         </div>
       )}
 
-      {/* Configuração de Webhook por Instância */}
-      {showInstanceWebhook && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-background rounded-lg shadow-lg w-full max-w-4xl max-h-[90vh] overflow-hidden">
-            <div className="flex items-center justify-between p-4 border-b">
-              <h2 className="text-lg font-semibold">
-                Configuração de Webhooks - {showInstanceWebhook.instance_name}
-              </h2>
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => setShowInstanceWebhook(null)}
-              >
-                Fechar
-              </Button>
-            </div>
-            <div className="p-4 overflow-y-auto max-h-[calc(90vh-100px)]">
-              <InstanceWebhookConfig
-                instanceName={showInstanceWebhook.instance_name}
-                instanceId={showInstanceWebhook.id}
-                onClose={() => setShowInstanceWebhook(null)}
-                onConfigurationChange={() => {
-                  loadData();
-                  toast({
-                    title: "Configuração salva",
-                    description: "Webhooks da instância configurados com sucesso",
-                  });
-                }}
-              />
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

@@ -70,7 +70,7 @@ export default function SuperAdmin() {
             </TabsList>
           </div>
 
-          <TabsContent value="analytics" className="animate-scale-in-smooth mx-2">
+          <TabsContent value="analytics" className="animate-scale-in-smooth">
             <Card className="admin-card rounded-2xl overflow-hidden shadow-xl border border-border/20 backdrop-blur-sm transition-all duration-500 hover:shadow-2xl hover:scale-[1.02]">
               <CardHeader className="bg-gradient-to-r from-primary/10 to-primary/5 border-b border-border/30 p-8">
                 <div className="flex items-center gap-4">
@@ -87,12 +87,12 @@ export default function SuperAdmin() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="empresas" className="animate-scale-in-smooth mx-2">
+          <TabsContent value="empresas" className="animate-scale-in-smooth">
             <Card className="admin-card rounded-2xl overflow-hidden shadow-xl border border-border/20 backdrop-blur-sm transition-all duration-500 hover:shadow-2xl hover:scale-[1.02]">
               <CardHeader className="bg-gradient-to-r from-primary/10 to-primary/5 border-b border-border/30 p-8">
                 <div className="flex items-center gap-4">
-                  <div className="w-4 h-4 rounded-full animate-pulse shadow-lg bg-slate-950"></div>
-                  <CardTitle className="text-2xl font-bold tracking-tight text-slate-950">Gestão de Empresas</CardTitle>
+                  <div className="w-4 h-4 bg-primary rounded-full animate-pulse shadow-lg"></div>
+                  <CardTitle className="text-2xl text-primary font-bold tracking-tight">Gestão de Empresas</CardTitle>
                 </div>
                 <CardDescription className="text-base text-muted-foreground mt-2">
                   Gerencie todas as empresas cadastradas na plataforma
@@ -104,7 +104,7 @@ export default function SuperAdmin() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="usuarios" className="animate-scale-in-smooth mx-2">
+          <TabsContent value="usuarios" className="animate-scale-in-smooth">
             <Card className="admin-card rounded-2xl overflow-hidden shadow-xl border border-border/20 backdrop-blur-sm transition-all duration-500 hover:shadow-2xl hover:scale-[1.02]">
               <CardHeader className="bg-gradient-to-r from-primary/10 to-primary/5 border-b border-border/30 p-8">
                 <div className="flex items-center gap-4">
@@ -121,7 +121,7 @@ export default function SuperAdmin() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="planos" className="animate-scale-in-smooth mx-2">
+          <TabsContent value="planos" className="animate-scale-in-smooth">
             <Card className="admin-card rounded-2xl overflow-hidden shadow-xl border border-border/20 backdrop-blur-sm transition-all duration-500 hover:shadow-2xl hover:scale-[1.02]">
               <CardHeader className="bg-gradient-to-r from-primary/10 to-primary/5 border-b border-border/30 p-8">
                 <div className="flex items-center gap-4">
@@ -138,7 +138,7 @@ export default function SuperAdmin() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="integracoes" className="animate-scale-in-smooth mx-2">
+          <TabsContent value="integracoes" className="animate-scale-in-smooth">
             <Card className="admin-card rounded-2xl overflow-hidden shadow-xl border border-border/20 backdrop-blur-sm transition-all duration-500 hover:shadow-2xl hover:scale-[1.02]">
               <CardHeader className="bg-gradient-to-r from-primary/10 to-primary/5 border-b border-border/30 p-8">
                 <div className="flex items-center gap-4">
@@ -155,7 +155,7 @@ export default function SuperAdmin() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="configuracoes" className="animate-scale-in-smooth mx-2">
+          <TabsContent value="configuracoes" className="animate-scale-in-smooth">
             <Card className="admin-card rounded-2xl overflow-hidden shadow-xl border border-border/20 backdrop-blur-sm transition-all duration-500 hover:shadow-2xl hover:scale-[1.02]">
               <CardHeader className="bg-gradient-to-r from-primary/10 to-primary/5 border-b border-border/30 p-8">
                 <div className="flex items-center gap-4">
@@ -172,7 +172,7 @@ export default function SuperAdmin() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="filas" className="animate-scale-in-smooth mx-2">
+          <TabsContent value="filas" className="animate-scale-in-smooth">
             <Card className="admin-card rounded-2xl overflow-hidden shadow-xl border border-border/20 backdrop-blur-sm transition-all duration-500 hover:shadow-2xl hover:scale-[1.02]">
               <CardHeader className="bg-gradient-to-r from-primary/10 to-primary/5 border-b border-border/30 p-8">
                 <div className="flex items-center gap-4">

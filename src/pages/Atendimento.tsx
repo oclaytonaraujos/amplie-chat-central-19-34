@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { MessageSquare, User, Plus } from 'lucide-react';
 import { FilterBar } from '@/components/atendimento/FilterBar';
@@ -268,131 +267,107 @@ export default function Atendimento() {
           <ContactsList
             contatos={contatos}
             onSelectContact={handleSelectContact}
-            onBack={handleReturnToList}
+            onReturnToList={handleReturnToList}
+            onAdicionarContato={handleContatoAdicionado}
           />
-        ) : selectedAtendimento ? (
-          // Mostra chat em tela cheia
-          <div className="h-full">
-            <ChatWhatsAppReal 
-              conversaId={selectedAtendimento.id}
-              nomeCliente={selectedAtendimento.contatos?.nome || 'Cliente Desconhecido'}
-              telefoneCliente={selectedAtendimento.contatos?.telefone || ''}
+        ) : (
+          // Mostra chat
+          <div className="h-screen">
+            <ChatWhatsAppReal
+              conversaId={selectedAtendimento!.id}
+              nomeCliente={selectedAtendimento!.contatos?.nome || 'Cliente'}
+              telefoneCliente={selectedAtendimento!.contatos?.telefone || ''}
               onReturnToList={handleReturnToList}
               onSairConversa={handleSairConversa}
               onTransferir={handleTransferir}
               onFinalizar={handleFinalizar}
             />
           </div>
-        ) : null}
-
-        {/* Dialogs */}
-        <TransferDialog
-          open={showTransferDialog}
-          onOpenChange={setShowTransferDialog}
-          onConfirm={handleConfirmTransfer}
-        />
-
-        <ConfirmSaveContactDialog
-          open={showConfirmDialog}
-          onOpenChange={setShowConfirmDialog}
-          onConfirm={handleConfirmSave}
-          onCancel={handleCancelSave}
-          clienteNome={pendingContact?.nome || ''}
-          clienteTelefone={pendingContact?.telefone || ''}
-        />
-
-        <NovoContatoDialog
-          open={showNovoContatoDialog}
-          onOpenChange={setShowNovoContatoDialog}
-          onContatoAdicionado={handleContatoAdicionado}
-          dadosIniciais={pendingContact || undefined}
-        />
+        )}
       </div>
     );
   }
 
-  // Layout desktop: duas colunas
+  // Layout desktop: três colunas
   return (
-    <div className="min-h-screen">
-      <div className="grid grid-cols-12 gap-6 h-full">
-        {/* Primeira Coluna - Pesquisa, Filtros e Atendimentos */}
-        <div className="col-span-5 flex flex-col">
-          {/* Barra de filtros e pesquisa */}
-          <div className="flex items-center space-x-2">
-            <div className="flex-1">
-              <FilterBar />
+    <div className="min-h-screen bg-gray-50">
+      <div className="flex h-screen">
+        {/* Coluna esquerda: Lista de atendimentos */}
+        <div className="w-80 border-r border-gray-200 bg-white flex flex-col">
+          <div className="p-4 border-b border-gray-200">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold">Atendimentos</h2>
+              <Button 
+                onClick={handleNovaConversa}
+                className="bg-green-500 hover:bg-green-600 text-white"
+                size="sm"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Nova conversa
+              </Button>
             </div>
-            <Button 
-              onClick={handleNovaConversa}
-              className="bg-green-500 hover:bg-green-600 text-white w-10 h-10 p-0"
-              size="icon"
-              title="Nova conversa"
-            >
-              <Plus className="w-4 h-4" />
-            </Button>
+            <FilterBar />
           </div>
-          
-          {/* Lista de atendimentos ou contatos */}
-          <div className="flex-1 mt-4">
-            {showContacts ? (
-              <ContactsList
-                contatos={contatos}
-                onSelectContact={handleSelectContact}
-                onBack={() => setShowContacts(false)}
-              />
-            ) : (
-              <AtendimentosListReal 
-                onSelectAtendimento={handleSelectAtendimento}
-                selectedAtendimento={selectedAtendimento}
-              />
-            )}
+          <div className="flex-1 overflow-hidden">
+            <AtendimentosListReal 
+              onSelectAtendimento={handleSelectAtendimento}
+              selectedAtendimento={selectedAtendimento}
+              isMobile={false}
+            />
           </div>
         </div>
 
-        {/* Segunda Coluna - Chat e Informações do Cliente */}
-        <div className="col-span-7 grid grid-rows-3 gap-4 h-full">
-          {/* Chat do WhatsApp - ocupa 2/3 da altura */}
-          <div className="row-span-2">
-            {selectedAtendimento ? (
-              <ChatWhatsAppReal 
-                conversaId={selectedAtendimento.id}
-                nomeCliente={selectedAtendimento.contatos?.nome || 'Cliente Desconhecido'}
-                telefoneCliente={selectedAtendimento.contatos?.telefone || ''}
-                onSairConversa={handleSairConversa}
-                onTransferir={handleTransferir}
-                onFinalizar={handleFinalizar}
-              />
-            ) : (
-              <div className="flex items-center justify-center h-full bg-white rounded-xl border border-dashed border-gray-300">
-                <div className="text-center p-6">
-                  <MessageSquare className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-600 mb-1">Selecione uma conversa</h3>
-                  <p className="text-sm text-gray-500">Clique em uma conversa para iniciar o atendimento</p>
-                </div>
+        {/* Coluna central: Chat */}
+        <div className="flex-1 flex flex-col">
+          {showContacts ? (
+            <ContactsList
+              contatos={contatos}
+              onSelectContact={handleSelectContact}
+              onReturnToList={handleReturnToList}
+              onAdicionarContato={handleContatoAdicionado}
+            />
+          ) : selectedAtendimento ? (
+            <ChatWhatsAppReal
+              conversaId={selectedAtendimento.id}
+              nomeCliente={selectedAtendimento.contatos?.nome || 'Cliente'}
+              telefoneCliente={selectedAtendimento.contatos?.telefone || ''}
+              onSairConversa={handleSairConversa}
+              onTransferir={handleTransferir}
+              onFinalizar={handleFinalizar}
+            />
+          ) : (
+            <div className="flex-1 flex items-center justify-center bg-gray-100">
+              <div className="text-center">
+                <MessageSquare className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  Selecione um atendimento
+                </h3>
+                <p className="text-gray-500">
+                  Escolha uma conversa para começar o atendimento
+                </p>
               </div>
-            )}
-          </div>
-          
-          {/* Informações do cliente - ocupa 1/3 da altura */}
-          <div className="row-span-1">
-            {selectedAtendimento && clienteInfo ? (
-              <ClienteInfo 
-                cliente={clienteInfo} 
-                transferencia={undefined}
-              />
-            ) : (
-              <div className="flex items-center justify-center h-full bg-white rounded-xl border border-dashed border-gray-300">
-                <div className="text-center">
-                  <User className="w-10 h-10 text-gray-300 mx-auto mb-2" />
-                  <p className="text-sm text-gray-500">Dados do cliente</p>
-                </div>
-              </div>
-            )}
-          </div>
+            </div>
+          )}
+        </div>
+
+        {/* Coluna direita: Informações do cliente */}
+        <div className="w-80 border-l border-gray-200 bg-white">
+          {clienteInfo ? (
+            <ClienteInfo 
+              cliente={clienteInfo}
+              onSalvarObservacao={(obs) => console.log('Salvar observação:', obs)}
+              onAdicionarTag={(tag) => console.log('Adicionar tag:', tag)}
+            />
+          ) : (
+            <div className="p-6 text-center text-gray-500">
+              <User className="w-12 h-12 mx-auto mb-4 text-gray-400" />
+              <p>Selecione um atendimento para ver as informações do cliente</p>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Dialogs */}
+      {/* Diálogos */}
       <TransferDialog
         open={showTransferDialog}
         onOpenChange={setShowTransferDialog}
@@ -402,17 +377,16 @@ export default function Atendimento() {
       <ConfirmSaveContactDialog
         open={showConfirmDialog}
         onOpenChange={setShowConfirmDialog}
+        contact={pendingContact}
         onConfirm={handleConfirmSave}
         onCancel={handleCancelSave}
-        clienteNome={pendingContact?.nome || ''}
-        clienteTelefone={pendingContact?.telefone || ''}
       />
 
       <NovoContatoDialog
         open={showNovoContatoDialog}
         onOpenChange={setShowNovoContatoDialog}
-        onContatoAdicionado={handleContatoAdicionado}
-        dadosIniciais={pendingContact || undefined}
+        onSave={handleContatoAdicionado}
+        initialData={pendingContact}
       />
     </div>
   );

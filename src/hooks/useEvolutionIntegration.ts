@@ -1,13 +1,14 @@
+
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { logger } from '@/utils/logger';
 
-interface EvolutionConfig {
+interface EvolutionGlobalConfig {
   id?: string;
   server_url: string;
   api_key: string;
   ativo: boolean;
+  webhook_base_url?: string;
 }
 
 interface EvolutionInstance {
@@ -17,20 +18,10 @@ interface EvolutionInstance {
   numero?: string;
   qr_code?: string;
   ativo: boolean;
-  webhook_url?: string;
 }
 
-interface ConnectionStatus {
-  connected: boolean;
-  error?: string;
-}
-
-/**
- * Hook simplificado para gerenciar a integração com Evolution API
- * Foco na facilidade de uso e clareza
- */
 export function useEvolutionIntegration() {
-  const [config, setConfig] = useState<EvolutionConfig>({
+  const [config, setConfig] = useState<EvolutionGlobalConfig>({
     server_url: '',
     api_key: '',
     ativo: false
@@ -38,177 +29,126 @@ export function useEvolutionIntegration() {
   const [instances, setInstances] = useState<EvolutionInstance[]>([]);
   const [loading, setLoading] = useState(true);
   const [connected, setConnected] = useState(false);
-  
   const { toast } = useToast();
 
-  // Carrega todas as configurações
-  const loadData = useCallback(async () => {
+  const loadGlobalConfig = useCallback(async () => {
     try {
-      setLoading(true);
-      
-      // Carregar configuração global
-      const { data: globalConfig } = await supabase
+      const { data, error } = await supabase
         .from('evolution_api_global_config')
         .select('*')
         .eq('ativo', true)
-        .maybeSingle();
-      
-      if (globalConfig) {
+        .single();
+
+      if (error && error.code !== 'PGRST116') {
+        throw error;
+      }
+
+      if (data) {
         setConfig({
-          id: globalConfig.id,
-          server_url: globalConfig.server_url,
-          api_key: globalConfig.api_key,
-          ativo: globalConfig.ativo
+          id: data.id,
+          server_url: data.server_url,
+          api_key: data.api_key,
+          ativo: data.ativo,
+          webhook_base_url: data.webhook_base_url
         });
         setConnected(true);
+        return data;
       }
-      
-      // Carregar instâncias
-      const { data: instancesData } = await supabase
+    } catch (error) {
+      console.error('Erro ao carregar configuração global:', error);
+    }
+    return null;
+  }, []);
+
+  const loadInstances = useCallback(async () => {
+    try {
+      const { data, error } = await supabase
         .from('evolution_api_config')
         .select('*')
+        .eq('ativo', true)
         .order('created_at', { ascending: false });
-      
-      if (instancesData) {
-        setInstances(instancesData.map(inst => ({
-          id: inst.id,
-          instance_name: inst.instance_name,
-          status: inst.status || 'disconnected',
-          numero: inst.numero,
-          qr_code: inst.qr_code,
-          ativo: inst.ativo,
-          webhook_url: inst.webhook_url
-        })));
+
+      if (error) {
+        throw error;
       }
-      
-      logger.info('Dados da integração Evolution carregados', {
-        component: 'useEvolutionIntegration'
-      });
-      
+
+      const instancesData = (data || []).map(item => ({
+        id: item.id,
+        instance_name: item.instance_name,
+        status: item.status || 'disconnected',
+        numero: item.numero,
+        qr_code: item.qr_code,
+        ativo: item.ativo
+      }));
+
+      setInstances(instancesData);
     } catch (error) {
-      logger.error('Erro ao carregar dados da integração', {
-        component: 'useEvolutionIntegration'
-      }, error as Error);
-      
-      toast({
-        title: "Erro",
-        description: "Erro ao carregar configurações da integração",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
+      console.error('Erro ao carregar instâncias:', error);
     }
-  }, [toast]);
+  }, []);
 
-  // Salva configuração global
-  const saveGlobalConfig = useCallback(async (newConfig: Omit<EvolutionConfig, 'id'>) => {
+  const saveGlobalConfig = async (configData: Omit<EvolutionGlobalConfig, 'id'>) => {
     try {
-      if (!newConfig.server_url || !newConfig.api_key) {
-        throw new Error('URL do servidor e chave da API são obrigatórios');
-      }
-
-      let savedConfig;
+      setLoading(true);
       
-      if (config.id) {
-        // Atualizar configuração existente
-        const { data, error } = await supabase
-          .from('evolution_api_global_config')
-          .update(newConfig)
-          .eq('id', config.id)
-          .select()
-          .single();
-        
-        if (error) throw error;
-        savedConfig = data;
-      } else {
-        // Desativar configurações existentes e criar nova
-        await supabase
-          .from('evolution_api_global_config')
-          .update({ ativo: false })
-          .neq('id', '00000000-0000-0000-0000-000000000000');
-        
-        const { data, error } = await supabase
-          .from('evolution_api_global_config')
-          .insert({ ...newConfig, ativo: true })
-          .select()
-          .single();
-        
-        if (error) throw error;
-        savedConfig = data;
-      }
-
-      setConfig({
-        id: savedConfig.id,
-        server_url: savedConfig.server_url,
-        api_key: savedConfig.api_key,
-        ativo: savedConfig.ativo
-      });
-      
-      setConnected(true);
-      
-      toast({
-        title: "Sucesso",
-        description: "Configuração salva com sucesso",
-      });
-      
-      logger.info('Configuração global Evolution salva', {
-        component: 'useEvolutionIntegration'
-      });
-      
-      return true;
-    } catch (error) {
-      logger.error('Erro ao salvar configuração global', {
-        component: 'useEvolutionIntegration'
-      }, error as Error);
-      
-      toast({
-        title: "Erro",
-        description: error instanceof Error ? error.message : "Erro ao salvar configuração",
-        variant: "destructive",
-      });
-      
-      return false;
-    }
-  }, [config.id, toast]);
-
-  // Testa conexão com a API
-  const testConnection = useCallback(async (): Promise<ConnectionStatus> => {
-    try {
-      if (!config.server_url || !config.api_key) {
-        return { connected: false, error: 'Configuração incompleta' };
-      }
-
-      const response = await fetch(`${config.server_url}/manager/findInstance`, {
+      // Testar conexão com a API
+      const testResponse = await fetch(`${configData.server_url}/manager/findInstance`, {
         method: 'GET',
         headers: {
-          'apikey': config.api_key,
+          'apikey': configData.api_key,
           'Content-Type': 'application/json'
         }
       });
 
-      if (response.ok) {
-        return { connected: true };
-      } else {
-        return { connected: false, error: `Erro ${response.status}: ${response.statusText}` };
-      }
-    } catch (error) {
-      return { 
-        connected: false, 
-        error: error instanceof Error ? error.message : 'Erro de conexão' 
-      };
-    }
-  }, [config.server_url, config.api_key]);
-
-  // Cria nova instância
-  const createInstance = useCallback(async (instanceName: string) => {
-    try {
-      if (!connected) {
-        throw new Error('Evolution API não está configurada');
+      if (!testResponse.ok) {
+        throw new Error('Não foi possível conectar com a Evolution API');
       }
 
-      const webhookUrl = `${window.location.origin}/api/webhooks/evolution/${instanceName}`;
+      // Salvar configuração no banco
+      const { data, error } = await supabase
+        .from('evolution_api_global_config')
+        .upsert({
+          server_url: configData.server_url,
+          api_key: configData.api_key,
+          webhook_base_url: configData.webhook_base_url,
+          ativo: true
+        })
+        .select()
+        .single();
+
+      if (error) {
+        throw error;
+      }
+
+      setConfig({ ...configData, id: data.id });
+      setConnected(true);
       
-      // Criar instância na Evolution API
+      toast({
+        title: "Configuração salva",
+        description: "Evolution API conectada com sucesso!",
+      });
+
+      return true;
+    } catch (error: any) {
+      console.error('Erro ao salvar configuração:', error);
+      toast({
+        title: "Erro na configuração",
+        description: error.message || "Não foi possível conectar com a Evolution API",
+        variant: "destructive",
+      });
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const createInstance = async (instanceName: string) => {
+    try {
+      if (!config.server_url || !config.api_key) {
+        throw new Error('Configuração global não encontrada');
+      }
+
+      // Criar instância via API
       const response = await fetch(`${config.server_url}/manager/create`, {
         method: 'POST',
         headers: {
@@ -217,97 +157,67 @@ export function useEvolutionIntegration() {
         },
         body: JSON.stringify({
           instanceName,
-          token: instanceName,
+          token: config.api_key,
           qrcode: true,
-          integration: "WHATSAPP-BAILEYS",
-          webhook: webhookUrl,
-          webhook_by_events: true,
-          events: ["MESSAGES_UPSERT", "CONNECTION_UPDATE", "QRCODE_UPDATED"],
-          reject_call: true,
-          msg_call: "Chamadas não são atendidas",
-          groups_ignore: true,
-          always_online: true,
-          read_messages: true,
-          read_status: true
+          webhook: config.webhook_base_url ? `${config.webhook_base_url}/whatsapp-webhook-evolution` : undefined
         })
       });
 
       if (!response.ok) {
-        throw new Error(`Erro ${response.status}: ${response.statusText}`);
+        throw new Error('Erro ao criar instância na Evolution API');
       }
 
-      // Obter empresa_id do usuário atual
-      const { data: profileData } = await supabase
+      const result = await response.json();
+
+      // Salvar configuração da instância no banco
+      const { data: profile } = await supabase
         .from('profiles')
         .select('empresa_id')
         .eq('id', (await supabase.auth.getUser()).data.user?.id)
         .single();
 
-      if (!profileData?.empresa_id) {
-        throw new Error('Empresa não encontrada para o usuário');
+      if (!profile) {
+        throw new Error('Perfil não encontrado');
       }
 
-      // Salvar no banco local
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('evolution_api_config')
         .insert({
-          empresa_id: profileData.empresa_id,
+          empresa_id: profile.empresa_id,
           instance_name: instanceName,
-          webhook_url: webhookUrl,
-          webhook_events: ["MESSAGES_UPSERT", "CONNECTION_UPDATE", "QRCODE_UPDATED"],
-          ativo: true,
-          status: 'disconnected'
-        })
-        .select()
-        .single();
+          status: 'disconnected',
+          ativo: true
+        });
 
-      if (error) throw error;
-
-      const newInstance: EvolutionInstance = {
-        id: data.id,
-        instance_name: data.instance_name,
-        status: data.status,
-        ativo: data.ativo,
-        webhook_url: data.webhook_url
-      };
-
-      setInstances(prev => [newInstance, ...prev]);
-
-      toast({
-        title: "Sucesso",
-        description: `Instância ${instanceName} criada com sucesso`,
-      });
-
-      logger.info('Instância criada com sucesso', {
-        component: 'useEvolutionIntegration',
-        metadata: { instanceName }
-      });
-
-      return true;
-    } catch (error) {
-      logger.error('Erro ao criar instância', {
-        component: 'useEvolutionIntegration',
-        metadata: { instanceName }
-      }, error as Error);
-
-      toast({
-        title: "Erro",
-        description: error instanceof Error ? error.message : "Erro ao criar instância",
-        variant: "destructive",
-      });
-
-      return false;
-    }
-  }, [connected, config, toast]);
-
-  // Deleta instância
-  const deleteInstance = useCallback(async (instanceName: string) => {
-    try {
-      if (!connected) {
-        throw new Error('Evolution API não está configurada');
+      if (error) {
+        throw error;
       }
 
-      // Deletar da Evolution API
+      toast({
+        title: "Instância criada",
+        description: `Instância ${instanceName} criada com sucesso!`,
+      });
+
+      await loadInstances();
+      return true;
+    } catch (error: any) {
+      console.error('Erro ao criar instância:', error);
+      toast({
+        title: "Erro ao criar instância",
+        description: error.message || "Não foi possível criar a instância",
+        variant: "destructive",
+      });
+      return false;
+    }
+  };
+
+  const deleteInstance = async (instanceName: string) => {
+    try {
+      if (!config.server_url || !config.api_key) {
+        throw new Error('Configuração global não encontrada');
+      }
+
+      // Deletar instância via API
       const response = await fetch(`${config.server_url}/manager/delete/${instanceName}`, {
         method: 'DELETE',
         headers: {
@@ -317,59 +227,45 @@ export function useEvolutionIntegration() {
       });
 
       if (!response.ok) {
-        throw new Error(`Erro ${response.status}: ${response.statusText}`);
+        throw new Error('Erro ao deletar instância na Evolution API');
       }
 
-      // Deletar do banco local
+      // Remover configuração do banco
       const { error } = await supabase
         .from('evolution_api_config')
         .delete()
         .eq('instance_name', instanceName);
 
       if (error) {
-        logger.error('Erro ao deletar instância do banco', {
-          component: 'useEvolutionIntegration',
-          metadata: { instanceName }
-        }, error);
+        throw error;
       }
 
-      setInstances(prev => prev.filter(inst => inst.instance_name !== instanceName));
-
       toast({
-        title: "Sucesso",
-        description: `Instância ${instanceName} deletada com sucesso`,
+        title: "Instância deletada",
+        description: `Instância ${instanceName} deletada com sucesso!`,
       });
 
-      logger.info('Instância deletada com sucesso', {
-        component: 'useEvolutionIntegration',
-        metadata: { instanceName }
-      });
-
+      await loadInstances();
       return true;
-    } catch (error) {
-      logger.error('Erro ao deletar instância', {
-        component: 'useEvolutionIntegration',
-        metadata: { instanceName }
-      }, error as Error);
-
+    } catch (error: any) {
+      console.error('Erro ao deletar instância:', error);
       toast({
-        title: "Erro",
-        description: error instanceof Error ? error.message : "Erro ao deletar instância",
+        title: "Erro ao deletar instância",
+        description: error.message || "Não foi possível deletar a instância",
         variant: "destructive",
       });
-
       return false;
     }
-  }, [connected, config, toast]);
+  };
 
-  // Conecta instância
-  const connectInstance = useCallback(async (instanceName: string) => {
+  const connectInstance = async (instanceName: string) => {
     try {
-      if (!connected) {
-        throw new Error('Evolution API não está configurada');
+      if (!config.server_url || !config.api_key) {
+        throw new Error('Configuração global não encontrada');
       }
 
-      const response = await fetch(`${config.server_url}/manager/connect/${instanceName}`, {
+      // Conectar instância via API
+      const response = await fetch(`${config.server_url}/instance/connect/${instanceName}`, {
         method: 'GET',
         headers: {
           'apikey': config.api_key,
@@ -378,59 +274,62 @@ export function useEvolutionIntegration() {
       });
 
       if (!response.ok) {
-        throw new Error(`Erro ${response.status}: ${response.statusText}`);
+        throw new Error('Erro ao conectar instância na Evolution API');
+      }
+
+      const result = await response.json();
+
+      // Atualizar status no banco
+      const { error } = await supabase
+        .from('evolution_api_config')
+        .update({
+          status: 'connecting',
+          qr_code: result.qrcode
+        })
+        .eq('instance_name', instanceName);
+
+      if (error) {
+        throw error;
       }
 
       toast({
-        title: "Conectando",
-        description: `Iniciando conexão da instância ${instanceName}`,
+        title: "Conectando instância",
+        description: `Instância ${instanceName} está sendo conectada...`,
       });
 
-      logger.info('Comando de conexão enviado', {
-        component: 'useEvolutionIntegration',
-        metadata: { instanceName }
-      });
-
-      // Recarregar dados após alguns segundos para atualizar status
-      setTimeout(() => {
-        loadData();
-      }, 3000);
-
+      await loadInstances();
       return true;
-    } catch (error) {
-      logger.error('Erro ao conectar instância', {
-        component: 'useEvolutionIntegration',
-        metadata: { instanceName }
-      }, error as Error);
-
+    } catch (error: any) {
+      console.error('Erro ao conectar instância:', error);
       toast({
-        title: "Erro",
-        description: error instanceof Error ? error.message : "Erro ao conectar instância",
+        title: "Erro ao conectar instância",
+        description: error.message || "Não foi possível conectar a instância",
         variant: "destructive",
       });
-
       return false;
     }
-  }, [connected, config, toast, loadData]);
+  };
 
-  // Carrega dados ao inicializar
   useEffect(() => {
+    const loadData = async () => {
+      setLoading(true);
+      await loadGlobalConfig();
+      await loadInstances();
+      setLoading(false);
+    };
+
     loadData();
-  }, [loadData]);
+  }, [loadGlobalConfig, loadInstances]);
 
   return {
-    // Estado
     config,
     instances,
     loading,
     connected,
-
-    // Ações
-    loadData,
     saveGlobalConfig,
-    testConnection,
     createInstance,
     deleteInstance,
-    connectInstance
+    connectInstance,
+    loadInstances
   };
 }

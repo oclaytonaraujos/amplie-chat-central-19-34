@@ -58,15 +58,15 @@ export default function SuperAdmin() {
   return <AdminLayout title="Super Admin" description="Gerencie todas as empresas e configurações da plataforma">
       <ErrorBoundaryAdmin>
         <Tabs defaultValue="analytics" className="space-y-8">
-          <div className="overflow-x-auto pb-2 px-2">
-            <TabsList className="grid w-max grid-cols-7 min-w-full lg:min-w-0 bg-card/95 dark:bg-card/95 backdrop-blur-xl border border-border/30 shadow-xl rounded-2xl p-3 transition-all duration-500 hover:shadow-2xl">
-              <TabsTrigger value="analytics" className="admin-tab-trigger data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-xl font-medium transition-all duration-500 hover:scale-105 px-6 py-4">Dashboard</TabsTrigger>
-              <TabsTrigger value="empresas" className="admin-tab-trigger data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-xl font-medium transition-all duration-500 hover:scale-105 px-6 py-4">Empresas</TabsTrigger>
-              <TabsTrigger value="usuarios" className="admin-tab-trigger data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-xl font-medium transition-all duration-500 hover:scale-105 px-6 py-4">Usuários</TabsTrigger>
-              <TabsTrigger value="planos" className="admin-tab-trigger data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-xl font-medium transition-all duration-500 hover:scale-105 px-6 py-4">Planos</TabsTrigger>
-              <TabsTrigger value="integracoes" className="admin-tab-trigger data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-xl font-medium transition-all duration-500 hover:scale-105 px-6 py-4">Integrações</TabsTrigger>
-              <TabsTrigger value="configuracoes" className="admin-tab-trigger data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-xl font-medium transition-all duration-500 hover:scale-105 px-6 py-4">Configurações</TabsTrigger>
-              <TabsTrigger value="filas" className="admin-tab-trigger data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-xl font-medium transition-all duration-500 hover:scale-105 px-6 py-4">Monitoramento</TabsTrigger>
+          <div className="relative overflow-x-auto pb-4 px-2">
+            <TabsList className="grid w-max grid-cols-7 min-w-full lg:min-w-0 relative z-10">
+              <TabsTrigger value="analytics" className="admin-tab-trigger">Dashboard</TabsTrigger>
+              <TabsTrigger value="empresas" className="admin-tab-trigger">Empresas</TabsTrigger>
+              <TabsTrigger value="usuarios" className="admin-tab-trigger">Usuários</TabsTrigger>
+              <TabsTrigger value="planos" className="admin-tab-trigger">Planos</TabsTrigger>
+              <TabsTrigger value="integracoes" className="admin-tab-trigger">Integrações</TabsTrigger>
+              <TabsTrigger value="configuracoes" className="admin-tab-trigger">Configurações</TabsTrigger>
+              <TabsTrigger value="filas" className="admin-tab-trigger">Monitoramento</TabsTrigger>
             </TabsList>
           </div>
 

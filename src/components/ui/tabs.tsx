@@ -12,7 +12,9 @@ const TabsList = React.forwardRef<
   <TabsPrimitive.List
     ref={ref}
     className={cn(
-      "inline-flex h-10 items-center justify-center rounded-md bg-muted p-1 text-muted-foreground",
+      "inline-flex items-center justify-center rounded-xl bg-card/95 backdrop-blur-xl border border-border/30 p-3 text-muted-foreground shadow-lg z-50 relative overflow-hidden",
+      "before:absolute before:inset-0 before:bg-gradient-to-r before:from-primary/5 before:to-primary/10 before:opacity-0 before:transition-opacity before:duration-500",
+      "hover:before:opacity-100 hover:shadow-xl transition-all duration-500",
       className
     )}
     {...props}
@@ -27,7 +29,14 @@ const TabsTrigger = React.forwardRef<
   <TabsPrimitive.Trigger
     ref={ref}
     className={cn(
-      "inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm",
+      "inline-flex items-center justify-center whitespace-nowrap rounded-xl px-6 py-4 text-sm font-medium ring-offset-background relative z-10 group overflow-hidden",
+      "transition-all duration-500 ease-out",
+      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+      "disabled:pointer-events-none disabled:opacity-50",
+      "before:absolute before:inset-0 before:bg-gradient-to-r before:from-primary/10 before:to-primary/20 before:opacity-0 before:transition-all before:duration-300 before:z-[-1]",
+      "hover:before:opacity-100 hover:text-primary hover:shadow-md hover:scale-105 hover:-translate-y-0.5",
+      "data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:scale-105",
+      "data-[state=active]:before:opacity-0",
       className
     )}
     {...props}

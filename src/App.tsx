@@ -19,33 +19,33 @@ const ProtectedRoute = lazy(() => import("@/components/ProtectedRoute").then(m =
 import { Layout } from "@/components/layout/Layout";
 
 // Páginas - todas lazy loaded
-const Auth = lazy(() => import("@/pages/Auth"));
-const SuperAdmin = lazy(() => import("@/pages/SuperAdmin"));
-const Painel = lazy(() => import("@/pages/Painel"));
-const Dashboard = lazy(() => import("@/pages/DashboardOptimized"));
-const Atendimento = lazy(() => import("@/pages/Atendimento"));
-const Contatos = lazy(() => import("@/pages/Contatos"));
-const Kanban = lazy(() => import("@/pages/Kanban"));
-const ChatBot = lazy(() => import("@/pages/ChatBot"));
-const FlowBuilder = lazy(() => import("@/pages/FlowBuilder"));
-const Usuarios = lazy(() => import("@/pages/Usuarios"));
-const Setores = lazy(() => import("@/pages/Setores"));
+const Auth = lazy(() => import("@/pages/Auth").then(m => ({ default: m.default })));
+const SuperAdmin = lazy(() => import("@/pages/SuperAdmin").then(m => ({ default: m.default })));
+const Painel = lazy(() => import("@/pages/Painel").then(m => ({ default: m.default })));
+const Dashboard = lazy(() => import("@/pages/DashboardOptimized").then(m => ({ default: m.default })));
+const Atendimento = lazy(() => import("@/pages/Atendimento").then(m => ({ default: m.default })));
+const Contatos = lazy(() => import("@/pages/Contatos").then(m => ({ default: m.default })));
+const Kanban = lazy(() => import("@/pages/Kanban").then(m => ({ default: m.default })));
+const ChatBot = lazy(() => import("@/pages/ChatBot").then(m => ({ default: m.default })));
+const FlowBuilder = lazy(() => import("@/pages/FlowBuilder").then(m => ({ default: m.default })));
+const Usuarios = lazy(() => import("@/pages/Usuarios").then(m => ({ default: m.default })));
+const Setores = lazy(() => import("@/pages/Setores").then(m => ({ default: m.default })));
 
 // Páginas menos críticas - carregamento sob demanda
-const ChatInterno = lazy(() => import("@/pages/ChatInterno"));
-const Automations = lazy(() => import("@/pages/Automations"));
-const GerenciarEquipe = lazy(() => import("@/pages/GerenciarEquipe"));
-const MeuPerfil = lazy(() => import("@/pages/MeuPerfil"));
-const PlanoFaturamento = lazy(() => import("@/pages/PlanoFaturamento"));
-const MelhoriasDashboard = lazy(() => import("@/pages/MelhoriasDashboard"));
+const ChatInterno = lazy(() => import("@/pages/ChatInterno").then(m => ({ default: m.default })));
+const Automations = lazy(() => import("@/pages/Automations").then(m => ({ default: m.default })));
+const GerenciarEquipe = lazy(() => import("@/pages/GerenciarEquipe").then(m => ({ default: m.default })));
+const MeuPerfil = lazy(() => import("@/pages/MeuPerfil").then(m => ({ default: m.default })));
+const PlanoFaturamento = lazy(() => import("@/pages/PlanoFaturamento").then(m => ({ default: m.default })));
+const MelhoriasDashboard = lazy(() => import("@/pages/MelhoriasDashboard").then(m => ({ default: m.default })));
 
 // Páginas de configuração - carregamento tardio
-const ConfiguracoesGerais = lazy(() => import("@/pages/configuracoes/ConfiguracoesGerais"));
-const ConfiguracoesAvancadas = lazy(() => import("@/pages/configuracoes/ConfiguracoesAvancadas"));
-const PreferenciasNotificacao = lazy(() => import("@/pages/configuracoes/PreferenciasNotificacao"));
-const Aparencia = lazy(() => import("@/pages/configuracoes/Aparencia"));
-const Idioma = lazy(() => import("@/pages/configuracoes/Idioma"));
-const NotFound = lazy(() => import("@/pages/NotFound"));
+const ConfiguracoesGerais = lazy(() => import("@/pages/configuracoes/ConfiguracoesGerais").then(m => ({ default: m.default })));
+const ConfiguracoesAvancadas = lazy(() => import("@/pages/configuracoes/ConfiguracoesAvancadas").then(m => ({ default: m.default })));
+const PreferenciasNotificacao = lazy(() => import("@/pages/configuracoes/PreferenciasNotificacao").then(m => ({ default: m.default })));
+const Aparencia = lazy(() => import("@/pages/configuracoes/Aparencia").then(m => ({ default: m.default })));
+const Idioma = lazy(() => import("@/pages/configuracoes/Idioma").then(m => ({ default: m.default })));
+const NotFound = lazy(() => import("@/pages/NotFound").then(m => ({ default: m.default })));
 
 // Fallback otimizado para Core Web Vitals (app completo)
 const FastFallback = () => (

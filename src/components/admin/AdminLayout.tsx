@@ -15,50 +15,57 @@ export function AdminLayout({ children, title = "Super Admin", description = "Pa
   const { adminLogout } = useAdminAuth();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
-      <header className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200/50 dark:border-gray-700/50 shadow-lg">
-        <div className="container mx-auto px-4 py-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-indigo-950 animate-gradient-shift">
+      <header className="admin-header relative overflow-hidden">
+        <div className="absolute inset-0 bg-white/10 dark:bg-black/20 backdrop-blur-xl"></div>
+        <div className="relative container mx-auto px-6 py-6">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="bg-white p-2 rounded-full shadow-md">
-                <img 
-                  src="/lovable-uploads/eddc7fb8-220e-433f-89b2-915fbe2e2daf.png" 
-                  alt="Amplie Icon" 
-                  className="h-8 w-8 object-contain"
-                />
+            <div className="flex items-center gap-6">
+              <div className="relative group">
+                <div className="absolute -inset-1 bg-white/20 rounded-full blur opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div className="relative bg-white/90 dark:bg-white/95 p-3 rounded-full shadow-lg animate-float-gentle">
+                  <img 
+                    src="/lovable-uploads/eddc7fb8-220e-433f-89b2-915fbe2e2daf.png" 
+                    alt="Amplie Icon" 
+                    className="h-10 w-10 object-contain"
+                  />
+                </div>
               </div>
-              <div>
-                <div className="flex items-center gap-2 mb-1">
+              <div className="space-y-1">
+                <div className="flex items-center gap-3">
                   <img 
                     src="/lovable-uploads/8ed7aa80-8a43-4375-a757-0f7dd486297f.png" 
                     alt="Amplie Chat Logo" 
-                    className="h-6 object-contain"
+                    className="h-7 object-contain filter brightness-0 invert"
                   />
-                  <span className="text-lg font-bold text-primary">{title}</span>
+                  <span className="text-xl font-bold text-white tracking-tight">{title}</span>
                 </div>
-                <p className="text-sm text-muted-foreground">{description}</p>
+                <p className="text-blue-100 text-sm font-medium">{description}</p>
               </div>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-4">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={adminLogout}
-                className="text-red-600 border-red-200 hover:bg-red-50 dark:text-red-400 dark:border-red-800 dark:hover:bg-red-950"
+                className="bg-white/10 text-white border-white/20 hover:bg-white/20 hover:border-white/30 backdrop-blur-sm transition-all duration-300 hover:scale-105"
               >
                 <LogOut className="h-4 w-4 mr-2" />
                 Sair do Admin
               </Button>
-              <div className="text-sm text-muted-foreground bg-white/50 dark:bg-gray-800/50 px-3 py-1 rounded-full border">
-                {user?.email}
+              <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full border border-white/20">
+                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                <span className="text-sm text-white font-medium">{user?.email}</span>
               </div>
             </div>
           </div>
         </div>
       </header>
 
-      <div className="container mx-auto px-4 py-8">
-        {children}
+      <div className="container mx-auto px-6 py-8 space-y-8">
+        <div className="animate-scale-in-smooth">
+          {children}
+        </div>
       </div>
     </div>
   );

@@ -136,50 +136,75 @@ export default function EmpresasTab() {
         className="max-w-sm"
       />
 
-      <div className="border rounded-lg overflow-x-auto">
+      <div className="border border-white/20 rounded-xl overflow-hidden shadow-lg backdrop-blur-sm bg-white/80 dark:bg-gray-900/80">
         <Table>
           <TableHeader>
-            <TableRow>
-              <TableHead className="min-w-[150px]">Nome</TableHead>
-              <TableHead className="min-w-[200px]">Email</TableHead>
-              <TableHead className="min-w-[120px]">Plano</TableHead>
-              <TableHead className="min-w-[150px]">Limites</TableHead>
-              <TableHead className="min-w-[100px]">Status</TableHead>
-              <TableHead className="min-w-[120px]">Data Cadastro</TableHead>
-              <TableHead className="min-w-[200px]">Ações</TableHead>
+            <TableRow className="bg-gradient-to-r from-slate-50 to-gray-100 dark:from-gray-800 dark:to-gray-700 border-b border-white/10">
+              <TableHead className="min-w-[150px] font-semibold text-gray-800 dark:text-gray-200">Nome</TableHead>
+              <TableHead className="min-w-[200px] font-semibold text-gray-800 dark:text-gray-200">Email</TableHead>
+              <TableHead className="min-w-[120px] font-semibold text-gray-800 dark:text-gray-200">Plano</TableHead>
+              <TableHead className="min-w-[150px] font-semibold text-gray-800 dark:text-gray-200">Limites</TableHead>
+              <TableHead className="min-w-[100px] font-semibold text-gray-800 dark:text-gray-200">Status</TableHead>
+              <TableHead className="min-w-[120px] font-semibold text-gray-800 dark:text-gray-200">Data Cadastro</TableHead>
+              <TableHead className="min-w-[200px] font-semibold text-gray-800 dark:text-gray-200">Ações</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {empresasFiltradas.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
-                  {busca ? 'Nenhuma empresa encontrada com este filtro' : 'Nenhuma empresa cadastrada'}
+                <TableCell colSpan={7} className="text-center text-muted-foreground py-12">
+                  <div className="flex flex-col items-center gap-3">
+                    <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full flex items-center justify-center">
+                      <Users className="h-6 w-6 text-blue-600" />
+                    </div>
+                    <p className="text-lg font-medium">
+                      {busca ? 'Nenhuma empresa encontrada com este filtro' : 'Nenhuma empresa cadastrada'}
+                    </p>
+                  </div>
                 </TableCell>
               </TableRow>
             ) : (
               empresasFiltradas.map((empresa) => (
-              <TableRow key={empresa.id}>
-                <TableCell className="font-medium">{empresa.nome}</TableCell>
-                <TableCell>{empresa.email}</TableCell>
+              <TableRow key={empresa.id} className="admin-table-row hover:bg-gradient-to-r hover:from-blue-50/50 hover:to-purple-50/50 dark:hover:from-blue-900/20 dark:hover:to-purple-900/20">
+                <TableCell className="font-semibold text-gray-900 dark:text-gray-100">{empresa.nome}</TableCell>
+                <TableCell className="text-gray-700 dark:text-gray-300">{empresa.email}</TableCell>
                 <TableCell>
-                  <Badge variant="outline">
+                  <Badge variant="outline" className="bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200 text-blue-700 dark:from-blue-900/30 dark:to-purple-900/30 dark:border-blue-700 dark:text-blue-300">
                     {empresa.planos?.nome || 'Sem plano'}
                   </Badge>
                 </TableCell>
                 <TableCell>
-                  <div className="text-sm">
-                    <div>Usuários: {empresa.limite_usuarios}</div>
-                    <div>WhatsApp: {empresa.limite_whatsapp_conexoes}</div>
-                    <div>Storage: {empresa.limite_armazenamento_gb}GB</div>
-                    <div>Contatos: {empresa.limite_contatos}</div>
+                  <div className="text-sm space-y-1">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                      <span>Usuários: <span className="font-semibold">{empresa.limite_usuarios}</span></span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                      <span>WhatsApp: <span className="font-semibold">{empresa.limite_whatsapp_conexoes}</span></span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                      <span>Storage: <span className="font-semibold">{empresa.limite_armazenamento_gb}GB</span></span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                      <span>Contatos: <span className="font-semibold">{empresa.limite_contatos}</span></span>
+                    </div>
                   </div>
                 </TableCell>
                 <TableCell>
-                  <Badge variant={empresa.ativo ? "default" : "secondary"}>
+                  <Badge 
+                    variant={empresa.ativo ? "default" : "secondary"} 
+                    className={empresa.ativo 
+                      ? "bg-gradient-to-r from-green-500 to-emerald-600 text-white border-none shadow-md" 
+                      : "bg-gradient-to-r from-gray-400 to-gray-500 text-white border-none"
+                    }
+                  >
                     {empresa.ativo ? 'Ativa' : 'Inativa'}
                   </Badge>
                 </TableCell>
-                <TableCell>
+                <TableCell className="text-gray-600 dark:text-gray-400 font-medium">
                   {new Date(empresa.created_at).toLocaleDateString('pt-BR')}
                 </TableCell>
                 <TableCell>
@@ -192,6 +217,7 @@ export default function EmpresasTab() {
                         setUsuariosEmpresaOpen(true);
                       }}
                       title="Ver usuários"
+                      className="hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700 transition-all duration-200 hover:scale-105"
                     >
                       <Users className="h-4 w-4" />
                     </Button>
@@ -204,6 +230,7 @@ export default function EmpresasTab() {
                       size="sm"
                       onClick={() => toggleEmpresaStatus(empresa)}
                       title={empresa.ativo ? 'Desativar' : 'Ativar'}
+                      className="hover:bg-yellow-50 hover:border-yellow-300 hover:text-yellow-700 transition-all duration-200 hover:scale-105"
                     >
                       {empresa.ativo ? (
                         <ToggleRight className="h-4 w-4" />
@@ -218,7 +245,7 @@ export default function EmpresasTab() {
                         setSelectedEmpresa(empresa);
                         setExcluirEmpresaOpen(true);
                       }}
-                      className="text-red-600 hover:text-red-700"
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50 hover:border-red-300 transition-all duration-200 hover:scale-105"
                       title="Excluir empresa"
                     >
                       <Trash2 className="h-4 w-4" />

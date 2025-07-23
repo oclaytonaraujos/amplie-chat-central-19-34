@@ -46,17 +46,39 @@
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
 
-    /* Amplie brand colors */
-    --amplie-primary: 222.2 47.4% 11.2%;
-    --amplie-primary-light: 222.2 47.4% 21.2%;
+  /* Amplie brand colors - Admin enhanced palette */
+  --amplie-primary: 217 91% 60%;
+  --amplie-primary-light: 217 91% 70%;
+  --amplie-primary-dark: 217 91% 50%;
+  --amplie-secondary: 262 83% 58%;
+  --amplie-accent: 142 76% 46%;
+  --amplie-warning: 38 92% 50%;
+  --amplie-danger: 0 84% 60%;
+  --amplie-success: 142 76% 36%;
+  
+  /* Admin gradient system */
+  --gradient-admin-primary: linear-gradient(135deg, hsl(217 91% 60%), hsl(262 83% 58%));
+  --gradient-admin-card: linear-gradient(145deg, hsl(0 0% 100% / 0.9), hsl(0 0% 98% / 0.8));
+  --gradient-admin-hover: linear-gradient(135deg, hsl(217 91% 70%), hsl(262 83% 68%));
+  
+  /* Admin shadows */
+  --shadow-admin-card: 0 4px 20px -4px hsl(217 91% 60% / 0.15);
+  --shadow-admin-hover: 0 8px 32px -8px hsl(217 91% 60% / 0.25);
+  --shadow-admin-elevated: 0 16px 64px -16px hsl(217 91% 60% / 0.35);
   }
 
   .dark {
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
 
-    --card: 222.2 84% 4.9%;
+    --card: 217.2 32.6% 15.5%;
     --card-foreground: 210 40% 98%;
+    
+    /* Dark mode admin colors */
+    --gradient-admin-card: linear-gradient(145deg, hsl(217.2 32.6% 15.5% / 0.9), hsl(217.2 32.6% 12.5% / 0.8));
+    --shadow-admin-card: 0 4px 20px -4px hsl(0 0% 0% / 0.3);
+    --shadow-admin-hover: 0 8px 32px -8px hsl(0 0% 0% / 0.4);
+    --shadow-admin-elevated: 0 16px 64px -16px hsl(0 0% 0% / 0.5);
 
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
@@ -396,6 +418,35 @@
   animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
+/* Admin-specific animations */
+@keyframes float-gentle {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-4px); }
+}
+
+@keyframes scale-in-smooth {
+  0% { transform: scale(0.95); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.animate-float-gentle {
+  animation: float-gentle 3s ease-in-out infinite;
+}
+
+.animate-scale-in-smooth {
+  animation: scale-in-smooth 0.4s ease-out;
+}
+
+.animate-gradient-shift {
+  background-size: 200% 200%;
+  animation: gradient-shift 4s ease infinite;
+}
+
 /* Loading states */
 
 /* Responsive typography */
@@ -451,6 +502,70 @@
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+/* Admin component styles */
+.admin-card {
+  background: var(--gradient-admin-card);
+  border: 1px solid hsl(var(--border) / 0.5);
+  box-shadow: var(--shadow-admin-card);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(12px);
+}
+
+.admin-card:hover {
+  box-shadow: var(--shadow-admin-hover);
+  transform: translateY(-2px);
+}
+
+.admin-header {
+  background: var(--gradient-admin-primary);
+  background-size: 200% 200%;
+  animation: gradient-shift 6s ease infinite;
+}
+
+.admin-tab-trigger {
+  position: relative;
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.admin-tab-trigger::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, hsl(var(--amplie-primary) / 0.1), transparent);
+  transition: left 0.6s ease;
+}
+
+.admin-tab-trigger:hover::before {
+  left: 100%;
+}
+
+.admin-button-primary {
+  background: var(--gradient-admin-primary);
+  border: none;
+  color: white;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.admin-button-primary:hover {
+  box-shadow: var(--shadow-admin-hover);
+  transform: translateY(-1px);
+}
+
+.admin-table-row {
+  transition: all 0.2s ease;
+}
+
+.admin-table-row:hover {
+  background: hsl(var(--amplie-primary) / 0.02);
+  transform: scale(1.005);
 }
 
 /* Print styles */

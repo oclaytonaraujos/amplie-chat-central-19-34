@@ -548,12 +548,7 @@ export function InstanciasWhatsAppAdmin() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <MessageSquare className="w-5 h-5" />
-            Instâncias Cadastradas ({filteredAndSortedInstancias.length})
-            {searchTerm || statusFilter !== 'all' || webhookFilter !== 'all' ? (
-              <span className="text-sm font-normal text-muted-foreground">
-                de {instancias.length} total
-              </span>
-            ) : null}
+            Instâncias Cadastradas
           </CardTitle>
         </CardHeader>
         <CardContent>

@@ -27,60 +27,116 @@ export default defineConfig(({ mode }) => ({
     rollupOptions: {
       output: {
         manualChunks: (id) => {
-          // Vendor chunks otimizados para reduzir TBT
+          // Vendor chunks ultra-otimizados
           if (id.includes('node_modules')) {
+            // React core - chunk separado e prioritário
             if (id.includes('react') || id.includes('react-dom')) {
-              return 'react-vendor';
+              return 'react-core';
             }
+            
+            // UI library - chunk específico
             if (id.includes('@radix-ui')) {
               return 'ui-vendor';
             }
+            
+            // Database - chunk específico
             if (id.includes('@supabase')) {
               return 'supabase-vendor';
             }
-            if (id.includes('@tanstack')) {
+            
+            // Query library - chunk específico
+            if (id.includes('@tanstack/react-query')) {
               return 'query-vendor';
             }
+            
+            // Icons - chunk separado para cache
             if (id.includes('lucide-react')) {
               return 'icons-vendor';
             }
+            
+            // Charts - chunk separado para lazy load
             if (id.includes('recharts')) {
               return 'charts-vendor';
             }
+            
+            // Router
+            if (id.includes('react-router')) {
+              return 'router-vendor';
+            }
+            
+            // Utilities
+            if (id.includes('clsx') || id.includes('tailwind-merge') || id.includes('class-variance-authority')) {
+              return 'utils-vendor';
+            }
+            
             return 'vendor';
           }
           
-          // Chunks por página para melhor code splitting
+          // Page chunks - otimizados por funcionalidade
           if (id.includes('/pages/')) {
-            const pageName = id.split('/pages/')[1].split('.')[0];
-            return `page-${pageName.toLowerCase()}`;
+            const pageName = id.split('/pages/')[1].split('.')[0].toLowerCase();
+            
+            // Agrupar páginas relacionadas
+            if (['dashboard', 'dashboardoptimized', 'painel'].includes(pageName)) {
+              return 'dashboard-page';
+            }
+            if (['atendimento', 'kanban', 'chat-interno'].includes(pageName)) {
+              return 'communication-pages';
+            }
+            if (['usuarios', 'setores', 'gerenciar-equipe'].includes(pageName)) {
+              return 'management-pages';
+            }
+            if (['chatbot', 'automations', 'flow-builder'].includes(pageName)) {
+              return 'automation-pages';
+            }
+            if (pageName.startsWith('configuracoes')) {
+              return 'settings-pages';
+            }
+            
+            return `page-${pageName}`;
           }
           
-          // Chunks por funcionalidade
-          if (id.includes('/components/admin/')) {
-            return 'admin-components';
+          // Component chunks por área
+          if (id.includes('/components/')) {
+            if (id.includes('/components/admin/')) {
+              return 'admin-components';
+            }
+            if (id.includes('/components/ui/')) {
+              return 'ui-components';
+            }
+            if (id.includes('/components/dashboard/')) {
+              return 'dashboard-components';
+            }
+            if (id.includes('/components/flow/')) {
+              return 'flow-components';
+            }
+            if (id.includes('/components/atendimento/')) {
+              return 'atendimento-components';
+            }
+            return 'components';
           }
           
-          if (id.includes('/components/ui/')) {
-            return 'ui-components';
-          }
-          
-          if (id.includes('/components/flow/')) {
-            return 'flow-components';
-          }
-          
+          // Hooks por funcionalidade
           if (id.includes('/hooks/')) {
             return 'hooks';
           }
           
+          // Services
           if (id.includes('/services/')) {
             return 'services';
+          }
+          
+          // Utils
+          if (id.includes('/utils/')) {
+            return 'utils';
           }
         }
       }
     },
-    chunkSizeWarningLimit: 300, // Reduzido para alertar chunks grandes
-    assetsInlineLimit: 2048 // Reduzido para melhorar cacheability
+    chunkSizeWarningLimit: 250, // Alertar para chunks > 250kb
+    assetsInlineLimit: 1024, // Inline apenas assets muito pequenos
+    cssCodeSplit: true, // Split CSS por chunk
+    reportCompressedSize: false, // Desabilitar para build mais rápido
   },
   optimizeDeps: {
     include: [

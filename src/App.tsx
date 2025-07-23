@@ -20,7 +20,7 @@ const Layout = lazy(() => import("@/components/layout/Layout").then(m => ({ defa
 const Auth = lazy(() => import("@/pages/Auth"));
 const SuperAdmin = lazy(() => import("@/pages/SuperAdmin"));
 const Painel = lazy(() => import("@/pages/Painel"));
-const Dashboard = lazy(() => import("@/pages/Dashboard"));
+const Dashboard = lazy(() => import("@/pages/DashboardOptimized"));
 const Atendimento = lazy(() => import("@/pages/Atendimento"));
 const Contatos = lazy(() => import("@/pages/Contatos"));
 const Kanban = lazy(() => import("@/pages/Kanban"));
@@ -53,14 +53,36 @@ const FastFallback = () => (
   </div>
 );
 
-// Preload inteligente apenas das rotas mais usadas
+// Preload inteligente com base na rota atual e padrões de uso
 const preloadCriticalPages = () => {
   requestIdleCallback(() => {
     const currentPath = window.location.pathname;
-    if (currentPath === '/' || currentPath === '/painel') {
-      import('@/pages/Dashboard');
-      import('@/pages/Atendimento');
+    
+    // Mapear rotas críticas por contexto
+    const criticalRoutes: Record<string, string[]> = {
+      '/': ['@/pages/DashboardOptimized', '@/pages/Atendimento'],
+      '/painel': ['@/pages/DashboardOptimized', '@/pages/Atendimento'],
+      '/dashboard': ['@/pages/Atendimento', '@/pages/Contatos'],
+      '/auth': ['@/pages/DashboardOptimized']
+    };
+
+    const routesToPreload = criticalRoutes[currentPath] || [];
+    
+    // Preload apenas se não estamos em conexão lenta
+    if ('connection' in navigator) {
+      const connection = (navigator as any).connection;
+      if (connection.effectiveType === '2g' || connection.saveData) {
+        return; // Skip preload em conexões lentas
+      }
     }
+
+    routesToPreload.forEach(route => {
+      try {
+        import(route);
+      } catch (error) {
+        console.warn(`Failed to preload ${route}:`, error);
+      }
+    });
   });
 };
 

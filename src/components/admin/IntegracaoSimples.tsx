@@ -9,6 +9,7 @@ import { AlertCircle, CheckCircle, Wifi, WifiOff, Settings, MessageSquare, Plus,
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useEvolutionIntegration } from '@/hooks/useEvolutionIntegration';
+import { CriarInstanciaDialog } from './CriarInstanciaDialog';
 
 interface EvolutionConfig {
   id?: string;
@@ -33,7 +34,7 @@ export default function IntegracaoSimples() {
     ativo: false
   });
   const [instancias, setInstancias] = useState<InstanciaWhatsApp[]>([]);
-  const [novaInstancia, setNovaInstancia] = useState('');
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [loading, setLoading] = useState(true);
   const [testando, setTestando] = useState(false);
   const [conectado, setConectado] = useState(false);
@@ -98,20 +99,8 @@ export default function IntegracaoSimples() {
     }
   };
 
-  const criarInstancia = async () => {
-    if (!novaInstancia.trim()) {
-      toast({
-        title: "Nome obrigatório",
-        description: "Digite um nome para a instância",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    const sucesso = await evolution.createInstance(novaInstancia.trim());
-    if (sucesso) {
-      setNovaInstancia('');
-    }
+  const handleCreateInstanceSuccess = () => {
+    evolution.loadInstances();
   };
 
   const deletarInstancia = async (instanceName: string) => {
@@ -255,17 +244,15 @@ export default function IntegracaoSimples() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {/* Criar nova instância */}
-            <div className="flex gap-2">
-              <Input
-                placeholder="Nome da nova instância"
-                value={novaInstancia}
-                onChange={(e) => setNovaInstancia(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && criarInstancia()}
-              />
-              <Button onClick={criarInstancia} disabled={!novaInstancia.trim()}>
+            {/* Botão para criar nova instância */}
+            <div className="flex justify-between items-center">
+              <div>
+                <h3 className="font-medium">Gerenciar Instâncias</h3>
+                <p className="text-sm text-muted-foreground">Crie e gerencie suas instâncias WhatsApp</p>
+              </div>
+              <Button onClick={() => setShowCreateDialog(true)}>
                 <Plus className="w-4 h-4 mr-2" />
-                Criar
+                Nova Instância
               </Button>
             </div>
 
@@ -318,6 +305,13 @@ export default function IntegracaoSimples() {
           </CardContent>
         </Card>
       )}
+
+      {/* Dialog para criar instância */}
+      <CriarInstanciaDialog
+        open={showCreateDialog}
+        onOpenChange={setShowCreateDialog}
+        onSuccess={handleCreateInstanceSuccess}
+      />
 
       {/* Aviso se não estiver conectado */}
       {!evolution.connected && (

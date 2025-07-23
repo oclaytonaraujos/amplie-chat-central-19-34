@@ -99,7 +99,7 @@ export function CriarInstanciaDialog({
     setLoading(true);
 
     try {
-      // Obter configuração global da Evolution API do contexto
+      // Buscar configuração global ativa
       const { data: globalConfig, error: configError } = await supabase
         .from('evolution_api_global_config')
         .select('*')

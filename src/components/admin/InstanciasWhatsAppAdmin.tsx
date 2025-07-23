@@ -39,6 +39,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 
 interface InstanciaCompleta {
   id: string;
@@ -430,28 +435,74 @@ export function InstanciasWhatsAppAdmin() {
             </div>
             
             <div className="flex gap-2">
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-40">
-                  <SelectValue placeholder="Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todos Status</SelectItem>
-                  <SelectItem value="connected">Conectado</SelectItem>
-                  <SelectItem value="disconnected">Desconectado</SelectItem>
-                  <SelectItem value="connecting">Conectando</SelectItem>
-                </SelectContent>
-              </Select>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    className={`relative ${statusFilter !== 'all' || webhookFilter !== 'all' ? 'bg-primary/10 border-primary' : ''}`}
+                  >
+                    <Filter className="w-4 h-4" />
+                    {(statusFilter !== 'all' || webhookFilter !== 'all') && (
+                      <div className="absolute -top-1 -right-1 w-2 h-2 bg-primary rounded-full" />
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-80 bg-background border shadow-lg" align="end">
+                  <div className="space-y-4">
+                    <div>
+                      <h4 className="font-semibold mb-2">Filtros</h4>
+                    </div>
+                    
+                    <div className="space-y-3">
+                      <div>
+                        <label className="text-sm font-medium mb-2 block">Status da Conexão</label>
+                        <Select value={statusFilter} onValueChange={setStatusFilter}>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Status" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">Todos Status</SelectItem>
+                            <SelectItem value="connected">Conectado</SelectItem>
+                            <SelectItem value="disconnected">Desconectado</SelectItem>
+                            <SelectItem value="connecting">Conectando</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
 
-              <Select value={webhookFilter} onValueChange={setWebhookFilter}>
-                <SelectTrigger className="w-40">
-                  <SelectValue placeholder="Webhook" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todos Webhooks</SelectItem>
-                  <SelectItem value="active">Webhook Ativo</SelectItem>
-                  <SelectItem value="inactive">Webhook Inativo</SelectItem>
-                </SelectContent>
-              </Select>
+                      <div>
+                        <label className="text-sm font-medium mb-2 block">Status do Webhook</label>
+                        <Select value={webhookFilter} onValueChange={setWebhookFilter}>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Webhook" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">Todos Webhooks</SelectItem>
+                            <SelectItem value="active">Webhook Ativo</SelectItem>
+                            <SelectItem value="inactive">Webhook Inativo</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+
+                    {(statusFilter !== 'all' || webhookFilter !== 'all') && (
+                      <div className="pt-2 border-t">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={() => {
+                            setStatusFilter('all');
+                            setWebhookFilter('all');
+                          }}
+                          className="w-full"
+                        >
+                          Limpar Filtros
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </PopoverContent>
+              </Popover>
 
               <Select value={sortBy} onValueChange={(value: any) => setSortBy(value)}>
                 <SelectTrigger className="w-40">

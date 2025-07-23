@@ -149,15 +149,9 @@ export function useEvolutionIntegration() {
     }
   };
 
-  const createInstance = async (instanceData: {
-    instanceName: string;
-    webhook?: string;
-    events?: string[];
-    empresa_id?: string;
-    descricao?: string;
-  }) => {
+  const createInstance = async (instanceName: string) => {
     try {
-      console.log('Iniciando criação de instância:', instanceData.instanceName);
+      console.log('Iniciando criação de instância:', instanceName);
       
       if (!config.server_url || !config.api_key) {
         throw new Error('Configuração global não encontrada');
@@ -198,10 +192,10 @@ export function useEvolutionIntegration() {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          instanceName: instanceData.instanceName,
+          instanceName,
           token: config.api_key,
           qrcode: true,
-          webhook: instanceData.webhook || (config.webhook_base_url ? `${config.webhook_base_url}` : undefined)
+          webhook: config.webhook_base_url ? `${config.webhook_base_url}` : undefined
         })
       });
 
@@ -218,13 +212,10 @@ export function useEvolutionIntegration() {
       const { error: insertError } = await supabase
         .from('evolution_api_config')
         .insert({
-          empresa_id: instanceData.empresa_id || profile.empresa_id,
-          instance_name: instanceData.instanceName,
-          webhook_url: instanceData.webhook || `${window.location.origin}/api/webhooks/evolution/${instanceData.instanceName}`,
-          webhook_events: instanceData.events || ["APPLICATION_STARTUP", "MESSAGES_UPSERT", "MESSAGE_STATUS_UPDATE", "CONNECTION_UPDATE", "QRCODE_UPDATED"],
+          empresa_id: profile.empresa_id,
+          instance_name: instanceName,
           status: 'disconnected',
-          ativo: true,
-          descricao: instanceData.descricao
+          ativo: true
         });
 
       if (insertError) {
@@ -236,7 +227,7 @@ export function useEvolutionIntegration() {
 
       toast({
         title: "Instância criada",
-        description: `Instância ${instanceData.instanceName} criada e associada à empresa com sucesso!`,
+        description: `Instância ${instanceName} criada e associada à empresa com sucesso!`,
       });
 
       await loadInstances();
@@ -413,66 +404,6 @@ export function useEvolutionIntegration() {
     loadData();
   }, [loadGlobalConfig, loadInstances]);
 
-  // Atualizar instância
-  const updateInstance = async (instanceId: string, updateData: {
-    webhook_url?: string;
-    descricao?: string;
-  }) => {
-    try {
-      const { error } = await supabase
-        .from('evolution_api_config')
-        .update(updateData)
-        .eq('id', instanceId);
-
-      if (error) {
-        throw error;
-      }
-
-      toast({
-        title: "Sucesso",
-        description: "Instância atualizada com sucesso",
-      });
-
-      return true;
-    } catch (error) {
-      console.error('Erro ao atualizar instância:', error);
-      toast({
-        title: "Erro",
-        description: "Erro ao atualizar instância",
-        variant: "destructive",
-      });
-      return false;
-    }
-  };
-
-  // Verificar estado de conexão
-  const getConnectionState = async (instanceName: string) => {
-    if (!config.server_url || !config.api_key) {
-      console.error('Configuração da Evolution API não encontrada');
-      return null;
-    }
-
-    try {
-      const response = await fetch(`${config.server_url}/instance/connectionState/${instanceName}`, {
-        method: 'GET',
-        headers: {
-          'apikey': config.api_key,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const result = await response.json();
-      return result;
-    } catch (error) {
-      console.error('Erro ao verificar estado de conexão:', error);
-      return null;
-    }
-  };
-
   return {
     config,
     instances,
@@ -483,8 +414,6 @@ export function useEvolutionIntegration() {
     deleteInstance,
     connectInstance,
     logoutInstance,
-    loadInstances,
-    updateInstance,
-    getConnectionState
+    loadInstances
   };
 }

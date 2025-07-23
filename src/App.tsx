@@ -10,11 +10,11 @@ import { ThemeProvider } from "@/hooks/useTheme";
 import { queryClient } from "@/config/queryClient";
 import { setupGlobalErrorHandling } from "@/utils/production-logger";
 
-// Lazy load TUDO para máxima performance
+// Lazy load componentes críticos - Layout NÃO lazy para manter navegação fluida
 const AuthProvider = lazy(() => import("@/hooks/useAuth").then(m => ({ default: m.AuthProvider })));
 const AdminAuthProvider = lazy(() => import("@/hooks/useAdminAuth").then(m => ({ default: m.AdminAuthProvider })));
 const ProtectedRoute = lazy(() => import("@/components/ProtectedRoute").then(m => ({ default: m.ProtectedRoute })));
-const Layout = lazy(() => import("@/components/layout/Layout").then(m => ({ default: m.Layout })));
+import { Layout } from "@/components/layout/Layout";
 
 // Páginas - todas lazy loaded
 const Auth = lazy(() => import("@/pages/Auth"));
@@ -45,11 +45,19 @@ const Aparencia = lazy(() => import("@/pages/configuracoes/Aparencia"));
 const Idioma = lazy(() => import("@/pages/configuracoes/Idioma"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
 
-// Fallback otimizado para Core Web Vitals
+// Fallback otimizado para Core Web Vitals (app completo)
 const FastFallback = () => (
   <div className="h-screen w-full bg-background flex items-center justify-center">
     <div className="loading-spinner" />
     <div className="sr-only">Carregando...</div>
+  </div>
+);
+
+// Fallback otimizado para conteúdo da página (apenas área do conteúdo)
+const PageContentFallback = () => (
+  <div className="flex items-center justify-center h-40 w-full">
+    <div className="loading-spinner" />
+    <div className="sr-only">Carregando página...</div>
   </div>
 );
 
@@ -60,10 +68,10 @@ const preloadCriticalPages = () => {
     
     // Mapear rotas críticas por contexto
     const criticalRoutes: Record<string, string[]> = {
-      '/': ['@/pages/DashboardOptimized', '@/pages/Atendimento'],
-      '/painel': ['@/pages/DashboardOptimized', '@/pages/Atendimento'],
+      '/': ['@/pages/Atendimento', '@/pages/Contatos'],
+      '/painel': ['@/pages/Atendimento', '@/pages/Contatos'],
       '/dashboard': ['@/pages/Atendimento', '@/pages/Contatos'],
-      '/auth': ['@/pages/DashboardOptimized']
+      '/auth': ['@/pages/Painel']
     };
 
     const routesToPreload = criticalRoutes[currentPath] || [];
@@ -96,13 +104,13 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={
-        <Suspense fallback={<FastFallback />}>
-          <ProtectedRoute>
-            <Layout title="Painel" description="Visão geral do sistema">
+        <ProtectedRoute>
+          <Layout title="Painel" description="Visão geral do sistema">
+            <Suspense fallback={<PageContentFallback />}>
               <Painel />
-            </Layout>
-          </ProtectedRoute>
-        </Suspense>
+            </Suspense>
+          </Layout>
+        </ProtectedRoute>
       } />
       
       <Route path="/auth" element={
@@ -120,64 +128,64 @@ function AppRoutes() {
       } />
       
       <Route path="/painel" element={
-        <Suspense fallback={<FastFallback />}>
-          <ProtectedRoute>
-            <Layout title="Painel" description="Visão geral do sistema">
+        <ProtectedRoute>
+          <Layout title="Painel" description="Visão geral do sistema">
+            <Suspense fallback={<PageContentFallback />}>
               <Painel />
-            </Layout>
-          </ProtectedRoute>
-        </Suspense>
+            </Suspense>
+          </Layout>
+        </ProtectedRoute>
       } />
       
       <Route path="/dashboard" element={
-        <Suspense fallback={<FastFallback />}>
-          <ProtectedRoute>
-            <Layout title="Dashboard" description="Métricas e estatísticas">
+        <ProtectedRoute>
+          <Layout title="Dashboard" description="Métricas e estatísticas">
+            <Suspense fallback={<PageContentFallback />}>
               <Dashboard />
-            </Layout>
-          </ProtectedRoute>
-        </Suspense>
+            </Suspense>
+          </Layout>
+        </ProtectedRoute>
       } />
       
       <Route path="/atendimento" element={
-        <Suspense fallback={<FastFallback />}>
-          <ProtectedRoute>
-            <Layout title="Atendimento" description="Central de atendimento">
+        <ProtectedRoute>
+          <Layout title="Atendimento" description="Central de atendimento">
+            <Suspense fallback={<PageContentFallback />}>
               <Atendimento />
-            </Layout>
-          </ProtectedRoute>
-        </Suspense>
+            </Suspense>
+          </Layout>
+        </ProtectedRoute>
       } />
       
       <Route path="/contatos" element={
-        <Suspense fallback={<FastFallback />}>
-          <ProtectedRoute>
-            <Layout title="Contatos" description="Gerenciamento de contatos">
+        <ProtectedRoute>
+          <Layout title="Contatos" description="Gerenciamento de contatos">
+            <Suspense fallback={<PageContentFallback />}>
               <Contatos />
-            </Layout>
-          </ProtectedRoute>
-        </Suspense>
+            </Suspense>
+          </Layout>
+        </ProtectedRoute>
       } />
       
       {/* Rotas menos críticas com lazy loading tardio */}
       <Route path="/kanban" element={
-        <Suspense fallback={<FastFallback />}>
-          <ProtectedRoute>
-            <Layout title="Kanban" description="Quadro de tarefas">
+        <ProtectedRoute>
+          <Layout title="Kanban" description="Quadro de tarefas">
+            <Suspense fallback={<PageContentFallback />}>
               <Kanban />
-            </Layout>
-          </ProtectedRoute>
-        </Suspense>
+            </Suspense>
+          </Layout>
+        </ProtectedRoute>
       } />
       
       <Route path="/chatbot" element={
-        <Suspense fallback={<FastFallback />}>
-          <ProtectedRoute>
-            <Layout title="ChatBot" description="Automação inteligente">
+        <ProtectedRoute>
+          <Layout title="ChatBot" description="Automação inteligente">
+            <Suspense fallback={<PageContentFallback />}>
               <ChatBot />
-            </Layout>
-          </ProtectedRoute>
-        </Suspense>
+            </Suspense>
+          </Layout>
+        </ProtectedRoute>
       } />
       
       <Route path="/chatbot/flow-builder/:id" element={
@@ -189,125 +197,125 @@ function AppRoutes() {
       } />
       
       <Route path="/usuarios" element={
-        <Suspense fallback={<FastFallback />}>
-          <ProtectedRoute>
-            <Layout title="Usuários" description="Gerenciamento de usuários">
+        <ProtectedRoute>
+          <Layout title="Usuários" description="Gerenciamento de usuários">
+            <Suspense fallback={<PageContentFallback />}>
               <Usuarios />
-            </Layout>
-          </ProtectedRoute>
-        </Suspense>
+            </Suspense>
+          </Layout>
+        </ProtectedRoute>
       } />
       
       <Route path="/setores" element={
-        <Suspense fallback={<FastFallback />}>
-          <ProtectedRoute>
-            <Layout title="Setores" description="Organização por setores">
+        <ProtectedRoute>
+          <Layout title="Setores" description="Organização por setores">
+            <Suspense fallback={<PageContentFallback />}>
               <Setores />
-            </Layout>
-          </ProtectedRoute>
-        </Suspense>
+            </Suspense>
+          </Layout>
+        </ProtectedRoute>
       } />
       
       {/* Rotas de baixa prioridade */}
       <Route path="/automations" element={
-        <Suspense fallback={<FastFallback />}>
-          <ProtectedRoute>
-            <Layout title="Automações" description="Fluxos de automação">
+        <ProtectedRoute>
+          <Layout title="Automações" description="Fluxos de automação">
+            <Suspense fallback={<PageContentFallback />}>
               <Automations />
-            </Layout>
-          </ProtectedRoute>
-        </Suspense>
+            </Suspense>
+          </Layout>
+        </ProtectedRoute>
       } />
       
       <Route path="/chat-interno" element={
-        <Suspense fallback={<FastFallback />}>
-          <ProtectedRoute>
-            <Layout title="Chat Interno" description="Comunicação interna">
+        <ProtectedRoute>
+          <Layout title="Chat Interno" description="Comunicação interna">
+            <Suspense fallback={<PageContentFallback />}>
               <ChatInterno />
-            </Layout>
-          </ProtectedRoute>
-        </Suspense>
+            </Suspense>
+          </Layout>
+        </ProtectedRoute>
       } />
       
       <Route path="/gerenciar-equipe" element={
-        <Suspense fallback={<FastFallback />}>
-          <ProtectedRoute>
-            <Layout title="Gerenciar Equipe" description="Administração da equipe">
+        <ProtectedRoute>
+          <Layout title="Gerenciar Equipe" description="Administração da equipe">
+            <Suspense fallback={<PageContentFallback />}>
               <GerenciarEquipe />
-            </Layout>
-          </ProtectedRoute>
-        </Suspense>
+            </Suspense>
+          </Layout>
+        </ProtectedRoute>
       } />
       
       <Route path="/meu-perfil" element={
-        <Suspense fallback={<FastFallback />}>
-          <ProtectedRoute>
-            <Layout title="Meu Perfil" description="Configurações pessoais">
+        <ProtectedRoute>
+          <Layout title="Meu Perfil" description="Configurações pessoais">
+            <Suspense fallback={<PageContentFallback />}>
               <MeuPerfil />
-            </Layout>
-          </ProtectedRoute>
-        </Suspense>
+            </Suspense>
+          </Layout>
+        </ProtectedRoute>
       } />
       
       <Route path="/plano-faturamento" element={
-        <Suspense fallback={<FastFallback />}>
-          <ProtectedRoute>
-            <Layout title="Plano e Faturamento" description="Gerenciamento financeiro">
+        <ProtectedRoute>
+          <Layout title="Plano e Faturamento" description="Gerenciamento financeiro">
+            <Suspense fallback={<PageContentFallback />}>
               <PlanoFaturamento />
-            </Layout>
-          </ProtectedRoute>
-        </Suspense>
+            </Suspense>
+          </Layout>
+        </ProtectedRoute>
       } />
 
       {/* Configurações - carregamento sob demanda */}
       <Route path="/configuracoes/gerais" element={
-        <Suspense fallback={<FastFallback />}>
-          <ProtectedRoute>
-            <Layout title="Configurações Gerais" description="Configurações do sistema">
+        <ProtectedRoute>
+          <Layout title="Configurações Gerais" description="Configurações do sistema">
+            <Suspense fallback={<PageContentFallback />}>
               <ConfiguracoesGerais />
-            </Layout>
-          </ProtectedRoute>
-        </Suspense>
+            </Suspense>
+          </Layout>
+        </ProtectedRoute>
       } />
       
       <Route path="/configuracoes/avancadas" element={
-        <Suspense fallback={<FastFallback />}>
-          <ProtectedRoute>
-            <Layout title="Configurações Avançadas" description="Configurações técnicas">
+        <ProtectedRoute>
+          <Layout title="Configurações Avançadas" description="Configurações técnicas">
+            <Suspense fallback={<PageContentFallback />}>
               <ConfiguracoesAvancadas />
-            </Layout>
-          </ProtectedRoute>
-        </Suspense>
+            </Suspense>
+          </Layout>
+        </ProtectedRoute>
       } />
       
       <Route path="/configuracoes/notificacoes" element={
-        <Suspense fallback={<FastFallback />}>
-          <ProtectedRoute>
-            <Layout title="Notificações" description="Preferências de notificação">
+        <ProtectedRoute>
+          <Layout title="Notificações" description="Preferências de notificação">
+            <Suspense fallback={<PageContentFallback />}>
               <PreferenciasNotificacao />
-            </Layout>
-          </ProtectedRoute>
-        </Suspense>
+            </Suspense>
+          </Layout>
+        </ProtectedRoute>
       } />
       
       <Route path="/configuracoes/aparencia" element={
-        <Suspense fallback={<FastFallback />}>
-          <ProtectedRoute>
-            <Layout title="Aparência" description="Personalização visual">
+        <ProtectedRoute>
+          <Layout title="Aparência" description="Personalização visual">
+            <Suspense fallback={<PageContentFallback />}>
               <Aparencia />
-            </Layout>
-          </ProtectedRoute>
-        </Suspense>
+            </Suspense>
+          </Layout>
+        </ProtectedRoute>
       } />
       
       <Route path="/configuracoes/idioma" element={
-        <Suspense fallback={<FastFallback />}>
-          <ProtectedRoute>
-            <Layout title="Idioma" description="Configurações de idioma">
+        <ProtectedRoute>
+          <Layout title="Idioma" description="Configurações de idioma">
+            <Suspense fallback={<PageContentFallback />}>
               <Idioma />
-            </Layout>
-          </ProtectedRoute>
-        </Suspense>
+            </Suspense>
+          </Layout>
+        </ProtectedRoute>
       } />
       
       <Route path="*" element={

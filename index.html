@@ -13,19 +13,25 @@
     <link rel="manifest" href="/manifest.json" />
     <link rel="icon" type="image/svg+xml" href="/placeholder.svg" />
     
-    <!-- Preload recursos críticos -->
+    <!-- Preload recursos críticos para melhorar FCP/LCP -->
     <link rel="preload" href="/src/main.tsx" as="script" />
     <link rel="modulepreload" href="/src/App.tsx" />
     <link rel="modulepreload" href="/src/pages/Auth.tsx" />
     <link rel="modulepreload" href="/src/pages/Dashboard.tsx" />
-    <link rel="dns-prefetch" href="//fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="dns-prefetch" href="//supabase.co" />
     
     <style>
-      /* CSS crítico inline */
+      /* CSS crítico inline para melhorar FCP e evitar CLS */
       .loading-spinner{width:24px;height:24px;border:2px solid #e5e7eb;border-top:2px solid #3b82f6;border-radius:50%;animation:spin 1s linear infinite}
       @keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
-      body{margin:0;font-family:system-ui,-apple-system,sans-serif}
-      #root{min-height:100vh}
+      body{margin:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,sans-serif;background:#fafafa}
+      #root{min-height:100vh;display:flex;flex-direction:column}
+      /* Prevenção de CLS - reserved space para elementos críticos */
+      .header-reserved{height:64px}
+      .sidebar-reserved{width:256px}
+      .main-content-reserved{min-height:calc(100vh - 64px)}
     </style>
 
     <meta property="og:title" content="Amplie Chat - Sistema de Atendimento" />

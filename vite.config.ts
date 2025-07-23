@@ -27,7 +27,7 @@ export default defineConfig(({ mode }) => ({
     rollupOptions: {
       output: {
         manualChunks: (id) => {
-          // Vendor chunk otimizado
+          // Vendor chunks otimizados para reduzir TBT
           if (id.includes('node_modules')) {
             if (id.includes('react') || id.includes('react-dom')) {
               return 'react-vendor';
@@ -44,15 +44,19 @@ export default defineConfig(({ mode }) => ({
             if (id.includes('lucide-react')) {
               return 'icons-vendor';
             }
+            if (id.includes('recharts')) {
+              return 'charts-vendor';
+            }
             return 'vendor';
           }
           
-          // Chunks por funcionalidade
+          // Chunks por página para melhor code splitting
           if (id.includes('/pages/')) {
             const pageName = id.split('/pages/')[1].split('.')[0];
             return `page-${pageName.toLowerCase()}`;
           }
           
+          // Chunks por funcionalidade
           if (id.includes('/components/admin/')) {
             return 'admin-components';
           }
@@ -61,16 +65,32 @@ export default defineConfig(({ mode }) => ({
             return 'ui-components';
           }
           
+          if (id.includes('/components/flow/')) {
+            return 'flow-components';
+          }
+          
           if (id.includes('/hooks/')) {
             return 'hooks';
+          }
+          
+          if (id.includes('/services/')) {
+            return 'services';
           }
         }
       }
     },
-    chunkSizeWarningLimit: 500,
-    assetsInlineLimit: 4096
+    chunkSizeWarningLimit: 300, // Reduzido para alertar chunks grandes
+    assetsInlineLimit: 2048 // Reduzido para melhorar cacheability
   },
   optimizeDeps: {
-    include: ['react', 'react-dom', 'react-router-dom', '@tanstack/react-query']
+    include: [
+      'react', 
+      'react-dom', 
+      'react-router-dom', 
+      '@tanstack/react-query',
+      '@supabase/supabase-js',
+      'lucide-react'
+    ],
+    exclude: ['@xyflow/react'] // Lazy load para reduzir bundle inicial
   }
 }));

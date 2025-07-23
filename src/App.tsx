@@ -45,10 +45,11 @@ const Aparencia = lazy(() => import("@/pages/configuracoes/Aparencia"));
 const Idioma = lazy(() => import("@/pages/configuracoes/Idioma"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
 
-// Fallback ultra-minimalista
+// Fallback otimizado para Core Web Vitals
 const FastFallback = () => (
   <div className="h-screen w-full bg-background flex items-center justify-center">
     <div className="loading-spinner" />
+    <div className="sr-only">Carregando...</div>
   </div>
 );
 

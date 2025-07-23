@@ -124,7 +124,7 @@ export function CriarInstanciaDialog({
         : `https://${config.server_url}`;
 
       // Criar instância na Evolution API
-      const response = await fetch(`${serverUrl}/manager/create`, {
+      const response = await fetch(`${serverUrl}/instance/create`, {
         method: 'POST',
         headers: {
           'apikey': config.api_key,
@@ -132,9 +132,8 @@ export function CriarInstanciaDialog({
         },
         body: JSON.stringify({
           instanceName: instanceName.trim(),
-          token: config.api_key,
           qrcode: true,
-          webhook: config.webhook_base_url ? `${config.webhook_base_url}` : undefined
+          integration: 'WHATSAPP-BAILEYS'
         })
       });
 

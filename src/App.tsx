@@ -9,6 +9,7 @@ import { lazy, Suspense, useEffect, startTransition } from "react";
 import { ThemeProvider } from "@/hooks/useTheme";
 import { queryClient } from "@/config/queryClient";
 import { setupGlobalErrorHandling } from "@/utils/production-logger";
+import { EvolutionApiProvider } from "@/contexts/EvolutionApiContext";
 
 // Lazy load componentes críticos - Layout NÃO lazy para manter navegação fluida
 const AuthProvider = lazy(() => import("@/hooks/useAuth").then(m => ({ default: m.AuthProvider })));
@@ -336,21 +337,23 @@ const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
-        <Suspense fallback={<FastFallback />}>
-          <AuthProvider>
-            <AdminAuthProvider>
-              <TooltipProvider>
-                <Toaster />
-                <BrowserRouter>
+        <EvolutionApiProvider>
+          <Suspense fallback={<FastFallback />}>
+            <AuthProvider>
+              <AdminAuthProvider>
+                <TooltipProvider>
+                  <Toaster />
+                  <BrowserRouter>
                   <AppRoutes />
                 </BrowserRouter>
               </TooltipProvider>
             </AdminAuthProvider>
           </AuthProvider>
         </Suspense>
-      </ThemeProvider>
-    </QueryClientProvider>
-  );
+      </EvolutionApiProvider>
+    </ThemeProvider>
+  </QueryClientProvider>
+);
 };
 
 export default App;

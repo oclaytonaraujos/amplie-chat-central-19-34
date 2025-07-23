@@ -99,29 +99,37 @@ export function CriarInstanciaDialog({
     setLoading(true);
 
     try {
-      // Obter configuração global da Evolution API
+      // Obter configuração global da Evolution API do contexto
       const { data: globalConfig, error: configError } = await supabase
         .from('evolution_api_global_config')
         .select('*')
         .eq('ativo', true)
-        .single();
+        .order('created_at', { ascending: false })
+        .limit(1);
 
-      if (configError || !globalConfig) {
-        throw new Error('Configuração global da Evolution API não encontrada');
+      if (configError) {
+        console.error('Erro ao buscar configuração:', configError);
+        throw new Error('Erro ao buscar configuração da Evolution API');
       }
 
+      if (!globalConfig || globalConfig.length === 0) {
+        throw new Error('Configuração global da Evolution API não encontrada. Configure primeiro na Central de Integrações.');
+      }
+
+      const config = globalConfig[0];
+
       // Criar instância na Evolution API
-      const response = await fetch(`${globalConfig.server_url}/manager/create`, {
+      const response = await fetch(`${config.server_url}/manager/create`, {
         method: 'POST',
         headers: {
-          'apikey': globalConfig.api_key,
+          'apikey': config.api_key,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
           instanceName: instanceName.trim(),
-          token: globalConfig.api_key,
+          token: config.api_key,
           qrcode: true,
-          webhook: globalConfig.webhook_base_url ? `${globalConfig.webhook_base_url}` : undefined
+          webhook: config.webhook_base_url ? `${config.webhook_base_url}` : undefined
         })
       });
 

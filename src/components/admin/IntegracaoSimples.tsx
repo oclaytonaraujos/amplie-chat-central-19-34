@@ -9,6 +9,7 @@ import { AlertCircle, CheckCircle, Wifi, WifiOff, Settings, MessageSquare, Plus,
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useEvolutionIntegration } from '@/hooks/useEvolutionIntegration';
+import { useEvolutionApiConfig } from '@/contexts/EvolutionApiContext';
 import { CriarInstanciaDialog } from './CriarInstanciaDialog';
 
 interface EvolutionConfig {
@@ -43,21 +44,28 @@ export default function IntegracaoSimples() {
   
   const { toast } = useToast();
   const evolution = useEvolutionIntegration();
+  const { config: globalConfig, updateConfig, isConfigured } = useEvolutionApiConfig();
 
-  // Usar dados do hook
+  // Usar dados do contexto global
   useEffect(() => {
-    if (evolution.config.server_url) {
-      setConfigGlobal(evolution.config);
+    if (globalConfig) {
+      setConfigGlobal({
+        id: globalConfig.id,
+        server_url: globalConfig.server_url,
+        api_key: globalConfig.api_key,
+        ativo: globalConfig.ativo
+      });
       setConfigSalva(true);
       setModoEdicao(false);
-    } else {
+      setConectado(true);
+    } else if (!evolution.loading) {
       setModoEdicao(true);
       setConfigSalva(false);
+      setConectado(false);
     }
     setInstancias(evolution.instances);
     setLoading(evolution.loading);
-    setConectado(evolution.connected);
-  }, [evolution.config, evolution.instances, evolution.loading, evolution.connected]);
+  }, [globalConfig, evolution.instances, evolution.loading, isConfigured]);
 
   const salvarConfiguracao = async () => {
     if (!configGlobal.server_url || !configGlobal.api_key) {
@@ -70,19 +78,18 @@ export default function IntegracaoSimples() {
     }
 
     setTestando(true);
-    const sucesso = await evolution.saveGlobalConfig({
+    const sucesso = await updateConfig({
       server_url: configGlobal.server_url,
       api_key: configGlobal.api_key,
-      ativo: true
+      webhook_base_url: 'https://obtpghqvrygzcukdaiej.supabase.co/functions/v1/whatsapp-webhook-evolution'
     });
     
     if (sucesso) {
       setConfigSalva(true);
       setModoEdicao(false);
-      toast({
-        title: "Configuração salva",
-        description: "Evolution API configurada com sucesso",
-      });
+      setConectado(true);
+      // Recarregar instâncias após salvar configuração
+      await evolution.loadInstances();
     }
     setTestando(false);
   };
@@ -93,9 +100,14 @@ export default function IntegracaoSimples() {
 
   const cancelarEdicao = () => {
     setModoEdicao(false);
-    // Restaurar configuração original
-    if (evolution.config.server_url) {
-      setConfigGlobal(evolution.config);
+    // Restaurar configuração original do contexto global
+    if (globalConfig) {
+      setConfigGlobal({
+        id: globalConfig.id,
+        server_url: globalConfig.server_url,
+        api_key: globalConfig.api_key,
+        ativo: globalConfig.ativo
+      });
     }
   };
 
@@ -165,7 +177,7 @@ export default function IntegracaoSimples() {
           <CardTitle className="flex items-center gap-2">
             <Settings className="w-5 h-5" />
             Configuração da Evolution API
-            {conectado && <Badge variant="secondary" className="bg-green-100 text-green-800">Conectado</Badge>}
+            {isConfigured && <Badge variant="secondary" className="bg-green-100 text-green-800">Conectado</Badge>}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -235,7 +247,7 @@ export default function IntegracaoSimples() {
       </Card>
 
       {/* Instâncias WhatsApp */}
-      {evolution.connected && (
+      {isConfigured && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -314,7 +326,7 @@ export default function IntegracaoSimples() {
       />
 
       {/* Aviso se não estiver conectado */}
-      {!evolution.connected && (
+      {!isConfigured && (
         <Card className="border-yellow-200 bg-yellow-50">
           <CardContent className="p-4">
             <div className="flex items-center gap-2 text-yellow-800">

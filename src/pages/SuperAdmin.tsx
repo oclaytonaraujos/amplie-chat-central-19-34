@@ -47,21 +47,21 @@ export default function SuperAdmin() {
     <AdminLayout title="Super Admin" description="Gerencie todas as empresas e configurações da plataforma">
       <ErrorBoundaryAdmin>
         <Tabs defaultValue="analytics" className="space-y-8">
-          <div className="overflow-x-auto pb-2">
-            <TabsList className="grid w-max grid-cols-7 min-w-full lg:min-w-0 bg-card/80 dark:bg-card/80 backdrop-blur-xl border border-border/50 shadow-lg rounded-xl p-1">
-              <TabsTrigger value="analytics" className="admin-tab-trigger data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg font-medium transition-all duration-300">Dashboard</TabsTrigger>
-              <TabsTrigger value="empresas" className="admin-tab-trigger data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg font-medium transition-all duration-300">Empresas</TabsTrigger>
-              <TabsTrigger value="usuarios" className="admin-tab-trigger data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg font-medium transition-all duration-300">Usuários</TabsTrigger>
-              <TabsTrigger value="planos" className="admin-tab-trigger data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg font-medium transition-all duration-300">Planos</TabsTrigger>
-              <TabsTrigger value="integracoes" className="admin-tab-trigger data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg font-medium transition-all duration-300">Integrações</TabsTrigger>
-              <TabsTrigger value="configuracoes" className="admin-tab-trigger data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg font-medium transition-all duration-300">Configurações</TabsTrigger>
-              <TabsTrigger value="filas" className="admin-tab-trigger data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg font-medium transition-all duration-300">Monitoramento</TabsTrigger>
+          <div className="overflow-x-auto pb-2 px-2">
+            <TabsList className="grid w-max grid-cols-7 min-w-full lg:min-w-0 bg-card/80 dark:bg-card/80 backdrop-blur-xl border border-border/50 shadow-lg rounded-2xl p-2">
+              <TabsTrigger value="analytics" className="admin-tab-trigger data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-xl font-medium transition-all duration-300 px-4 py-3">Dashboard</TabsTrigger>
+              <TabsTrigger value="empresas" className="admin-tab-trigger data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-xl font-medium transition-all duration-300 px-4 py-3">Empresas</TabsTrigger>
+              <TabsTrigger value="usuarios" className="admin-tab-trigger data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-xl font-medium transition-all duration-300 px-4 py-3">Usuários</TabsTrigger>
+              <TabsTrigger value="planos" className="admin-tab-trigger data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-xl font-medium transition-all duration-300 px-4 py-3">Planos</TabsTrigger>
+              <TabsTrigger value="integracoes" className="admin-tab-trigger data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-xl font-medium transition-all duration-300 px-4 py-3">Integrações</TabsTrigger>
+              <TabsTrigger value="configuracoes" className="admin-tab-trigger data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-xl font-medium transition-all duration-300 px-4 py-3">Configurações</TabsTrigger>
+              <TabsTrigger value="filas" className="admin-tab-trigger data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-xl font-medium transition-all duration-300 px-4 py-3">Monitoramento</TabsTrigger>
             </TabsList>
           </div>
 
-          <TabsContent value="analytics" className="animate-scale-in-smooth">
-            <Card className="admin-card rounded-2xl overflow-hidden">
-              <CardHeader className="bg-primary/5 border-b border-border/50">
+          <TabsContent value="analytics" className="animate-scale-in-smooth mx-2">
+            <Card className="admin-card rounded-2xl overflow-hidden shadow-lg border-0">
+              <CardHeader className="bg-primary/5 border-b border-border/50 p-8">
                 <div className="flex items-center gap-3">
                   <div className="w-3 h-3 bg-primary rounded-full animate-pulse"></div>
                   <CardTitle className="text-xl text-primary font-bold">Dashboard Analytics</CardTitle>
@@ -76,9 +76,9 @@ export default function SuperAdmin() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="empresas" className="animate-scale-in-smooth">
-            <Card className="admin-card rounded-2xl overflow-hidden">
-              <CardHeader className="bg-accent/5 border-b border-border/50">
+          <TabsContent value="empresas" className="animate-scale-in-smooth mx-2">
+            <Card className="admin-card rounded-2xl overflow-hidden shadow-lg border-0">
+              <CardHeader className="bg-accent/5 border-b border-border/50 p-8">
                 <div className="flex items-center gap-3">
                   <div className="w-3 h-3 bg-accent rounded-full animate-pulse"></div>
                   <CardTitle className="text-xl text-accent font-bold">Gestão de Empresas</CardTitle>
@@ -93,9 +93,9 @@ export default function SuperAdmin() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="usuarios" className="animate-scale-in-smooth">
-            <Card className="admin-card rounded-2xl overflow-hidden">
-              <CardHeader className="bg-secondary/5 border-b border-border/50">
+          <TabsContent value="usuarios" className="animate-scale-in-smooth mx-2">
+            <Card className="admin-card rounded-2xl overflow-hidden shadow-lg border-0">
+              <CardHeader className="bg-secondary/5 border-b border-border/50 p-8">
                 <div className="flex items-center gap-3">
                   <div className="w-3 h-3 bg-secondary rounded-full animate-pulse"></div>
                   <CardTitle className="text-xl text-secondary-foreground font-bold">Gestão de Usuários</CardTitle>
@@ -110,9 +110,9 @@ export default function SuperAdmin() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="planos" className="animate-scale-in-smooth">
-            <Card className="admin-card rounded-2xl overflow-hidden">
-              <CardHeader className="bg-muted/30 border-b border-border/50">
+          <TabsContent value="planos" className="animate-scale-in-smooth mx-2">
+            <Card className="admin-card rounded-2xl overflow-hidden shadow-lg border-0">
+              <CardHeader className="bg-muted/30 border-b border-border/50 p-8">
                 <div className="flex items-center gap-3">
                   <div className="w-3 h-3 bg-muted-foreground rounded-full animate-pulse"></div>
                   <CardTitle className="text-xl text-muted-foreground font-bold">Gestão de Planos</CardTitle>
@@ -127,9 +127,9 @@ export default function SuperAdmin() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="integracoes" className="animate-scale-in-smooth">
-            <Card className="admin-card rounded-2xl overflow-hidden">
-              <CardHeader className="bg-primary/5 border-b border-border/50">
+          <TabsContent value="integracoes" className="animate-scale-in-smooth mx-2">
+            <Card className="admin-card rounded-2xl overflow-hidden shadow-lg border-0">
+              <CardHeader className="bg-primary/5 border-b border-border/50 p-8">
                 <div className="flex items-center gap-3">
                   <div className="w-3 h-3 bg-primary rounded-full animate-pulse"></div>
                   <CardTitle className="text-xl text-primary font-bold">Central de Integrações</CardTitle>
@@ -144,9 +144,9 @@ export default function SuperAdmin() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="configuracoes" className="animate-scale-in-smooth">
-            <Card className="admin-card rounded-2xl overflow-hidden">
-              <CardHeader className="bg-secondary/5 border-b border-border/50">
+          <TabsContent value="configuracoes" className="animate-scale-in-smooth mx-2">
+            <Card className="admin-card rounded-2xl overflow-hidden shadow-lg border-0">
+              <CardHeader className="bg-secondary/5 border-b border-border/50 p-8">
                 <div className="flex items-center gap-3">
                   <div className="w-3 h-3 bg-secondary rounded-full animate-pulse"></div>
                   <CardTitle className="text-xl text-secondary-foreground font-bold">Configurações do Sistema</CardTitle>
@@ -161,9 +161,9 @@ export default function SuperAdmin() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="filas" className="animate-scale-in-smooth">
-            <Card className="admin-card rounded-2xl overflow-hidden">
-              <CardHeader className="bg-accent/5 border-b border-border/50">
+          <TabsContent value="filas" className="animate-scale-in-smooth mx-2">
+            <Card className="admin-card rounded-2xl overflow-hidden shadow-lg border-0">
+              <CardHeader className="bg-accent/5 border-b border-border/50 p-8">
                 <div className="flex items-center gap-3">
                   <div className="w-3 h-3 bg-accent rounded-full animate-pulse"></div>
                   <CardTitle className="text-xl text-accent-foreground font-bold">Monitoramento do Sistema</CardTitle>

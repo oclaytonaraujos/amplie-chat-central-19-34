@@ -113,10 +113,10 @@ export default function PlanosTab() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <h3 className="text-lg font-semibold">Configuração de Planos e Permissões</h3>
       
-      <div className="border rounded-lg overflow-x-auto">
+      <div className="border rounded-2xl overflow-hidden shadow-sm bg-card">
         <Table>
           <TableHeader>
             <TableRow>
@@ -149,7 +149,7 @@ export default function PlanosTab() {
                     step="0.01"
                     value={plano.preco_mensal}
                     onChange={(e) => handleLimitChange(plano.id, 'preco_mensal', parseFloat(e.target.value) || 0)}
-                    className="w-20"
+                    className="w-20 rounded-xl"
                   />
                 </TableCell>
                 <TableCell>
@@ -157,7 +157,7 @@ export default function PlanosTab() {
                     type="number"
                     value={plano.limite_usuarios}
                     onChange={(e) => handleLimitChange(plano.id, 'limite_usuarios', parseInt(e.target.value) || 0)}
-                    className="w-16"
+                    className="w-16 rounded-xl"
                   />
                 </TableCell>
                 <TableCell>
@@ -165,7 +165,7 @@ export default function PlanosTab() {
                     type="number"
                     value={plano.limite_armazenamento_gb}
                     onChange={(e) => handleLimitChange(plano.id, 'limite_armazenamento_gb', parseInt(e.target.value) || 0)}
-                    className="w-16"
+                    className="w-16 rounded-xl"
                   />
                 </TableCell>
                 <TableCell>
@@ -173,7 +173,7 @@ export default function PlanosTab() {
                     type="number"
                     value={plano.limite_contatos}
                     onChange={(e) => handleLimitChange(plano.id, 'limite_contatos', parseInt(e.target.value) || 0)}
-                    className="w-20"
+                    className="w-20 rounded-xl"
                   />
                 </TableCell>
                 <TableCell>

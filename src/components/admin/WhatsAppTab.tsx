@@ -12,10 +12,10 @@ export function WhatsAppTab() {
   const [showN8nConfig, setShowN8nConfig] = useState(false);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 p-2">
       {/* Configuração n8n */}
-      <Card>
-        <CardHeader>
+      <Card className="rounded-2xl shadow-lg border-0">
+        <CardHeader className="p-6">
           <CardTitle className="flex items-center gap-2">
             <Zap className="h-5 w-5" />
             Configuração n8n + Evolution API
@@ -24,20 +24,20 @@ export function WhatsAppTab() {
             Configure a integração completa entre n8n e Evolution API para gerenciar mensagens do WhatsApp
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 mb-2">
+              <p className="text-sm text-muted-foreground mb-2">
                 O n8n atua como middleware entre o Amplie Chat e a Evolution API, permitindo flexibilidade 
                 total no envio e recebimento de mensagens WhatsApp.
               </p>
-              <div className="flex items-center gap-4 text-xs text-gray-500">
+              <div className="flex items-center gap-4 text-xs text-muted-foreground">
                 <span>✅ Suporte a texto, imagens e documentos</span>
                 <span>✅ Workflows configuráveis</span>
                 <span>✅ Escalabilidade</span>
               </div>
             </div>
-            <Button onClick={() => setShowN8nConfig(true)}>
+            <Button onClick={() => setShowN8nConfig(true)} className="rounded-xl">
               <Settings className="w-4 h-4 mr-2" />
               Configurar Integração
             </Button>
@@ -49,8 +49,8 @@ export function WhatsAppTab() {
       <WebhookConfig />
 
       {/* Gerenciador de Estados do Chatbot */}
-      <Card>
-        <CardHeader>
+      <Card className="rounded-2xl shadow-lg border-0">
+        <CardHeader className="p-6">
           <CardTitle className="flex items-center gap-2">
             <Bot className="h-5 w-5" />
             Sistema de Chatbot Inteligente
@@ -59,30 +59,30 @@ export function WhatsAppTab() {
             Arquitetura de 3 camadas: Router → Engine → Sender com estado persistente
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-6">
           <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-              <div className="p-3 bg-blue-50 rounded-lg">
-                <h4 className="font-medium text-blue-900">1. Chatbot Router</h4>
-                <p className="text-blue-700 text-xs mt-1">
+              <div className="p-4 bg-primary/5 rounded-xl border border-primary/10">
+                <h4 className="font-medium text-primary">1. Chatbot Router</h4>
+                <p className="text-muted-foreground text-xs mt-1">
                   Decide se a mensagem vai para o bot ou para humano
                 </p>
               </div>
-              <div className="p-3 bg-green-50 rounded-lg">
-                <h4 className="font-medium text-green-900">2. Chatbot Engine</h4>
-                <p className="text-green-700 text-xs mt-1">
+              <div className="p-4 bg-accent/5 rounded-xl border border-accent/10">
+                <h4 className="font-medium text-accent">2. Chatbot Engine</h4>
+                <p className="text-muted-foreground text-xs mt-1">
                   Processa a lógica conversacional e fluxos
                 </p>
               </div>
-              <div className="p-3 bg-purple-50 rounded-lg">
-                <h4 className="font-medium text-purple-900">3. Chatbot Sender</h4>
-                <p className="text-purple-700 text-xs mt-1">
+              <div className="p-4 bg-secondary/5 rounded-xl border border-secondary/10">
+                <h4 className="font-medium text-secondary-foreground">3. Chatbot Sender</h4>
+                <p className="text-muted-foreground text-xs mt-1">
                   Envia mensagens formatadas via Evolution API
                 </p>
               </div>
             </div>
             
-            <div className="flex items-center gap-4 text-xs text-gray-500">
+            <div className="flex items-center gap-4 text-xs text-muted-foreground">
               <span>🧠 Estado persistente</span>
               <span>🔄 Fluxos condicionais</span>
               <span>👥 Transferência inteligente</span>
@@ -98,21 +98,21 @@ export function WhatsAppTab() {
       <WhatsAppConnectionsReal />
 
       {/* Links Úteis */}
-      <Card>
-        <CardHeader>
+      <Card className="rounded-2xl shadow-lg border-0">
+        <CardHeader className="p-6">
           <CardTitle>Links Úteis</CardTitle>
           <CardDescription>
             Recursos externos para configuração completa
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="flex items-center justify-between p-3 border rounded-lg">
+            <div className="flex items-center justify-between p-4 border rounded-xl">
               <div>
                 <h4 className="font-medium">n8n Cloud</h4>
-                <p className="text-sm text-gray-500">Plataforma de automação</p>
+                <p className="text-sm text-muted-foreground">Plataforma de automação</p>
               </div>
-              <Button variant="outline" size="sm" asChild>
+              <Button variant="outline" size="sm" asChild className="rounded-xl">
                 <a href="https://n8n.io" target="_blank" rel="noopener noreferrer">
                   <ExternalLink className="w-4 h-4 mr-2" />
                   Acessar
@@ -120,12 +120,12 @@ export function WhatsAppTab() {
               </Button>
             </div>
             
-            <div className="flex items-center justify-between p-3 border rounded-lg">
+            <div className="flex items-center justify-between p-4 border rounded-xl">
               <div>
                 <h4 className="font-medium">Evolution API Dashboard</h4>
-                <p className="text-sm text-gray-500">Painel de controle Evolution API</p>
+                <p className="text-sm text-muted-foreground">Painel de controle Evolution API</p>
               </div>
-              <Button variant="outline" size="sm" asChild>
+              <Button variant="outline" size="sm" asChild className="rounded-xl">
                 <a href="https://doc.evolution-api.com" target="_blank" rel="noopener noreferrer">
                   <ExternalLink className="w-4 h-4 mr-2" />
                   Acessar

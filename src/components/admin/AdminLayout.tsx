@@ -62,7 +62,7 @@ export function AdminLayout({ children, title = "Super Admin", description = "Pa
         </div>
       </header>
 
-      <div className="container mx-auto px-6 py-8 space-y-8">
+      <div className="container mx-auto px-8 py-8 space-y-8 max-w-7xl">
         <div className="animate-scale-in-smooth">
           {children}
         </div>

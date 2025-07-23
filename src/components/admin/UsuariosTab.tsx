@@ -173,25 +173,25 @@ export default function UsuariosTab() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-semibold">Usuários do Sistema</h3>
-        <Button onClick={() => setNovoUsuarioOpen(true)}>
+        <Button onClick={() => setNovoUsuarioOpen(true)} className="rounded-xl">
           <UserPlus className="h-4 w-4 mr-2" />
           Novo Usuário
         </Button>
       </div>
 
       {/* Filtros */}
-      <div className="flex gap-4 items-center">
+      <div className="flex gap-4 items-center flex-wrap">
         <Input
           placeholder="Buscar por nome ou email..."
           value={busca}
           onChange={(e) => setBusca(e.target.value)}
-          className="max-w-sm"
+          className="max-w-sm rounded-xl"
         />
         <Select value={filtroEmpresa} onValueChange={setFiltroEmpresa}>
-          <SelectTrigger className="w-48">
+          <SelectTrigger className="w-48 rounded-xl">
             <SelectValue placeholder="Filtrar por empresa" />
           </SelectTrigger>
           <SelectContent>
@@ -204,7 +204,7 @@ export default function UsuariosTab() {
           </SelectContent>
         </Select>
         <Select value={filtroCargo} onValueChange={setFiltroCargo}>
-          <SelectTrigger className="w-48">
+          <SelectTrigger className="w-48 rounded-xl">
             <SelectValue placeholder="Filtrar por cargo" />
           </SelectTrigger>
           <SelectContent>
@@ -217,7 +217,7 @@ export default function UsuariosTab() {
         </Select>
       </div>
 
-      <div className="border rounded-lg">
+      <div className="border rounded-2xl overflow-hidden shadow-sm bg-card">
         <Table>
           <TableHeader>
             <TableRow>
@@ -259,6 +259,7 @@ export default function UsuariosTab() {
                           setSelectedUsuario(usuario);
                           setEditarUsuarioOpen(true);
                         }}
+                        className="rounded-xl"
                       >
                         <Edit className="h-4 w-4" />
                       </Button>
@@ -269,7 +270,7 @@ export default function UsuariosTab() {
                           setSelectedUsuario(usuario);
                           setExcluirUsuarioOpen(true);
                         }}
-                        className="text-red-600 hover:text-red-700"
+                        className="text-red-600 hover:text-red-700 rounded-xl"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>

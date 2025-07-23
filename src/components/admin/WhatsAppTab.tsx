@@ -102,8 +102,7 @@ export function WhatsAppTab() {
 
       <ChatbotStateManager />
 
-      {/* Conexões WhatsApp Existentes */}
-      <WhatsAppConnectionsReal />
+      {/* Gerenciamento de Instâncias no Admin já está em IntegracoesCentralizadas */}
 
       {/* Links Úteis */}
       <Card className="rounded-2xl shadow-lg border-0">

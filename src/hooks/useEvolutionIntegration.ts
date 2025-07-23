@@ -18,6 +18,8 @@ interface EvolutionInstance {
   numero?: string;
   qr_code?: string;
   ativo: boolean;
+  empresa_nome?: string;
+  descricao?: string;
 }
 
 export function useEvolutionIntegration() {
@@ -64,7 +66,10 @@ export function useEvolutionIntegration() {
     try {
       const { data, error } = await supabase
         .from('evolution_api_config')
-        .select('*')
+        .select(`
+          *,
+          empresas(nome)
+        `)
         .eq('ativo', true)
         .order('created_at', { ascending: false });
 
@@ -78,7 +83,9 @@ export function useEvolutionIntegration() {
         status: item.status || 'disconnected',
         numero: item.numero,
         qr_code: item.qr_code,
-        ativo: item.ativo
+        ativo: item.ativo,
+        empresa_nome: item.empresas?.nome,
+        descricao: item.descricao
       }));
 
       setInstances(instancesData);
@@ -243,11 +250,10 @@ export function useEvolutionIntegration() {
       }
 
       // Deletar instância via API
-      const response = await fetch(`${config.server_url}/manager/delete/${instanceName}`, {
+      const response = await fetch(`${config.server_url}/instance/delete/${instanceName}`, {
         method: 'DELETE',
         headers: {
-          'apikey': config.api_key,
-          'Content-Type': 'application/json'
+          'apikey': config.api_key
         }
       });
 
@@ -293,8 +299,7 @@ export function useEvolutionIntegration() {
       const response = await fetch(`${config.server_url}/instance/connect/${instanceName}`, {
         method: 'GET',
         headers: {
-          'apikey': config.api_key,
-          'Content-Type': 'application/json'
+          'apikey': config.api_key
         }
       });
 
@@ -335,6 +340,55 @@ export function useEvolutionIntegration() {
     }
   };
 
+  const logoutInstance = async (instanceName: string) => {
+    try {
+      if (!config.server_url || !config.api_key) {
+        throw new Error('Configuração global não encontrada');
+      }
+
+      // Desconectar instância via API
+      const response = await fetch(`${config.server_url}/instance/logout/${instanceName}`, {
+        method: 'DELETE',
+        headers: {
+          'apikey': config.api_key
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Erro ao desconectar instância na Evolution API');
+      }
+
+      // Atualizar status no banco
+      const { error } = await supabase
+        .from('evolution_api_config')
+        .update({
+          status: 'disconnected',
+          qr_code: null
+        })
+        .eq('instance_name', instanceName);
+
+      if (error) {
+        throw error;
+      }
+
+      toast({
+        title: "Instância desconectada",
+        description: `Instância ${instanceName} foi desconectada com sucesso!`,
+      });
+
+      await loadInstances();
+      return true;
+    } catch (error: any) {
+      console.error('Erro ao desconectar instância:', error);
+      toast({
+        title: "Erro ao desconectar instância",
+        description: error.message || "Não foi possível desconectar a instância",
+        variant: "destructive",
+      });
+      return false;
+    }
+  };
+
   useEffect(() => {
     const loadData = async () => {
       setLoading(true);
@@ -355,6 +409,7 @@ export function useEvolutionIntegration() {
     createInstance,
     deleteInstance,
     connectInstance,
+    logoutInstance,
     loadInstances
   };
 }

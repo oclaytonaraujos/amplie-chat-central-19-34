@@ -26,6 +26,8 @@ interface InstanciaWhatsApp {
   numero?: string;
   qr_code?: string;
   ativo: boolean;
+  empresa_nome?: string;
+  descricao?: string;
 }
 
 export default function IntegracaoSimples() {
@@ -121,6 +123,10 @@ export default function IntegracaoSimples() {
 
   const conectarInstancia = async (instanceName: string) => {
     await evolution.connectInstance(instanceName);
+  };
+
+  const logoutInstancia = async (instanceName: string) => {
+    await evolution.logoutInstance(instanceName);
   };
 
   const getStatusIcon = (status: string) => {
@@ -281,10 +287,20 @@ export default function IntegracaoSimples() {
                   <div key={instancia.id} className="flex items-center justify-between p-4 border rounded-lg">
                     <div className="flex items-center gap-3">
                       {getStatusIcon(instancia.status)}
-                      <div>
-                        <div className="font-medium">{instancia.instance_name}</div>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <div className="font-medium">{instancia.instance_name}</div>
+                          {instancia.empresa_nome && (
+                            <Badge variant="outline" className="text-xs">
+                              {instancia.empresa_nome}
+                            </Badge>
+                          )}
+                        </div>
                         {instancia.numero && (
                           <div className="text-sm text-muted-foreground">{instancia.numero}</div>
+                        )}
+                        {instancia.descricao && (
+                          <div className="text-xs text-muted-foreground">{instancia.descricao}</div>
                         )}
                       </div>
                     </div>
@@ -301,10 +317,20 @@ export default function IntegracaoSimples() {
                           Conectar
                         </Button>
                       )}
+
+                      {(instancia.status === 'connected' || instancia.status === 'connecting') && (
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => logoutInstancia(instancia.instance_name)}
+                        >
+                          Desconectar
+                        </Button>
+                      )}
                       
                       <Button 
                         size="sm" 
-                        variant="outline"
+                        variant="destructive"
                         onClick={() => deletarInstancia(instancia.instance_name)}
                       >
                         <Trash2 className="w-4 h-4" />

@@ -216,7 +216,40 @@ export function useEvolutionAPIComplete() {
 
   const deleteInstance = useCallback(async (instanceName: string) => {
     return executeWithErrorHandling(
-      () => service!.deleteInstance(instanceName),
+      async () => {
+        // 1. Deletar da Evolution API
+        const apiResult = await service!.deleteInstance(instanceName);
+        
+        // 2. Se sucesso na API, deletar do banco local
+        if (apiResult && !apiResult.error) {
+          try {
+            const { error: dbError } = await supabase
+              .from('evolution_api_config')
+              .delete()
+              .eq('instance_name', instanceName);
+            
+            if (dbError) {
+              logger.error('Erro ao deletar instância do banco local', {
+                component: 'useEvolutionAPIComplete',
+                metadata: { instanceName }
+              }, dbError);
+              // Não falhar a operação se o banco falhou, mas logar o erro
+            } else {
+              logger.info('Instância deletada do banco local com sucesso', {
+                component: 'useEvolutionAPIComplete',
+                metadata: { instanceName }
+              });
+            }
+          } catch (dbError) {
+            logger.error('Erro ao deletar instância do banco local', {
+              component: 'useEvolutionAPIComplete',
+              metadata: { instanceName }
+            }, dbError as Error);
+          }
+        }
+        
+        return apiResult;
+      },
       'Deletar instância'
     );
   }, [service, executeWithErrorHandling]);

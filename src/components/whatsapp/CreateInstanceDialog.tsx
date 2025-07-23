@@ -16,6 +16,7 @@ import { QrCode, Loader2, CheckCircle, AlertCircle, Smartphone } from 'lucide-re
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useEvolutionAPIComplete } from '@/hooks/useEvolutionAPIComplete';
+import { WEBHOOK_URLS, WEBHOOK_EVENTS } from '@/config/webhooks';
 
 interface CreateInstanceDialogProps {
   open: boolean;
@@ -111,14 +112,8 @@ export function CreateInstanceDialog({ open, onOpenChange, onInstanceCreated }: 
         .insert({
           empresa_id: profile.empresa_id,
           instance_name: formData.instanceName,
-          webhook_url: `${window.location.origin}/api/webhooks/evolution/${formData.instanceName}`,
-          webhook_events: [
-            'MESSAGES_UPSERT', 
-            'MESSAGE_STATUS_UPDATE',
-            'CONNECTION_UPDATE', 
-            'QRCODE_UPDATED',
-            'APPLICATION_STARTUP'
-          ],
+          webhook_url: WEBHOOK_URLS.EVOLUTION_API,
+          webhook_events: [...WEBHOOK_EVENTS],
           ativo: true,
           numero: formData.number,
           descricao: formData.description
@@ -146,14 +141,8 @@ export function CreateInstanceDialog({ open, onOpenChange, onInstanceCreated }: 
       const instanceResult = await createInstance({
         instanceName: formData.instanceName,
         number: formData.number,
-        webhook: `${window.location.origin}/api/webhooks/evolution/${formData.instanceName}`,
-        events: [
-          'MESSAGES_UPSERT', 
-          'MESSAGE_STATUS_UPDATE',
-          'CONNECTION_UPDATE', 
-          'QRCODE_UPDATED',
-          'APPLICATION_STARTUP'
-        ]
+        webhook: WEBHOOK_URLS.EVOLUTION_API,
+        events: [...WEBHOOK_EVENTS]
       });
 
       if (!instanceResult) {

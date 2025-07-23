@@ -11,7 +11,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { CreateInstanceDialog } from './CreateInstanceDialog';
 
 export function WhatsAppConnectionsReal() {
-  const { 
+const { 
     config, 
     instanceConfig,
     loading, 
@@ -19,7 +19,8 @@ export function WhatsAppConnectionsReal() {
     connectInstance,
     getConnectionState,
     deleteInstance,
-    testApiConnection
+    testApiConnection,
+    loadGlobalConfig
   } = useEvolutionAPIComplete();
   
   const { toast } = useToast();
@@ -106,7 +107,8 @@ export function WhatsAppConnectionsReal() {
           description: "Instância deletada com sucesso!",
         });
         
-        // Atualizar estado local em vez de recarregar a página
+        // Recarregar configurações para atualizar o estado
+        await loadGlobalConfig();
         setStatus('desconectado');
         setQrCode(null);
       } else {
@@ -128,8 +130,9 @@ export function WhatsAppConnectionsReal() {
     }
   };
 
-  const handleInstanceCreated = () => {
-    // Atualizar estado local e recarregar configurações
+  const handleInstanceCreated = async () => {
+    // Recarregar configurações para buscar a nova instância
+    await loadGlobalConfig();
     setShowCreateDialog(false);
     setStatus('desconectado');
     setQrCode(null);

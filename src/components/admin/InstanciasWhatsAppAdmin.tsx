@@ -27,11 +27,10 @@ import { supabase } from '@/integrations/supabase/client';
 import { useEvolutionAPIComplete } from '@/hooks/useEvolutionAPIComplete';
 import { QRCodeModal } from './QRCodeModal';
 import { CriarInstanciaDialog } from './CriarInstanciaDialog';
-import { InstanceStatsCard } from './InstanceStatsCard';
 import { InstanceDetailsDialog } from './InstanceDetailsDialog';
 import { InstanceBulkActions } from './InstanceBulkActions';
-import { InstanceStatusMonitor } from './InstanceStatusMonitor';
-import { WebhookConfigurationCenter } from './WebhookConfigurationCenter';
+import { ImprovedWebhookCenter } from './ImprovedWebhookCenter';
+import { UnifiedInstanceDashboard } from './UnifiedInstanceDashboard';
 import {
   Select,
   SelectContent,
@@ -347,14 +346,6 @@ export function InstanciasWhatsAppAdmin() {
       return sortOrder === 'asc' ? comparison : -comparison;
     });
 
-  // Estatísticas
-  const stats = {
-    total: instancias.length,
-    connected: instancias.filter(i => i.status === 'open' || i.status === 'connected').length,
-    disconnected: instancias.filter(i => i.status === 'disconnected').length,
-    webhook_active: instancias.filter(i => i.webhook_status === 'ativo').length,
-    webhook_inactive: instancias.filter(i => i.webhook_status !== 'ativo').length,
-  };
 
   const handleInstanceSelection = (instanceId: string, checked: boolean) => {
     if (checked) {
@@ -397,11 +388,8 @@ export function InstanciasWhatsAppAdmin() {
         </div>
       </div>
 
-      {/* Estatísticas */}
-      <InstanceStatsCard stats={stats} loading={loading} />
-
-      {/* Monitor de Status em Tempo Real */}
-      <InstanceStatusMonitor 
+      {/* Dashboard Unificado */}
+      <UnifiedInstanceDashboard 
         instances={instancias}
         onStatusUpdate={(instanceName, status) => {
           setInstancias(prev => prev.map(inst => 
@@ -410,6 +398,7 @@ export function InstanciasWhatsAppAdmin() {
               : inst
           ));
         }}
+        onRefresh={loadData}
       />
 
       {/* Ações em Lote */}
@@ -722,33 +711,29 @@ export function InstanciasWhatsAppAdmin() {
         onRefresh={loadData}
       />
 
-      {/* Centro de Configuração de Webhooks */}
+      {/* Centro de Configuração de Webhooks Melhorado */}
       {showWebhookCenter && (
-        <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm">
-          <div className="fixed left-[50%] top-[50%] z-50 translate-x-[-50%] translate-y-[-50%] w-[95vw] max-w-4xl max-h-[90vh] overflow-auto">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
-                <div>
-                  <CardTitle>Configuração de Webhooks</CardTitle>
-                  <p className="text-sm text-muted-foreground">
-                    {selectedInstance ? `Instância: ${selectedInstance.instance_name}` : 'Configuração global'}
-                  </p>
-                </div>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => setShowWebhookCenter(false)}
-                >
-                  Fechar
-                </Button>
-              </CardHeader>
-              <CardContent>
-                <WebhookConfigurationCenter 
-                  instanceName={selectedInstance?.instance_name}
-                />
-              </CardContent>
-            </Card>
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-semibold">Configuração de Webhooks</h3>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => setShowWebhookCenter(false)}
+            >
+              Fechar
+            </Button>
           </div>
+          <ImprovedWebhookCenter 
+            instanceName={selectedInstance?.instance_name}
+            onWebhookConfigured={() => {
+              loadData();
+              toast({
+                title: "Webhooks configurados",
+                description: "Configuração de webhooks concluída com sucesso",
+              });
+            }}
+          />
         </div>
       )}
     </div>

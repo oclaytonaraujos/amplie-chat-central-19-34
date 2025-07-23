@@ -53,13 +53,14 @@ export function useEvolutionAPIComplete() {
         .from('evolution_api_global_config')
         .select('server_url, api_key, ativo')
         .eq('ativo', true)
-        .single();
+        .maybeSingle();
 
       if (configError) {
-        if (configError.code === 'PGRST116') {
-          throw new Error('Configuração global da Evolution API não encontrada');
-        }
         throw configError;
+      }
+
+      if (!data) {
+        throw new Error('Configuração global da Evolution API não encontrada. Configure a Evolution API no painel de administração.');
       }
 
       const newService = new EvolutionAPIService(data.server_url, data.api_key);

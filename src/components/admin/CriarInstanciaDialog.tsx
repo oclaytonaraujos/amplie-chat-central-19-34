@@ -118,8 +118,13 @@ export function CriarInstanciaDialog({
 
       const config = globalConfig[0];
 
+      // Garantir que a URL tenha protocolo https://
+      const serverUrl = config.server_url.startsWith('http') 
+        ? config.server_url 
+        : `https://${config.server_url}`;
+
       // Criar instância na Evolution API
-      const response = await fetch(`${config.server_url}/manager/create`, {
+      const response = await fetch(`${serverUrl}/manager/create`, {
         method: 'POST',
         headers: {
           'apikey': config.api_key,

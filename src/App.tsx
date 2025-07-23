@@ -22,6 +22,7 @@ import { Layout } from "@/components/layout/Layout";
 const Auth = lazy(() => import("@/pages/Auth").then(m => ({ default: m.default })));
 const SuperAdmin = lazy(() => import("@/pages/SuperAdmin").then(m => ({ default: m.default })));
 const Painel = lazy(() => import("@/pages/Painel").then(m => ({ default: m.default })));
+const WebhooksAdmin = lazy(() => import("@/pages/WebhooksAdmin").then(m => ({ default: m.default })));
 const Dashboard = lazy(() => import("@/pages/DashboardOptimized").then(m => ({ default: m.default })));
 const Atendimento = lazy(() => import("@/pages/Atendimento").then(m => ({ default: m.default })));
 const Contatos = lazy(() => import("@/pages/Contatos").then(m => ({ default: m.default })));
@@ -317,6 +318,16 @@ function AppRoutes() {
           <Layout title="Idioma" description="Configurações de idioma">
             <Suspense fallback={<PageContentFallback />}>
               <Idioma />
+            </Suspense>
+          </Layout>
+        </ProtectedRoute>
+      } />
+      
+      <Route path="/webhooks" element={
+        <ProtectedRoute>
+          <Layout title="Webhooks" description="Configuração de webhooks das instâncias">
+            <Suspense fallback={<PageContentFallback />}>
+              <WebhooksAdmin />
             </Suspense>
           </Layout>
         </ProtectedRoute>

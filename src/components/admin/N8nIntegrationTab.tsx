@@ -5,8 +5,6 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Settings, Zap, Globe, Database, AlertCircle, CheckCircle, Play, Pause, BarChart3, Webhook } from 'lucide-react';
 import { N8nConfigDialog } from './N8nConfigDialog';
-import { WebhookConfigurationCenter } from './WebhookConfigurationCenter';
-import { SystemWebhooksConfig } from './SystemWebhooksConfig';
 import { N8nDashboard } from './N8nDashboard';
 import { useToast } from '@/hooks/use-toast';
 
@@ -50,9 +48,6 @@ export function N8nIntegrationTab() {
         <N8nDashboard />
       </TabsContent>
 
-      <TabsContent value="webhooks" className="space-y-6">
-        <SystemWebhooksConfig />
-      </TabsContent>
 
       <TabsContent value="config" className="space-y-6">
         {/* Status Overview */}
@@ -186,7 +181,7 @@ export function N8nIntegrationTab() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <WebhookConfigurationCenter />
+              <p className="text-muted-foreground">Configuração de webhooks movida para página dedicada</p>
             </CardContent>
           </Card>
         </div>

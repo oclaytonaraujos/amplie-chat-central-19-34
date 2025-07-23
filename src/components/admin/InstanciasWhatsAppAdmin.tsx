@@ -29,9 +29,6 @@ import { QRCodeModal } from './QRCodeModal';
 import { CriarInstanciaDialog } from './CriarInstanciaDialog';
 import { InstanceDetailsDialog } from './InstanceDetailsDialog';
 import { InstanceBulkActions } from './InstanceBulkActions';
-import { ImprovedWebhookCenter } from './ImprovedWebhookCenter';
-import { UnifiedInstanceDashboard } from './UnifiedInstanceDashboard';
-import { InstanceWebhookConfig } from './InstanceWebhookConfig';
 import {
   Select,
   SelectContent,
@@ -81,8 +78,6 @@ export function InstanciasWhatsAppAdmin() {
   const [webhookFilter, setWebhookFilter] = useState<string>('all');
   const [sortBy, setSortBy] = useState<'name' | 'status' | 'created' | 'company'>('created');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
-  const [showWebhookCenter, setShowWebhookCenter] = useState(false);
-  const [showInstanceWebhook, setShowInstanceWebhook] = useState<InstanciaCompleta | null>(null);
   
   const { toast } = useToast();
   const {
@@ -381,32 +376,12 @@ export function InstanciasWhatsAppAdmin() {
             <RefreshCw className={`w-4 h-4 mr-2 ${(loading || evolutionApiLoading) ? 'animate-spin' : ''}`} />
             Atualizar
           </Button>
-          <Button 
-            variant="outline" 
-            onClick={() => setShowWebhookCenter(true)}
-          >
-            <Settings className="w-4 h-4 mr-2" />
-            Config Webhooks
-          </Button>
           <Button onClick={() => setShowCreateDialog(true)}>
             <Plus className="w-4 h-4 mr-2" />
             Nova Instância
           </Button>
         </div>
       </div>
-
-      {/* Dashboard Unificado */}
-      <UnifiedInstanceDashboard 
-        instances={instancias}
-        onStatusUpdate={(instanceName, status) => {
-          setInstancias(prev => prev.map(inst => 
-            inst.instance_name === instanceName 
-              ? { ...inst, status }
-              : inst
-          ));
-        }}
-        onRefresh={loadData}
-      />
 
       {/* Ações em Lote */}
       <InstanceBulkActions
@@ -659,14 +634,6 @@ export function InstanciasWhatsAppAdmin() {
                         </Button>
                       )}
 
-                      <Button 
-                        size="sm" 
-                        variant="outline"
-                        onClick={() => setShowInstanceWebhook(instancia)}
-                      >
-                        <Settings className="w-4 h-4 mr-1" />
-                        Webhooks
-                      </Button>
                       
                       <Button 
                         size="sm" 
@@ -726,66 +693,6 @@ export function InstanciasWhatsAppAdmin() {
         instance={selectedInstance}
         onRefresh={loadData}
       />
-
-      {/* Centro de Configuração de Webhooks Melhorado */}
-      {showWebhookCenter && (
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold">Configuração de Webhooks</h3>
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => setShowWebhookCenter(false)}
-            >
-              Fechar
-            </Button>
-          </div>
-          <ImprovedWebhookCenter 
-            instanceName={selectedInstance?.instance_name}
-            onWebhookConfigured={() => {
-              loadData();
-              toast({
-                title: "Webhooks configurados",
-                description: "Configuração de webhooks concluída com sucesso",
-              });
-            }}
-          />
-        </div>
-      )}
-
-      {/* Configuração de Webhook por Instância */}
-      {showInstanceWebhook && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-background rounded-lg shadow-lg w-full max-w-4xl max-h-[90vh] overflow-hidden">
-            <div className="flex items-center justify-between p-4 border-b">
-              <h2 className="text-lg font-semibold">
-                Configuração de Webhooks - {showInstanceWebhook.instance_name}
-              </h2>
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => setShowInstanceWebhook(null)}
-              >
-                Fechar
-              </Button>
-            </div>
-            <div className="p-4 overflow-y-auto max-h-[calc(90vh-100px)]">
-              <InstanceWebhookConfig
-                instanceName={showInstanceWebhook.instance_name}
-                instanceId={showInstanceWebhook.id}
-                onClose={() => setShowInstanceWebhook(null)}
-                onConfigurationChange={() => {
-                  loadData();
-                  toast({
-                    title: "Configuração salva",
-                    description: "Webhooks da instância configurados com sucesso",
-                  });
-                }}
-              />
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

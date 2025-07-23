@@ -736,6 +736,7 @@ export type Database = {
           id: string
           instance_name: string
           last_connected_at: string | null
+          last_webhook_test: string | null
           numero: string | null
           platform: string | null
           profile_name: string | null
@@ -743,7 +744,9 @@ export type Database = {
           qr_code: string | null
           status: string | null
           updated_at: string | null
+          webhook_error_message: string | null
           webhook_events: string[] | null
+          webhook_status: string | null
           webhook_url: string | null
         }
         Insert: {
@@ -756,6 +759,7 @@ export type Database = {
           id?: string
           instance_name: string
           last_connected_at?: string | null
+          last_webhook_test?: string | null
           numero?: string | null
           platform?: string | null
           profile_name?: string | null
@@ -763,7 +767,9 @@ export type Database = {
           qr_code?: string | null
           status?: string | null
           updated_at?: string | null
+          webhook_error_message?: string | null
           webhook_events?: string[] | null
+          webhook_status?: string | null
           webhook_url?: string | null
         }
         Update: {
@@ -776,6 +782,7 @@ export type Database = {
           id?: string
           instance_name?: string
           last_connected_at?: string | null
+          last_webhook_test?: string | null
           numero?: string | null
           platform?: string | null
           profile_name?: string | null
@@ -783,7 +790,9 @@ export type Database = {
           qr_code?: string | null
           status?: string | null
           updated_at?: string | null
+          webhook_error_message?: string | null
           webhook_events?: string[] | null
+          webhook_status?: string | null
           webhook_url?: string | null
         }
         Relationships: [
@@ -825,6 +834,50 @@ export type Database = {
           webhook_base_url?: string | null
         }
         Relationships: []
+      }
+      evolution_api_logs: {
+        Row: {
+          created_at: string | null
+          empresa_id: string | null
+          error_message: string | null
+          event_data: Json | null
+          event_type: string
+          id: string
+          instance_name: string
+          success: boolean | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          empresa_id?: string | null
+          error_message?: string | null
+          event_data?: Json | null
+          event_type: string
+          id?: string
+          instance_name: string
+          success?: boolean | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          empresa_id?: string | null
+          error_message?: string | null
+          event_data?: Json | null
+          event_type?: string
+          id?: string
+          instance_name?: string
+          success?: boolean | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "evolution_api_logs_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       failed_messages: {
         Row: {
@@ -1780,6 +1833,10 @@ export type Database = {
       can_access_profile: {
         Args: { profile_id: string }
         Returns: boolean
+      }
+      cleanup_evolution_api_logs: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
       cleanup_old_queue_messages: {
         Args: Record<PropertyKey, never>

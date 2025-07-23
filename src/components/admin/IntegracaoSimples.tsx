@@ -102,9 +102,7 @@ export default function IntegracaoSimples() {
   return <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold">Configuração da Evolution API</h2>
-        <p className="text-muted-foreground">
-          Configure a conexão global com sua Evolution API. Para gerenciar instâncias específicas, use a aba "Instâncias".
-        </p>
+        <p className="text-muted-foreground">Configure a conexão global com sua Evolution API</p>
       </div>
 
       {/* Configuração da Evolution API */}

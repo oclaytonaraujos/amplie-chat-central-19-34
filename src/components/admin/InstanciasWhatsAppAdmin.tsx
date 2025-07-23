@@ -31,6 +31,7 @@ import { InstanceStatsCard } from './InstanceStatsCard';
 import { InstanceDetailsDialog } from './InstanceDetailsDialog';
 import { InstanceBulkActions } from './InstanceBulkActions';
 import { InstanceStatusMonitor } from './InstanceStatusMonitor';
+import { WebhookConfigurationCenter } from './WebhookConfigurationCenter';
 import {
   Select,
   SelectContent,
@@ -75,6 +76,7 @@ export function InstanciasWhatsAppAdmin() {
   const [webhookFilter, setWebhookFilter] = useState<string>('all');
   const [sortBy, setSortBy] = useState<'name' | 'status' | 'created' | 'company'>('created');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [showWebhookCenter, setShowWebhookCenter] = useState(false);
   
   const { toast } = useToast();
   const {
@@ -376,6 +378,13 @@ export function InstanciasWhatsAppAdmin() {
             <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
             Atualizar
           </Button>
+          <Button 
+            variant="outline" 
+            onClick={() => setShowWebhookCenter(true)}
+          >
+            <Settings className="w-4 h-4 mr-2" />
+            Config Webhooks
+          </Button>
           <Button onClick={() => setShowCreateDialog(true)}>
             <Plus className="w-4 h-4 mr-2" />
             Nova Instância
@@ -643,6 +652,36 @@ export function InstanciasWhatsAppAdmin() {
         instance={selectedInstance}
         onRefresh={loadData}
       />
+
+      {/* Centro de Configuração de Webhooks */}
+      {showWebhookCenter && (
+        <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm">
+          <div className="fixed left-[50%] top-[50%] z-50 translate-x-[-50%] translate-y-[-50%] w-[95vw] max-w-4xl max-h-[90vh] overflow-auto">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                  <CardTitle>Configuração de Webhooks</CardTitle>
+                  <p className="text-sm text-muted-foreground">
+                    {selectedInstance ? `Instância: ${selectedInstance.instance_name}` : 'Configuração global'}
+                  </p>
+                </div>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => setShowWebhookCenter(false)}
+                >
+                  Fechar
+                </Button>
+              </CardHeader>
+              <CardContent>
+                <WebhookConfigurationCenter 
+                  instanceName={selectedInstance?.instance_name}
+                />
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

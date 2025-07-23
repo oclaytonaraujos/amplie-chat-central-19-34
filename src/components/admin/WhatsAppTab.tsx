@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Settings, ExternalLink, Zap, Bot } from 'lucide-react';
 import { WhatsAppConnectionsReal } from '@/components/whatsapp/WhatsAppConnectionsReal';
 import { N8nConfigDialog } from '@/components/admin/N8nConfigDialog';
-import { WebhookConfig } from '@/components/admin/WebhookConfig';
+import { WebhookConfigurationCenter } from '@/components/admin/WebhookConfigurationCenter';
 import { ChatbotStateManager } from '@/components/admin/ChatbotStateManager';
 import { WebhookMonitoring } from '@/components/admin/WebhookMonitoring';
 import { WebhookTester } from '@/components/admin/WebhookTester';
@@ -48,7 +48,20 @@ export function WhatsAppTab() {
       </Card>
 
       {/* Configuração de Webhooks */}
-      <WebhookConfig />
+      <Card className="rounded-2xl shadow-lg border-0">
+        <CardHeader className="p-6">
+          <CardTitle className="flex items-center gap-2">
+            <Zap className="h-5 w-5" />
+            Centro de Configuração de Webhooks
+          </CardTitle>
+          <CardDescription>
+            Configure todos os webhooks do sistema em um local centralizado
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="p-6">
+          <WebhookConfigurationCenter />
+        </CardContent>
+      </Card>
 
       {/* Monitoramento de Webhooks Evolution API */}
       <WebhookMonitoring />

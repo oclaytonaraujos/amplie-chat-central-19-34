@@ -23,8 +23,17 @@ interface InstanceConfig {
 }
 
 /**
- * Hook principal para Evolution API v2 completa
- * Gerencia configuração global e fornece acesso a todas as funcionalidades
+ * Hook principal para Evolution API v2 - Gerenciamento Completo
+ * 
+ * CENTRALIZA todas as operações da Evolution API em um hook único:
+ * - Configuração global e testes de conectividade  
+ * - Gerenciamento completo de instâncias (criar, conectar, deletar)
+ * - Envio de mensagens (texto, mídia, botões, listas, etc.)
+ * - Operações de chat e contatos
+ * - Configuração avançada de webhooks
+ * - Gerenciamento de grupos e perfis
+ * 
+ * Fornece tratamento de erro robusto e feedback via toast
  */
 export function useEvolutionAPIComplete() {
   const [config, setConfig] = useState<GlobalConfig | null>(null);

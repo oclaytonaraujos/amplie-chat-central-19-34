@@ -14,6 +14,8 @@ import GerenciarEquipe from "@/pages/GerenciarEquipe";
 import MeuPerfil from "@/pages/MeuPerfil";
 import PlanoFaturamento from "@/pages/PlanoFaturamento";
 import Painel from "@/pages/Painel";
+import Webhooks from "@/pages/Webhooks";
+import WhatsApp from "@/pages/WhatsApp";
 
 export function ProtectedRoutes() {
   return (
@@ -110,6 +112,22 @@ export function ProtectedRoutes() {
         <ProtectedRoute>
           <Layout title="Plano e Faturamento" description="Gerenciamento financeiro">
             <PlanoFaturamento />
+          </Layout>
+        </ProtectedRoute>
+      } />
+      
+      <Route path="/webhooks" element={
+        <ProtectedRoute>
+          <Layout title="Webhooks" description="Configuração de webhooks das instâncias">
+            <Webhooks />
+          </Layout>
+        </ProtectedRoute>
+      } />
+      
+      <Route path="/whatsapp" element={
+        <ProtectedRoute>
+          <Layout title="WhatsApp" description="Gerenciamento de conexões WhatsApp">
+            <WhatsApp />
           </Layout>
         </ProtectedRoute>
       } />

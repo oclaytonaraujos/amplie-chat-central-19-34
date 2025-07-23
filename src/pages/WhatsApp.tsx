@@ -1,13 +1,10 @@
 import React from 'react';
-import { Layout } from '@/components/layout/Layout';
-import { WhatsAppConnectionsEmpresa } from '@/components/whatsapp/WhatsAppConnectionsEmpresa';
+import { WhatsAppConnections } from '@/components/whatsapp/WhatsAppConnections';
 
 export default function WhatsApp() {
   return (
-    <Layout title="WhatsApp" description="Gerenciar conexões WhatsApp">
-      <div className="flex-1 space-y-6 p-6">
-        <WhatsAppConnectionsEmpresa />
-      </div>
-    </Layout>
+    <div className="container mx-auto px-4 py-6">
+      <WhatsAppConnections />
+    </div>
   );
 }

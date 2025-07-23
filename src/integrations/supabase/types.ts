@@ -1699,6 +1699,63 @@ export type Database = {
           },
         ]
       }
+      webhooks_config: {
+        Row: {
+          ativo: boolean | null
+          created_at: string | null
+          empresa_id: string
+          id: string
+          instance_id: string
+          ultimo_erro: string | null
+          ultimo_teste: string | null
+          updated_at: string | null
+          webhook_events: string[] | null
+          webhook_status: string | null
+          webhook_url: string
+        }
+        Insert: {
+          ativo?: boolean | null
+          created_at?: string | null
+          empresa_id: string
+          id?: string
+          instance_id: string
+          ultimo_erro?: string | null
+          ultimo_teste?: string | null
+          updated_at?: string | null
+          webhook_events?: string[] | null
+          webhook_status?: string | null
+          webhook_url: string
+        }
+        Update: {
+          ativo?: boolean | null
+          created_at?: string | null
+          empresa_id?: string
+          id?: string
+          instance_id?: string
+          ultimo_erro?: string | null
+          ultimo_teste?: string | null
+          updated_at?: string | null
+          webhook_events?: string[] | null
+          webhook_status?: string | null
+          webhook_url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "webhooks_config_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "webhooks_config_instance_id_fkey"
+            columns: ["instance_id"]
+            isOneToOne: true
+            referencedRelation: "evolution_api_config"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       whatsapp_connections: {
         Row: {
           ativo: boolean | null

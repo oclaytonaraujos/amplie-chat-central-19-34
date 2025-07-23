@@ -183,15 +183,16 @@ export function useEvolutionIntegration() {
         throw new Error('Perfil sem empresa associada');
       }
 
-      // Criar instância via API seguindo o exemplo correto
+      // Criar instância via API seguindo o exemplo exato fornecido
       console.log('Criando instância na Evolution API...');
-      const response = await fetch(`${config.server_url}/instance/create/${instanceName}`, {
+      const response = await fetch(`${config.server_url}/instance/create`, {
         method: 'POST',
         headers: {
           'apikey': config.api_key,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
+          instanceName: instanceName,
           qrcode: true,
           integration: "WHATSAPP-BAILEYS"
         })

@@ -1,6 +1,6 @@
 
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Users, MessageSquare, Grid2X2, Settings, Building2, Bot, MessageCircle, UserCheck, Smartphone } from 'lucide-react';
+import { LayoutDashboard, Users, MessageSquare, Grid2X2, Settings, Building2, Bot, MessageCircle, UserCheck, Smartphone, Webhook } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
@@ -52,6 +52,12 @@ const menuItems = [
     icon: Smartphone,
     href: '/whatsapp',
     color: 'text-green-400'
+  },
+  {
+    title: 'Webhooks',
+    icon: Webhook,
+    href: '/webhooks',
+    color: 'text-blue-400'
   },
   {
     title: 'Painel',

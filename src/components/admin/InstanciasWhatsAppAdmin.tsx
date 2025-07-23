@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -348,9 +348,9 @@ export function InstanciasWhatsAppAdmin() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold">Instâncias WhatsApp</h2>
+          <h2 className="text-3xl font-bold tracking-tight">Gerenciamento de Instâncias WhatsApp</h2>
           <p className="text-muted-foreground">
-            Gerencie todas as instâncias WhatsApp do sistema
+            Configure e gerencie todas as instâncias WhatsApp do sistema
           </p>
         </div>
         <div className="flex gap-2">
@@ -365,11 +365,60 @@ export function InstanciasWhatsAppAdmin() {
             <Settings className="w-4 h-4 mr-2" />
             Config Webhooks
           </Button>
-          <Button onClick={() => setShowCreateDialog(true)}>
-            <Plus className="w-4 h-4 mr-2" />
+          <Button onClick={() => setShowCreateDialog(true)} className="gap-2">
+            <Plus className="w-4 h-4" />
             Nova Instância
           </Button>
         </div>
+      </div>
+
+      {/* Cards de Métricas */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total de Instâncias</CardTitle>
+            <MessageSquare className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{instancias.length}</div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Conectadas</CardTitle>
+            <CheckCircle className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-green-600">
+              {instancias.filter(i => i.status === 'open' || i.status === 'connected').length}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Desconectadas</CardTitle>
+            <WifiOff className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-red-600">
+              {instancias.filter(i => i.status === 'disconnected').length}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Webhooks Ativos</CardTitle>
+            <Wifi className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-blue-600">
+              {instancias.filter(i => i.webhook_status === 'ativo').length}
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Dashboard Unificado */}
@@ -392,10 +441,15 @@ export function InstanciasWhatsAppAdmin() {
         onSelectionChange={setSelectedInstances}
         onRefresh={loadData}
       />
-
-      {/* Filtros */}
+      {/* Filtros e Pesquisa */}
       <Card>
-        <CardContent className="p-4">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Search className="w-5 h-5" />
+            Filtros e Pesquisa
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
           <div className="flex flex-col lg:flex-row gap-4">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -525,8 +579,11 @@ export function InstanciasWhatsAppAdmin() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <MessageSquare className="w-5 h-5" />
-            Instâncias Cadastradas
+            Instâncias Configuradas
           </CardTitle>
+          <CardDescription>
+            Lista de todas as instâncias WhatsApp configuradas no sistema
+          </CardDescription>
         </CardHeader>
         <CardContent>
           {loading ? (

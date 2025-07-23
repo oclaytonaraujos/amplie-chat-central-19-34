@@ -1,617 +1,451 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Textarea } from '@/components/ui/textarea';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
+import { useEvolutionAPIComplete } from '@/hooks/useEvolutionAPIComplete';
 import { 
   Webhook, 
-  Plus, 
+  TestTube, 
+  Copy, 
   CheckCircle, 
   XCircle, 
+  Clock,
   AlertCircle,
-  Edit,
-  Trash2,
-  Play,
-  Copy
+  Settings,
+  Globe,
+  MessageSquare,
+  Info
 } from 'lucide-react';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Checkbox } from '@/components/ui/checkbox';
 
 interface WebhookConfig {
-  id: string;
-  instance_id: string;
-  instance_name?: string;
-  webhook_url: string;
-  webhook_events: string[];
-  status: 'ativo' | 'inativo' | 'erro';
-  auto_generated: boolean;
-  last_test_at?: string;
-  last_test_status?: 'success' | 'failed';
-  error_message?: string;
-  created_at: string;
-  updated_at: string;
+  url: string;
+  enabled: boolean;
+  status: 'active' | 'inactive' | 'error';
+  last_test?: string;
+  test_result?: boolean;
 }
 
-interface EvolutionInstance {
-  id: string;
-  instance_name: string;
-  status: string;
-  empresa_id?: string;
-  empresa_nome?: string;
+interface WebhookConfigurationCenterProps {
+  instanceName?: string;
 }
 
-const WEBHOOK_EVENTS = [
-  { id: 'MESSAGES_UPSERT', label: 'Mensagens (Envio/Recebimento)' },
-  { id: 'CONNECTION_UPDATE', label: 'Status da Conexão' },
-  { id: 'QRCODE_UPDATED', label: 'QR Code Atualizado' },
-  { id: 'CALL_UPDATE', label: 'Chamadas' },
-  { id: 'GROUP_UPDATE', label: 'Grupos' },
-  { id: 'PRESENCE_UPDATE', label: 'Presença Online' },
-  { id: 'CHATS_UPSERT', label: 'Conversas' },
-  { id: 'CONTACTS_UPSERT', label: 'Contatos' }
-];
-
-export function WebhookConfigurationCenter() {
-  const [webhooks, setWebhooks] = useState<WebhookConfig[]>([]);
-  const [instances, setInstances] = useState<EvolutionInstance[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingWebhook, setEditingWebhook] = useState<WebhookConfig | null>(null);
-  const { toast } = useToast();
-
-  // Estados do formulário
-  const [formData, setFormData] = useState<{
-    instance_id: string;
-    webhook_url: string;
-    webhook_events: string[];
-    status: 'ativo' | 'inativo' | 'erro';
-    auto_generated: boolean;
+/**
+ * Centro unificado de configuração de webhooks
+ * Centraliza todas as configurações de webhook em um local para evitar duplicação
+ */
+export function WebhookConfigurationCenter({ instanceName }: WebhookConfigurationCenterProps) {
+  const [webhookConfigs, setWebhookConfigs] = useState<{
+    evolution: WebhookConfig;
+    system: WebhookConfig;
+    n8n_receive: WebhookConfig;
+    n8n_send: WebhookConfig;
   }>({
-    instance_id: '',
-    webhook_url: '',
-    webhook_events: ['MESSAGES_UPSERT', 'CONNECTION_UPDATE', 'QRCODE_UPDATED'],
-    status: 'ativo',
-    auto_generated: false
+    evolution: {
+      url: 'https://obtpghqvrygzcukdaiej.supabase.co/functions/v1/whatsapp-webhook-evolution',
+      enabled: true,
+      status: 'active',
+    },
+    system: {
+      url: '',
+      enabled: false,
+      status: 'inactive',
+    },
+    n8n_receive: {
+      url: localStorage.getItem('n8n-receive-webhook-url') || '',
+      enabled: !!localStorage.getItem('n8n-receive-webhook-url'),
+      status: 'inactive',
+    },
+    n8n_send: {
+      url: localStorage.getItem('n8n-send-webhook-url') || '',
+      enabled: !!localStorage.getItem('n8n-send-webhook-url'),
+      status: 'inactive',
+    },
   });
 
-  useEffect(() => {
-    loadData();
-  }, []);
+  const [testing, setTesting] = useState<string | null>(null);
+  const { toast } = useToast();
+  const { configureCompleteWebhook, checkWebhookStatus, findWebhook } = useEvolutionAPIComplete();
 
-  const loadData = async () => {
-    try {
-      setLoading(true);
-      
-      // Carregar instâncias
-      const { data: instancesData, error: instancesError } = await supabase
-        .from('evolution_api_config')
-        .select(`
-          id,
-          instance_name,
-          status,
-          empresa_id,
-          empresas:empresa_id (nome)
-        `)
-        .eq('ativo', true)
-        .order('instance_name');
+  const updateWebhookConfig = (type: keyof typeof webhookConfigs, updates: Partial<WebhookConfig>) => {
+    setWebhookConfigs(prev => ({
+      ...prev,
+      [type]: { ...prev[type], ...updates }
+    }));
 
-      if (instancesError) throw instancesError;
-
-      const formattedInstances: EvolutionInstance[] = (instancesData || []).map(instance => ({
-        id: instance.id,
-        instance_name: instance.instance_name,
-        status: instance.status || 'disconnected',
-        empresa_id: instance.empresa_id,
-        empresa_nome: instance.empresas?.nome
-      }));
-
-      setInstances(formattedInstances);
-
-      // Por enquanto, vamos simular webhooks (já que a tabela não existe ainda)
-      // Em uma implementação real, isso viria do banco de dados
-      const simulatedWebhooks: WebhookConfig[] = formattedInstances.map(instance => ({
-        id: `webhook-${instance.id}`,
-        instance_id: instance.id,
-        instance_name: instance.instance_name,
-        webhook_url: `https://suaapi.com/webhook/${instance.instance_name}`,
-        webhook_events: ['MESSAGES_UPSERT', 'CONNECTION_UPDATE', 'QRCODE_UPDATED'],
-        status: 'ativo' as const,
-        auto_generated: true,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      }));
-
-      setWebhooks(simulatedWebhooks);
-
-    } catch (error: any) {
-      console.error('Erro ao carregar dados:', error);
-      toast({
-        title: "Erro",
-        description: "Erro ao carregar dados dos webhooks",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
+    // Persistir configurações locais
+    if (type === 'n8n_receive') {
+      localStorage.setItem('n8n-receive-webhook-url', updates.url || '');
+    } else if (type === 'n8n_send') {
+      localStorage.setItem('n8n-send-webhook-url', updates.url || '');
     }
   };
 
-  const generateWebhookUrl = (instanceName: string) => {
-    const baseUrl = window.location.origin;
-    return `${baseUrl}/api/webhook/evolution/${instanceName}`;
-  };
+  const testWebhook = async (type: keyof typeof webhookConfigs) => {
+    const config = webhookConfigs[type];
+    if (!config.url) {
+      toast({
+        title: "URL necessária",
+        description: "Configure uma URL antes de testar",
+        variant: "destructive",
+      });
+      return;
+    }
 
-  const handleCreateWebhook = async () => {
+    setTesting(type);
+    
     try {
-      if (!formData.instance_id) {
+      const startTime = Date.now();
+      
+      // Para webhook da Evolution API, usar método específico
+      if (type === 'evolution' && instanceName) {
+        const result = await checkWebhookStatus(instanceName);
+        const responseTime = Date.now() - startTime;
+        
+        updateWebhookConfig(type, {
+          status: result.configured ? 'active' : 'error',
+          last_test: new Date().toISOString(),
+          test_result: result.configured
+        });
+
         toast({
-          title: "Erro",
-          description: "Selecione uma instância",
-          variant: "destructive",
+          title: result.configured ? "Webhook ativo" : "Webhook inativo",
+          description: `Status verificado em ${responseTime}ms`,
+          variant: result.configured ? "default" : "destructive",
         });
         return;
       }
 
-      const selectedInstance = instances.find(i => i.id === formData.instance_id);
-      if (!selectedInstance) return;
-
-      const newWebhook: WebhookConfig = {
-        id: `webhook-${Date.now()}`,
-        instance_id: formData.instance_id,
-        instance_name: selectedInstance.instance_name,
-        webhook_url: formData.webhook_url || generateWebhookUrl(selectedInstance.instance_name),
-        webhook_events: formData.webhook_events,
-        status: formData.status,
-        auto_generated: formData.auto_generated,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      };
-
-      setWebhooks(prev => [...prev, newWebhook]);
-      setIsDialogOpen(false);
-      resetForm();
-
-      toast({
-        title: "Sucesso",
-        description: "Webhook criado com sucesso",
+      // Para outros webhooks, fazer teste HTTP
+      const response = await fetch(config.url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        mode: 'no-cors',
+        body: JSON.stringify({
+          test: true,
+          timestamp: new Date().toISOString(),
+          type: type,
+        }),
       });
 
-    } catch (error: any) {
-      console.error('Erro ao criar webhook:', error);
+      const responseTime = Date.now() - startTime;
+      const success = response.ok || response.type === 'opaque'; // no-cors retorna opaque
+
+      updateWebhookConfig(type, {
+        status: success ? 'active' : 'error',
+        last_test: new Date().toISOString(),
+        test_result: success
+      });
+
       toast({
-        title: "Erro",
-        description: "Erro ao criar webhook",
+        title: success ? "Teste enviado" : "Erro no teste",
+        description: `Webhook testado em ${responseTime}ms`,
+        variant: success ? "default" : "destructive",
+      });
+    } catch (error) {
+      updateWebhookConfig(type, {
+        status: 'error',
+        last_test: new Date().toISOString(),
+        test_result: false
+      });
+
+      toast({
+        title: "Erro no teste",
+        description: "Não foi possível testar o webhook",
         variant: "destructive",
       });
+    } finally {
+      setTesting(null);
     }
   };
 
-  const handleUpdateWebhook = async () => {
+  const configureEvolutionWebhook = async () => {
+    if (!instanceName) {
+      toast({
+        title: "Instância necessária",
+        description: "Selecione uma instância para configurar",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setTesting('evolution');
+    
     try {
-      if (!editingWebhook) return;
+      const result = await configureCompleteWebhook(instanceName);
+      
+      if (result) {
+        updateWebhookConfig('evolution', {
+          status: 'active',
+          last_test: new Date().toISOString(),
+          test_result: true
+        });
 
-      const updatedWebhook = {
-        ...editingWebhook,
-        webhook_url: formData.webhook_url,
-        webhook_events: formData.webhook_events,
-        status: formData.status,
-        updated_at: new Date().toISOString()
-      };
-
-      setWebhooks(prev => prev.map(w => w.id === editingWebhook.id ? updatedWebhook : w));
-      setIsDialogOpen(false);
-      setEditingWebhook(null);
-      resetForm();
-
-      toast({
-        title: "Sucesso",
-        description: "Webhook atualizado com sucesso",
+        toast({
+          title: "Webhook configurado",
+          description: "Webhook da Evolution API configurado com sucesso",
+        });
+      }
+    } catch (error) {
+      updateWebhookConfig('evolution', {
+        status: 'error',
+        last_test: new Date().toISOString(),
+        test_result: false
       });
 
-    } catch (error: any) {
-      console.error('Erro ao atualizar webhook:', error);
       toast({
-        title: "Erro",
-        description: "Erro ao atualizar webhook",
+        title: "Erro na configuração",
+        description: "Não foi possível configurar o webhook",
         variant: "destructive",
       });
+    } finally {
+      setTesting(null);
     }
   };
 
-  const handleDeleteWebhook = async (webhookId: string) => {
-    try {
-      setWebhooks(prev => prev.filter(w => w.id !== webhookId));
-      
-      toast({
-        title: "Sucesso",
-        description: "Webhook removido com sucesso",
-      });
-
-    } catch (error: any) {
-      console.error('Erro ao deletar webhook:', error);
-      toast({
-        title: "Erro",
-        description: "Erro ao deletar webhook",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleTestWebhook = async (webhook: WebhookConfig) => {
-    try {
-      // Simular teste do webhook
-      const testPayload = {
-        event: 'TEST',
-        instance: webhook.instance_name,
-        data: {
-          message: 'Teste de webhook',
-          timestamp: new Date().toISOString()
-        }
-      };
-
-      // Em uma implementação real, isso faria uma requisição HTTP para o webhook
-      console.log('Testando webhook:', webhook.webhook_url, testPayload);
-      
-      // Simular sucesso após 2 segundos
-      await new Promise(resolve => setTimeout(resolve, 2000));
-
-      // Atualizar status do teste
-      setWebhooks(prev => prev.map(w => 
-        w.id === webhook.id 
-          ? { 
-              ...w, 
-              last_test_at: new Date().toISOString(),
-              last_test_status: 'success' as const 
-            }
-          : w
-      ));
-
-      toast({
-        title: "Sucesso",
-        description: "Webhook testado com sucesso",
-      });
-
-    } catch (error: any) {
-      console.error('Erro ao testar webhook:', error);
-      
-      setWebhooks(prev => prev.map(w => 
-        w.id === webhook.id 
-          ? { 
-              ...w, 
-              last_test_at: new Date().toISOString(),
-              last_test_status: 'failed' as const,
-              error_message: error.message
-            }
-          : w
-      ));
-
-      toast({
-        title: "Erro",
-        description: "Erro ao testar webhook",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const resetForm = () => {
-    setFormData({
-      instance_id: '',
-      webhook_url: '',
-      webhook_events: ['MESSAGES_UPSERT', 'CONNECTION_UPDATE', 'QRCODE_UPDATED'],
-      status: 'ativo',
-      auto_generated: false
-    });
-  };
-
-  const openEditDialog = (webhook: WebhookConfig) => {
-    setEditingWebhook(webhook);
-    setFormData({
-      instance_id: webhook.instance_id,
-      webhook_url: webhook.webhook_url,
-      webhook_events: webhook.webhook_events,
-      status: webhook.status,
-      auto_generated: webhook.auto_generated
-    });
-    setIsDialogOpen(true);
-  };
-
-  const copyToClipboard = (text: string) => {
+  const copyToClipboard = (text: string, name: string) => {
     navigator.clipboard.writeText(text);
     toast({
-      title: "Copiado",
-      description: "URL copiada para a área de transferência",
+      title: "Copiado!",
+      description: `${name} copiado para a área de transferência`,
     });
   };
 
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (status: 'active' | 'inactive' | 'error') => {
     switch (status) {
-      case 'ativo':
-        return <Badge variant="default" className="bg-green-500"><CheckCircle className="w-3 h-3 mr-1" />Ativo</Badge>;
-      case 'inativo':
-        return <Badge variant="secondary"><XCircle className="w-3 h-3 mr-1" />Inativo</Badge>;
-      case 'erro':
-        return <Badge variant="destructive"><AlertCircle className="w-3 h-3 mr-1" />Erro</Badge>;
+      case 'active':
+        return <Badge className="bg-green-100 text-green-800"><CheckCircle className="w-3 h-3 mr-1" />Ativo</Badge>;
+      case 'error':
+        return <Badge className="bg-red-100 text-red-800"><XCircle className="w-3 h-3 mr-1" />Erro</Badge>;
       default:
-        return <Badge variant="outline">{status}</Badge>;
+        return <Badge className="bg-gray-100 text-gray-800"><Clock className="w-3 h-3 mr-1" />Inativo</Badge>;
     }
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Carregando webhooks...</p>
+  const WebhookConfigCard = ({ 
+    title, 
+    description, 
+    type, 
+    config, 
+    onTest, 
+    onConfigure,
+    readOnly = false 
+  }: {
+    title: string;
+    description: string;
+    type: keyof typeof webhookConfigs;
+    config: WebhookConfig;
+    onTest?: () => void;
+    onConfigure?: () => void;
+    readOnly?: boolean;
+  }) => (
+    <Card>
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle className="text-base flex items-center gap-2">
+              <Webhook className="w-4 h-4" />
+              {title}
+            </CardTitle>
+            <CardDescription>{description}</CardDescription>
+          </div>
+          {getStatusBadge(config.status)}
         </div>
-      </div>
-    );
-  }
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor={`webhook-${type}`}>URL do Webhook</Label>
+          <div className="flex gap-2">
+            <Input
+              id={`webhook-${type}`}
+              value={config.url}
+              onChange={(e) => updateWebhookConfig(type, { url: e.target.value })}
+              placeholder="https://exemplo.com/webhook"
+              readOnly={readOnly}
+            />
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => copyToClipboard(config.url, title)}
+              disabled={!config.url}
+            >
+              <Copy className="w-4 h-4" />
+            </Button>
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <Switch
+              checked={config.enabled}
+              onCheckedChange={(checked) => updateWebhookConfig(type, { enabled: checked })}
+              disabled={readOnly}
+            />
+            <Label>Habilitado</Label>
+          </div>
+
+          <div className="flex gap-2">
+            {onConfigure && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onConfigure}
+                disabled={testing === type}
+              >
+                {testing === type ? (
+                  <Clock className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Settings className="w-4 h-4" />
+                )}
+              </Button>
+            )}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onTest || (() => testWebhook(type))}
+              disabled={!config.url || testing === type}
+            >
+              {testing === type ? (
+                <Clock className="w-4 h-4 animate-spin" />
+              ) : (
+                <TestTube className="w-4 h-4" />
+              )}
+            </Button>
+          </div>
+        </div>
+
+        {config.last_test && (
+          <div className="text-xs text-muted-foreground">
+            Último teste: {new Date(config.last_test).toLocaleString()}
+            {config.test_result !== undefined && (
+              <span className={`ml-2 ${config.test_result ? 'text-green-600' : 'text-red-600'}`}>
+                {config.test_result ? '✓ Sucesso' : '✗ Falha'}
+              </span>
+            )}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Configuração de Webhooks</h1>
-          <p className="text-muted-foreground">
-            Gerencie webhooks para suas instâncias Evolution API
+          <h3 className="text-lg font-semibold">Centro de Configuração de Webhooks</h3>
+          <p className="text-sm text-muted-foreground">
+            Gerencie todas as configurações de webhook em um local centralizado
           </p>
         </div>
-        
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button onClick={() => { resetForm(); setEditingWebhook(null); }}>
-              <Plus className="w-4 h-4 mr-2" />
-              Novo Webhook
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle>
-                {editingWebhook ? 'Editar Webhook' : 'Criar Novo Webhook'}
-              </DialogTitle>
-              <DialogDescription>
-                Configure o webhook para receber eventos da instância selecionada
-              </DialogDescription>
-            </DialogHeader>
-
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="instance">Instância</Label>
-                <Select 
-                  value={formData.instance_id} 
-                  onValueChange={(value) => {
-                    setFormData(prev => ({ ...prev, instance_id: value }));
-                    const instance = instances.find(i => i.id === value);
-                    if (instance && !formData.webhook_url) {
-                      setFormData(prev => ({ 
-                        ...prev, 
-                        webhook_url: generateWebhookUrl(instance.instance_name) 
-                      }));
-                    }
-                  }}
-                  disabled={!!editingWebhook}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione uma instância" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {instances.map((instance) => (
-                      <SelectItem key={instance.id} value={instance.id}>
-                        <div className="flex items-center justify-between w-full">
-                          <span>{instance.instance_name}</span>
-                          {instance.empresa_nome && (
-                            <Badge variant="outline" className="ml-2">
-                              {instance.empresa_nome}
-                            </Badge>
-                          )}
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="webhook_url">URL do Webhook</Label>
-                <div className="flex gap-2">
-                  <Input
-                    id="webhook_url"
-                    value={formData.webhook_url}
-                    onChange={(e) => setFormData(prev => ({ ...prev, webhook_url: e.target.value }))}
-                    placeholder="https://suaapi.com/webhook/instance"
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon"
-                    onClick={() => copyToClipboard(formData.webhook_url)}
-                  >
-                    <Copy className="w-4 h-4" />
-                  </Button>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Eventos do Webhook</Label>
-                <div className="grid grid-cols-2 gap-2">
-                  {WEBHOOK_EVENTS.map((event) => (
-                    <div key={event.id} className="flex items-center space-x-2">
-                      <Checkbox
-                        id={event.id}
-                        checked={formData.webhook_events.includes(event.id)}
-                        onCheckedChange={(checked) => {
-                          if (checked) {
-                            setFormData(prev => ({
-                              ...prev,
-                              webhook_events: [...prev.webhook_events, event.id]
-                            }));
-                          } else {
-                            setFormData(prev => ({
-                              ...prev,
-                              webhook_events: prev.webhook_events.filter(e => e !== event.id)
-                            }));
-                          }
-                        }}
-                      />
-                      <Label htmlFor={event.id} className="text-sm">
-                        {event.label}
-                      </Label>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="status"
-                  checked={formData.status === 'ativo'}
-                  onCheckedChange={(checked) => 
-                    setFormData(prev => ({ ...prev, status: checked ? 'ativo' as const : 'inativo' as const }))
-                  }
-                />
-                <Label htmlFor="status">Webhook Ativo</Label>
-              </div>
-            </div>
-
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
-                Cancelar
-              </Button>
-              <Button onClick={editingWebhook ? handleUpdateWebhook : handleCreateWebhook}>
-                {editingWebhook ? 'Atualizar' : 'Criar'} Webhook
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
       </div>
 
-      <div className="grid gap-4">
-        {webhooks.map((webhook) => (
-          <Card key={webhook.id}>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <Webhook className="w-5 h-5 text-primary" />
-                  <div>
-                    <CardTitle className="text-lg">{webhook.instance_name}</CardTitle>
-                    <CardDescription className="flex items-center gap-2">
-                      {webhook.webhook_url}
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => copyToClipboard(webhook.webhook_url)}
-                      >
-                        <Copy className="w-3 h-3" />
-                      </Button>
-                    </CardDescription>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  {getStatusBadge(webhook.status)}
-                  {webhook.auto_generated && (
-                    <Badge variant="outline">Auto-gerado</Badge>
-                  )}
-                </div>
-              </div>
-            </CardHeader>
-            
-            <CardContent>
-              <div className="space-y-4">
-                <div>
-                  <Label className="text-sm font-medium">Eventos Configurados:</Label>
-                  <div className="flex flex-wrap gap-1 mt-1">
-                    {webhook.webhook_events.map((event) => (
-                      <Badge key={event} variant="secondary" className="text-xs">
-                        {WEBHOOK_EVENTS.find(e => e.id === event)?.label || event}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
+      <Alert>
+        <Info className="h-4 w-4" />
+        <AlertDescription>
+          Configure os webhooks na ordem: Evolution API → Sistema → n8n. 
+          O webhook da Evolution API é obrigatório para o funcionamento básico.
+        </AlertDescription>
+      </Alert>
 
-                {webhook.last_test_at && (
-                  <div className="flex items-center gap-2 text-sm">
-                    <span className="text-muted-foreground">Último teste:</span>
-                    <span>{new Date(webhook.last_test_at).toLocaleString()}</span>
-                    {webhook.last_test_status === 'success' ? (
-                      <Badge variant="default" className="bg-green-500">
-                        <CheckCircle className="w-3 h-3 mr-1" />Sucesso
-                      </Badge>
-                    ) : (
-                      <Badge variant="destructive">
-                        <XCircle className="w-3 h-3 mr-1" />Falhou
-                      </Badge>
-                    )}
-                  </div>
-                )}
+      <Tabs defaultValue="evolution" className="w-full">
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="evolution">Evolution API</TabsTrigger>
+          <TabsTrigger value="system">Sistema</TabsTrigger>
+          <TabsTrigger value="n8n">n8n Receive</TabsTrigger>
+          <TabsTrigger value="send">n8n Send</TabsTrigger>
+        </TabsList>
 
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleTestWebhook(webhook)}
-                  >
-                    <Play className="w-4 h-4 mr-2" />
-                    Testar
-                  </Button>
-                  
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => openEditDialog(webhook)}
-                  >
-                    <Edit className="w-4 h-4 mr-2" />
-                    Editar
-                  </Button>
+        <TabsContent value="evolution" className="space-y-4">
+          <WebhookConfigCard
+            title="Webhook Evolution API"
+            description="Webhook principal para receber eventos do WhatsApp via Evolution API"
+            type="evolution"
+            config={webhookConfigs.evolution}
+            onConfigure={configureEvolutionWebhook}
+            readOnly={true}
+          />
+          {!instanceName && (
+            <Alert>
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                Selecione uma instância específica para configurar o webhook da Evolution API.
+              </AlertDescription>
+            </Alert>
+          )}
+        </TabsContent>
 
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button variant="outline" size="sm">
-                        <Trash2 className="w-4 h-4 mr-2" />
-                        Excluir
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Confirmar Exclusão</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          Tem certeza que deseja excluir este webhook? Esta ação não pode ser desfeita.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                        <AlertDialogAction onClick={() => handleDeleteWebhook(webhook.id)}>
-                          Excluir
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
+        <TabsContent value="system" className="space-y-4">
+          <WebhookConfigCard
+            title="Webhook do Sistema"
+            description="Webhook para eventos internos do sistema (atendimentos, contatos, etc.)"
+            type="system"
+            config={webhookConfigs.system}
+          />
+        </TabsContent>
+
+        <TabsContent value="n8n" className="space-y-4">
+          <WebhookConfigCard
+            title="n8n Webhook de Recebimento"
+            description="URL gerada pelo n8n para receber mensagens do WhatsApp"
+            type="n8n_receive"
+            config={webhookConfigs.n8n_receive}
+          />
+          <Alert>
+            <Info className="h-4 w-4" />
+            <AlertDescription>
+              Esta URL deve ser configurada no webhook da Evolution API para enviar dados para o n8n.
+            </AlertDescription>
+          </Alert>
+        </TabsContent>
+
+        <TabsContent value="send" className="space-y-4">
+          <WebhookConfigCard
+            title="n8n Webhook de Envio"
+            description="URL gerada pelo n8n para enviar mensagens através do WhatsApp"
+            type="n8n_send"
+            config={webhookConfigs.n8n_send}
+          />
+          <Alert>
+            <Info className="h-4 w-4" />
+            <AlertDescription>
+              Esta URL deve ser usada no código do sistema para enviar mensagens via n8n.
+            </AlertDescription>
+          </Alert>
+        </TabsContent>
+      </Tabs>
+
+      {/* Resumo de Status */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Globe className="w-4 h-4" />
+            Resumo de Status dos Webhooks
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {Object.entries(webhookConfigs).map(([key, config]) => (
+              <div key={key} className="text-center">
+                <div className="flex items-center justify-center mb-2">
+                  {getStatusBadge(config.status)}
+                </div>
+                <div className="text-sm font-medium">{key.replace('_', ' ').toUpperCase()}</div>
+                <div className="text-xs text-muted-foreground">
+                  {config.enabled ? 'Habilitado' : 'Desabilitado'}
                 </div>
               </div>
-            </CardContent>
-          </Card>
-        ))}
-
-        {webhooks.length === 0 && (
-          <Card>
-            <CardContent className="flex flex-col items-center justify-center py-12">
-              <Webhook className="w-12 h-12 text-muted-foreground mb-4" />
-              <h3 className="text-lg font-medium mb-2">Nenhum webhook configurado</h3>
-              <p className="text-muted-foreground text-center mb-4">
-                Crie seu primeiro webhook para começar a receber eventos das instâncias
-              </p>
-              <Button onClick={() => { resetForm(); setEditingWebhook(null); setIsDialogOpen(true); }}>
-                <Plus className="w-4 h-4 mr-2" />
-                Criar Primeiro Webhook
-              </Button>
-            </CardContent>
-          </Card>
-        )}
-      </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

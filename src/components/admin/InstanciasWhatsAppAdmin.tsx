@@ -91,9 +91,7 @@ export function InstanciasWhatsAppAdmin() {
     deleteInstance,
     configureCompleteWebhook,
     checkWebhookStatus,
-    findWebhook,
-    loading: evolutionApiLoading,
-    isServiceAvailable
+    findWebhook
   } = useEvolutionAPIComplete();
 
   useEffect(() => {
@@ -141,23 +139,20 @@ export function InstanciasWhatsAppAdmin() {
           let qrCode = null;
           let webhookStatus: 'ativo' | 'inativo' | 'erro' = 'inativo';
           
-          // Só verificar status se o serviço Evolution API estiver disponível
-          if (isServiceAvailable) {
-            try {
-              const connectionState = await getConnectionState(instance.instance_name);
-              if (connectionState && connectionState.instance) {
-                connectionStatus = connectionState.instance.state || 'disconnected';
-                qrCode = connectionState.instance.qrcode || null;
-              }
-
-              // Verificar status do webhook
-              const webhookResult = await findWebhook(instance.instance_name);
-              if (webhookResult) {
-                webhookStatus = 'ativo';
-              }
-            } catch (error) {
-              console.error(`Erro ao verificar status da instância ${instance.instance_name}:`, error);
+          try {
+            const connectionState = await getConnectionState(instance.instance_name);
+            if (connectionState && connectionState.instance) {
+              connectionStatus = connectionState.instance.state || 'disconnected';
+              qrCode = connectionState.instance.qrcode || null;
             }
+
+            // Verificar status do webhook
+            const webhookResult = await findWebhook(instance.instance_name);
+            if (webhookResult) {
+              webhookStatus = 'ativo';
+            }
+          } catch (error) {
+            console.error(`Erro ao verificar status da instância ${instance.instance_name}:`, error);
           }
 
           return {
@@ -377,8 +372,8 @@ export function InstanciasWhatsAppAdmin() {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button onClick={loadData} variant="outline" disabled={loading || evolutionApiLoading}>
-            <RefreshCw className={`w-4 h-4 mr-2 ${(loading || evolutionApiLoading) ? 'animate-spin' : ''}`} />
+          <Button onClick={loadData} variant="outline" disabled={loading}>
+            <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
             Atualizar
           </Button>
           <Button 

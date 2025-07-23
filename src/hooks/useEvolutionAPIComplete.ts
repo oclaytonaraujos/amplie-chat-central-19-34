@@ -107,18 +107,14 @@ export function useEvolutionAPIComplete() {
   // Wrapper para executar operações com tratamento de erro
   const executeWithErrorHandling = useCallback(async <T>(
     operation: () => Promise<EvolutionAPIResponse<T>>,
-    operationName: string,
-    showLoadingToast = true
+    operationName: string
   ): Promise<T | null> => {
     if (!isServiceAvailable()) {
-      // Só mostrar erro se não estiver carregando
-      if (!loading && showLoadingToast) {
-        toast({
-          title: "Serviço indisponível",
-          description: "Configuração da Evolution API não foi carregada",
-          variant: "destructive",
-        });
-      }
+      toast({
+        title: "Serviço indisponível",
+        description: "Configuração da Evolution API não foi carregada",
+        variant: "destructive",
+      });
       return null;
     }
 
@@ -148,7 +144,7 @@ export function useEvolutionAPIComplete() {
       
       return null;
     }
-  }, [isServiceAvailable, loading, toast]);
+  }, [isServiceAvailable, toast]);
 
   // Teste de conectividade da API
   const testApiConnection = useCallback(async () => {
@@ -262,8 +258,7 @@ export function useEvolutionAPIComplete() {
   const getConnectionState = useCallback(async (instanceName: string) => {
     return executeWithErrorHandling(
       () => service!.getConnectionState(instanceName),
-      'Verificar estado da conexão',
-      false // Não mostrar toast de erro para verificação de estado
+      'Verificar estado da conexão'
     );
   }, [service, executeWithErrorHandling]);
 
@@ -470,8 +465,7 @@ export function useEvolutionAPIComplete() {
   const findWebhook = useCallback(async (instanceName: string) => {
     return executeWithErrorHandling(
       () => service!.getWebhook(instanceName),
-      'Buscar configuração de webhook',
-      false // Não mostrar toast de erro para verificação de webhook
+      'Buscar configuração de webhook'
     );
   }, [service, executeWithErrorHandling]);
 

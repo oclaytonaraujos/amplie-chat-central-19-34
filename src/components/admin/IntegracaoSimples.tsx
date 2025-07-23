@@ -3,15 +3,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
-import { AlertCircle, CheckCircle, Wifi, WifiOff, Settings, MessageSquare, Plus, Trash2, Edit, Save, X } from 'lucide-react';
+import { AlertCircle, Settings, Edit, Save, X, MessageSquare, ExternalLink } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
-import { useEvolutionIntegration } from '@/hooks/useEvolutionIntegration';
 import { useEvolutionApiConfig } from '@/contexts/EvolutionApiContext';
-import { CriarInstanciaDialog } from './CriarInstanciaDialog';
-import { QRCodeModal } from './QRCodeModal';
 
 interface EvolutionConfig {
   id?: string;
@@ -20,36 +15,18 @@ interface EvolutionConfig {
   ativo: boolean;
 }
 
-interface InstanciaWhatsApp {
-  id: string;
-  instance_name: string;
-  status: string;
-  numero?: string;
-  qr_code?: string;
-  ativo: boolean;
-  empresa_nome?: string;
-  descricao?: string;
-}
-
 export default function IntegracaoSimples() {
   const [configGlobal, setConfigGlobal] = useState<EvolutionConfig>({
     server_url: '',
     api_key: '',
     ativo: false
   });
-  const [instancias, setInstancias] = useState<InstanciaWhatsApp[]>([]);
-  const [showCreateDialog, setShowCreateDialog] = useState(false);
-  const [showQRModal, setShowQRModal] = useState(false);
-  const [selectedInstance, setSelectedInstance] = useState<InstanciaWhatsApp | null>(null);
-  const [qrCodeLoading, setQrCodeLoading] = useState(false);
   const [loading, setLoading] = useState(true);
   const [testando, setTestando] = useState(false);
-  const [conectado, setConectado] = useState(false);
   const [modoEdicao, setModoEdicao] = useState(false);
   const [configSalva, setConfigSalva] = useState(false);
   
   const { toast } = useToast();
-  const evolution = useEvolutionIntegration();
   const { config: globalConfig, updateConfig, isConfigured } = useEvolutionApiConfig();
 
   // Usar dados do contexto global
@@ -63,15 +40,12 @@ export default function IntegracaoSimples() {
       });
       setConfigSalva(true);
       setModoEdicao(false);
-      setConectado(true);
-    } else if (!evolution.loading) {
+    } else {
       setModoEdicao(true);
       setConfigSalva(false);
-      setConectado(false);
     }
-    setInstancias(evolution.instances);
-    setLoading(evolution.loading);
-  }, [globalConfig, evolution.instances, evolution.loading, isConfigured]);
+    setLoading(false);
+  }, [globalConfig, isConfigured]);
 
   const salvarConfiguracao = async () => {
     if (!configGlobal.server_url || !configGlobal.api_key) {
@@ -93,9 +67,10 @@ export default function IntegracaoSimples() {
     if (sucesso) {
       setConfigSalva(true);
       setModoEdicao(false);
-      setConectado(true);
-      // Recarregar instâncias após salvar configuração
-      await evolution.loadInstances();
+      toast({
+        title: "Configuração salva",
+        description: "Evolution API configurada com sucesso. Agora você pode gerenciar instâncias na aba 'Instâncias'.",
+      });
     }
     setTestando(false);
   };
@@ -117,90 +92,15 @@ export default function IntegracaoSimples() {
     }
   };
 
-  const handleCreateInstanceSuccess = () => {
-    evolution.loadInstances();
-  };
-
-  const deletarInstancia = async (instanceName: string) => {
-    await evolution.deleteInstance(instanceName);
-  };
-
-  const conectarInstancia = async (instancia: InstanciaWhatsApp) => {
-    setSelectedInstance(instancia);
-    setQrCodeLoading(true);
-    setShowQRModal(true);
-    
-    const result = await evolution.connectInstance(instancia.instance_name);
-    setQrCodeLoading(false);
-    
-    if (result) {
-      // Recarregar dados para pegar o QR code atualizado
-      await evolution.loadInstances();
-      // Atualizar a instância selecionada com os novos dados
-      const updatedInstance = evolution.instances.find(inst => inst.instance_name === instancia.instance_name);
-      if (updatedInstance) {
-        setSelectedInstance(updatedInstance);
-      }
-    } else {
-      setShowQRModal(false);
-      setSelectedInstance(null);
-    }
-  };
-
-  const refreshQRCode = async () => {
-    if (!selectedInstance) return;
-    
-    setQrCodeLoading(true);
-    const result = await evolution.connectInstance(selectedInstance.instance_name);
-    if (result) {
-      await evolution.loadInstances();
-      const updatedInstance = evolution.instances.find(inst => inst.instance_name === selectedInstance.instance_name);
-      if (updatedInstance) {
-        setSelectedInstance(updatedInstance);
-      }
-    }
-    setQrCodeLoading(false);
-  };
-
-  const logoutInstancia = async (instanceName: string) => {
-    await evolution.logoutInstance(instanceName);
-  };
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'connected':
-        return <CheckCircle className="w-4 h-4 text-green-500" />;
-      case 'connecting':
-        return <Wifi className="w-4 h-4 text-yellow-500" />;
-      default:
-        return <WifiOff className="w-4 h-4 text-red-500" />;
-    }
-  };
-
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'connected':
-        return <Badge variant="secondary" className="bg-green-100 text-green-800">Conectado</Badge>;
-      case 'connecting':
-        return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">Conectando</Badge>;
-      default:
-        return <Badge variant="secondary" className="bg-red-100 text-red-800">Desconectado</Badge>;
-    }
-  };
-
-  if (evolution.loading) {
+  if (loading) {
     return (
       <div className="space-y-6">
-        <div className="grid grid-cols-1 gap-6">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <Card key={i} className="animate-pulse">
-              <CardContent className="p-6">
-                <div className="h-4 bg-muted rounded w-3/4 mb-2"></div>
-                <div className="h-8 bg-muted rounded w-1/2"></div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+        <Card className="animate-pulse">
+          <CardContent className="p-6">
+            <div className="h-4 bg-muted rounded w-3/4 mb-2"></div>
+            <div className="h-8 bg-muted rounded w-1/2"></div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -208,9 +108,9 @@ export default function IntegracaoSimples() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold">Integração WhatsApp</h2>
+        <h2 className="text-2xl font-bold">Configuração da Evolution API</h2>
         <p className="text-muted-foreground">
-          Configure sua conexão com a Evolution API de forma simples
+          Configure a conexão global com sua Evolution API. Para gerenciar instâncias específicas, use a aba "Instâncias".
         </p>
       </div>
 
@@ -219,8 +119,8 @@ export default function IntegracaoSimples() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Settings className="w-5 h-5" />
-            Configuração da Evolution API
-            {isConfigured && <Badge variant="secondary" className="bg-green-100 text-green-800">Conectado</Badge>}
+            Configuração Global
+            {isConfigured && <Badge className="bg-green-100 text-green-800">Conectado</Badge>}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -286,122 +186,61 @@ export default function IntegracaoSimples() {
               </div>
             </div>
           )}
+
+          {/* Informações sobre configuração */}
+          <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <div className="flex items-start gap-3">
+              <div className="w-5 h-5 text-blue-600 mt-0.5">
+                <Settings className="w-5 h-5" />
+              </div>
+              <div className="flex-1">
+                <h4 className="font-medium text-blue-900 mb-1">Configuração Global da Evolution API</h4>
+                <p className="text-sm text-blue-700 mb-3">
+                  Esta configuração define a conexão principal com sua Evolution API. Todos os recursos de WhatsApp dependem desta configuração.
+                </p>
+                <div className="space-y-2 text-sm text-blue-700">
+                  <div className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 bg-blue-600 rounded-full"></span>
+                    <span><strong>URL do Servidor:</strong> Endereço da sua Evolution API</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 bg-blue-600 rounded-full"></span>
+                    <span><strong>Chave da API:</strong> Token de autenticação para acesso</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 bg-blue-600 rounded-full"></span>
+                    <span><strong>Webhook:</strong> Configurado automaticamente para integração</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </CardContent>
       </Card>
 
-      {/* Instâncias WhatsApp */}
+      {/* Card de gerenciamento de instâncias */}
       {isConfigured && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <MessageSquare className="w-5 h-5" />
-              Instâncias WhatsApp
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {/* Botão para criar nova instância */}
-            <div className="flex justify-between items-center">
-              <div>
-                <h3 className="font-medium">Gerenciar Instâncias</h3>
-                <p className="text-sm text-muted-foreground">Crie e gerencie suas instâncias WhatsApp</p>
-              </div>
-              <Button onClick={() => setShowCreateDialog(true)}>
-                <Plus className="w-4 h-4 mr-2" />
-                Nova Instância
-              </Button>
-            </div>
-
-            {/* Lista de instâncias */}
-            <div className="space-y-3">
-              {evolution.instances.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  <MessageSquare className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                  <p>Nenhuma instância criada ainda</p>
-                  <p className="text-sm">Crie sua primeira instância para começar</p>
+        <Card className="border-green-200 bg-green-50">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                  <MessageSquare className="w-5 h-5 text-green-600" />
                 </div>
-              ) : (
-                evolution.instances.map((instancia) => (
-                  <div key={instancia.id} className="flex items-center justify-between p-4 border rounded-lg">
-                    <div className="flex items-center gap-3">
-                      {getStatusIcon(instancia.status)}
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <div className="font-medium">{instancia.instance_name}</div>
-                          {instancia.empresa_nome && (
-                            <Badge variant="outline" className="text-xs">
-                              {instancia.empresa_nome}
-                            </Badge>
-                          )}
-                        </div>
-                        {instancia.numero && (
-                          <div className="text-sm text-muted-foreground">{instancia.numero}</div>
-                        )}
-                        {instancia.descricao && (
-                          <div className="text-xs text-muted-foreground">{instancia.descricao}</div>
-                        )}
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center gap-2">
-                      {getStatusBadge(instancia.status)}
-                      
-                      {instancia.status === 'disconnected' && (
-                        <Button 
-                          size="sm" 
-                          variant="outline"
-                          onClick={() => conectarInstancia(instancia)}
-                        >
-                          Conectar
-                        </Button>
-                      )}
-
-                      {(instancia.status === 'connected' || instancia.status === 'connecting') && (
-                        <Button 
-                          size="sm" 
-                          variant="outline"
-                          onClick={() => logoutInstancia(instancia.instance_name)}
-                        >
-                          Desconectar
-                        </Button>
-                      )}
-                      
-                      <Button 
-                        size="sm" 
-                        variant="destructive"
-                        onClick={() => deletarInstancia(instancia.instance_name)}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </div>
-                ))
-              )}
+                <div>
+                  <div className="font-medium text-green-900">Evolution API Configurada</div>
+                  <div className="text-sm text-green-700">Agora você pode gerenciar suas instâncias WhatsApp</div>
+                </div>
+              </div>
+              <Button variant="outline" className="border-green-300 text-green-700 hover:bg-green-100">
+                <MessageSquare className="w-4 h-4 mr-2" />
+                Gerenciar Instâncias
+                <ExternalLink className="w-4 h-4 ml-2" />
+              </Button>
             </div>
           </CardContent>
         </Card>
       )}
-
-      {/* Dialog para criar instância */}
-      <CriarInstanciaDialog
-        open={showCreateDialog}
-        onOpenChange={setShowCreateDialog}
-        onSuccess={handleCreateInstanceSuccess}
-      />
-
-      {/* Modal para mostrar QR Code */}
-      <QRCodeModal
-        open={showQRModal}
-        onOpenChange={(open) => {
-          setShowQRModal(open);
-          if (!open) {
-            setSelectedInstance(null);
-          }
-        }}
-        qrCode={selectedInstance?.qr_code}
-        instanceName={selectedInstance?.instance_name || ''}
-        onRefresh={refreshQRCode}
-        isLoading={qrCodeLoading}
-      />
 
       {/* Aviso se não estiver conectado */}
       {!isConfigured && (

@@ -5,13 +5,12 @@ import IntegracaoSimples from './IntegracaoSimples';
 import { InstanciasWhatsAppAdmin } from './InstanciasWhatsAppAdmin';
 
 export default function IntegracoesCentralizadas() {
-  console.log('IntegracoesCentralizadas: Renderizando...');
   return (
     <Tabs defaultValue="configuracao" className="space-y-6">
       <TabsList className="grid w-full grid-cols-3">
         <TabsTrigger value="configuracao" className="flex items-center gap-2">
           <Settings className="w-4 h-4" />
-          Configuração
+          API Global
         </TabsTrigger>
         <TabsTrigger value="instancias" className="flex items-center gap-2">
           <MessageSquare className="w-4 h-4" />

@@ -20,6 +20,8 @@ interface EvolutionInstance {
   ativo: boolean;
   empresa_nome?: string;
   descricao?: string;
+  webhook_url?: string;
+  webhook_events?: string[];
 }
 
 export function useEvolutionIntegration() {
@@ -85,7 +87,9 @@ export function useEvolutionIntegration() {
         qr_code: item.qr_code,
         ativo: item.ativo,
         empresa_nome: item.empresas?.nome,
-        descricao: item.descricao
+        descricao: item.descricao,
+        webhook_url: item.webhook_url,
+        webhook_events: item.webhook_events
       }));
 
       setInstances(instancesData);

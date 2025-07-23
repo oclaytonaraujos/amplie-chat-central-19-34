@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { useEvolutionIntegration } from '@/hooks/useEvolutionIntegration';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 interface QRCodeModalProps {
   isOpen: boolean;
@@ -225,6 +226,68 @@ export function WhatsAppConnectionManager() {
   const [isRefreshingQR, setIsRefreshingQR] = useState(false);
   const [operationLoading, setOperationLoading] = useState<Record<string, boolean>>({});
 
+  // Função para atualizar status da instância no banco
+  const updateInstanceStatus = useCallback(async (instanceName: string, status: string, connectionState: string) => {
+    try {
+      await supabase
+        .from('evolution_api_config')
+        .update({ 
+          status, 
+          connection_state: connectionState,
+          last_connected_at: status === 'connected' ? new Date().toISOString() : null
+        })
+        .eq('instance_name', instanceName);
+        
+      console.log(`Status atualizado para ${instanceName}: ${status}/${connectionState}`);
+    } catch (error) {
+      console.error('Erro ao atualizar status no banco:', error);
+    }
+  }, []);
+
+  // Função para configurar webhook na instância
+  const configureWebhook = useCallback(async (instanceName: string) => {
+    try {
+      if (!config.server_url || !config.api_key) {
+        throw new Error('Configuração Evolution API não encontrada');
+      }
+
+      const webhookUrl = 'https://obtpghqvrygzcukdaiej.supabase.co/functions/v1/whatsapp-webhook-evolution';
+      
+      const response = await fetch(`${config.server_url}/webhook/set/${instanceName}`, {
+        method: 'POST',
+        headers: {
+          'apikey': config.api_key,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          url: webhookUrl,
+          events: ['MESSAGES_UPSERT', 'CONNECTION_UPDATE', 'QRCODE_UPDATED']
+        })
+      });
+
+      if (response.ok) {
+        console.log('Webhook configurado com sucesso para:', instanceName);
+        
+        // Atualizar configuração no banco
+        await supabase
+          .from('evolution_api_config')
+          .update({ 
+            webhook_url: webhookUrl,
+            webhook_events: ['MESSAGES_UPSERT', 'CONNECTION_UPDATE', 'QRCODE_UPDATED']
+          })
+          .eq('instance_name', instanceName);
+          
+        return true;
+      } else {
+        console.error('Erro ao configurar webhook:', await response.text());
+        return false;
+      }
+    } catch (error) {
+      console.error('Erro ao configurar webhook:', error);
+      return false;
+    }
+  }, [config]);
+
   // Verificar estado das conexões periodicamente
   const checkConnectionStates = useCallback(async () => {
     if (!config.api_key || !config.server_url || instances.length === 0) return;
@@ -245,19 +308,45 @@ export function WhatsAppConnectionManager() {
           const data = await response.json();
           newStates[instance.instance_name] = data.instance?.state || 'disconnected';
           
-          // Se estava conectando e agora está conectado, fechar modal QR
+          // Se estava conectando e agora está conectado, fechar modal QR e atualizar banco
           if (
-            connectionStates[instance.instance_name] === 'connecting' &&
+            (connectionStates[instance.instance_name] === 'connecting' || connectionStates[instance.instance_name] === 'qr') &&
             data.instance?.state === 'open' &&
             selectedInstance === instance.instance_name &&
             showQRModal
           ) {
             setShowQRModal(false);
             setCurrentQR(null);
+            
+            // Atualizar status no banco para refletir conexão
+            updateInstanceStatus(instance.instance_name, 'connected', 'CONNECTED');
+            
             toast({
               title: "Conexão realizada!",
               description: `WhatsApp ${instance.instance_name} conectado com sucesso!`,
             });
+          }
+          
+          // Atualizar status no banco se houver mudança
+          if (connectionStates[instance.instance_name] !== data.instance?.state) {
+            let dbStatus = 'disconnected';
+            let dbConnectionState = 'DISCONNECTED';
+            
+            if (data.instance?.state === 'open') {
+              dbStatus = 'connected';
+              dbConnectionState = 'CONNECTED';
+              
+              // Verificar se precisa configurar webhook
+              if (!instance.webhook_url || instance.webhook_url !== 'https://obtpghqvrygzcukdaiej.supabase.co/functions/v1/whatsapp-webhook-evolution') {
+                console.log(`Configurando webhook para instância conectada: ${instance.instance_name}`);
+                configureWebhook(instance.instance_name);
+              }
+            } else if (data.instance?.state === 'connecting' || data.instance?.state === 'qr') {
+              dbStatus = 'connecting';
+              dbConnectionState = 'CONNECTING';
+            }
+            
+            updateInstanceStatus(instance.instance_name, dbStatus, dbConnectionState);
           }
         } else {
           newStates[instance.instance_name] = 'disconnected';
@@ -588,18 +677,29 @@ export function WhatsAppConnectionManager() {
                      )}
                      
                      {isConnected && (
-                       <Button
-                         onClick={() => handleDisconnect(instance.instance_name)}
-                         disabled={operationLoading[instance.instance_name]}
-                         variant="destructive"
-                       >
-                         {operationLoading[instance.instance_name] ? (
-                           <RefreshCw className="w-4 h-4 animate-spin mr-2" />
-                         ) : (
-                           <WifiOff className="w-4 h-4 mr-2" />
-                         )}
-                         Desconectar
-                       </Button>
+                       <>
+                         <Button
+                           onClick={() => handleDisconnect(instance.instance_name)}
+                           disabled={operationLoading[instance.instance_name]}
+                           variant="destructive"
+                         >
+                           {operationLoading[instance.instance_name] ? (
+                             <RefreshCw className="w-4 h-4 animate-spin mr-2" />
+                           ) : (
+                             <WifiOff className="w-4 h-4 mr-2" />
+                           )}
+                           Desconectar
+                         </Button>
+                         
+                         <Button
+                           onClick={() => configureWebhook(instance.instance_name)}
+                           variant="outline"
+                           size="sm"
+                         >
+                           <RefreshCw className="w-4 h-4 mr-2" />
+                           Sync Webhook
+                         </Button>
+                       </>
                      )}
                    </div>
                  </CardContent>
